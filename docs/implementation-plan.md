@@ -1,6 +1,6 @@
 # Tickonomics Implementation Plan
 
-**Last updated:** 2026-05-24
+**Last updated:** 2026-05-29
 **Branch:** `docs`
 
 ## Legend
@@ -54,18 +54,20 @@
 | Statistical routers/services                        | DONE    | EVT risk, macro shock, multiple testing, quantile regression, transfer entropy, yield curve. 6 service + 6 router modules. |
 | Request/response models                             | DONE    | app/models/requests.py, responses.py                                                                                       |
 | Health router                                       | DONE    | app/routers/health.py                                                                                                      |
-| Tests                                               | DONE    | 6 test files covering all services                                                                                         |
-| Econometrics (ADF, Granger, OLS)                    | PENDING |                                                                                                                            |
-| Risk metrics (VaR, CVaR, GARCH)                     | PENDING |                                                                                                                            |
-| Fixed income (duration, convexity, YTM)             | PENDING |                                                                                                                            |
-| Performance (Fama-French, Sharpe/Sortino)           | PENDING |                                                                                                                            |
-| v4 anomaly detection (autoencoder)                  | PENDING |                                                                                                                            |
-| v4 regime detection (GARCH, CNN-LSTM, QED, RAHF)    | PENDING |                                                                                                                            |
-| v4 online optimizer (SGD weight tuning)             | PENDING |                                                                                                                            |
-| v5 Sobol Monte Carlo, BSM Greeks, GEX               | PENDING |                                                                                                                            |
-| v5 liquidity analytics, backtesting scan            | PENDING |                                                                                                                            |
-| v5 FinBERT sentiment, Markov Stop Engine            | PENDING |                                                                                                                            |
-| v5 diagnostics, volatility forecast, explainability | PENDING |                                                                                                                            |
+| Tests                                               | DONE    | 27 test files, 151 total tests covering all services                                                                       |
+| Econometrics (ADF, Granger, OLS)                    | DONE    | ADF with AIC lag selection, Granger causality, OLS regression. Router wired into main.py.                                  |
+| Risk metrics (VaR, CVaR, GARCH)                     | DONE    | Historical/parametric VaR, CVaR (Expected Shortfall), GARCH(p,q) MLE forecasting. Router wired into main.py.               |
+| Fixed income (duration, convexity, YTM)             | DONE    | Macaulay/modified duration, convexity, Newton-Raphson YTM. 12 tests.                                                       |
+| Performance (Fama-French, Sharpe/Sortino)           | DONE    | Sharpe ratio, Sortino ratio, CAPM/3-factor Fama-French regression. 11 tests.                                               |
+| v4 anomaly detection (autoencoder)                  | DONE    | PyTorch autoencoder train/detect, `/api/v1/anomaly/train`, `/api/v1/anomaly/detect`. 8 tests.                              |
+| v4 regime detection (GARCH, CNN-LSTM, QED, RAHF)    | DONE    | GARCH regime, CNN-LSTM hybrid, QED quartic potential, RAHF harmonic. `/api/v1/regime/*`. 10 tests.                         |
+| v4 online optimizer (SGD weight tuning)             | DONE    | Constrained SGD weight-delta with sum-to-one projection. `/api/v1/optimizer/weight-delta`. 8 tests.                        |
+| v4 climate model (stochastic simulation)            | DONE    | Euler-Maruyama SDE with mean-reversion + seasonal forcing. `/api/v1/climate/simulate`. 4 tests.                            |
+| v4 drift-diffusion (Ito process)                    | DONE    | Ito process simulation + barrier hitting probability. `/api/v1/drift/simulate`, `/api/v1/drift/barrier`. 5 tests.          |
+| v5 Sobol Monte Carlo, BSM Greeks, GEX               | DONE    | Sobol quasi-random MC, discrete monitoring correction, BSM closed-form Greeks, GEX aggregation. `/api/v1/simulate/*`, `/api/v1/greeks/*`. 13 tests. |
+| v5 liquidity analytics, backtesting scan            | DONE    | Comovement PCA, Amihud illiquidity, strategic run detection, Sobol robustness scan, RDS scoring. `/api/v1/liquidity/*`, `/api/v1/backtest/*`, `/api/v1/reproducibility/*`. 19 tests. |
+| v5 FinBERT sentiment, Markov Stop Engine            | DONE    | Lexicon-based sentiment with negation/intensifier support, SALI polarity scoring, Markov stop-loss/take-profit calibration. `/api/v1/sentiment/*`, `/api/v1/stops/calibrate`. 10 tests. |
+| v5 diagnostics, volatility forecast, explainability | DONE    | QQ-plot/ACF/convergence diagnostics, GARCH volatility forecast, benchmark tournament, SHAP feature importance, Q-World CIR bond pricer, T-Bill Greeks. `/api/v1/diagnostics/*`, `/api/v1/analytics/volatility-forecast`, `/api/v1/tournament/*`, `/api/v1/explainability/*`, `/api/v1/fixed-income/q-world-fair-value`, `/api/v1/fixed-income/tbill-greeks`. 21 tests. |
 
 ---
 
@@ -114,12 +116,12 @@
 | Tests (12 files)                                     | DONE    | Unit tests for audit, backtest, equity, fixed income, options, talib, transport                                                                                                                                                                                                                               |
 | NormalizationService                                 | DONE    | Tiered Z-score (MACRO 252d, FLOW 60d, VOLATILITY 20d), percentile rank computation                                                                                                                                                                                                                            |
 | IliCalculator                                        | DONE    | ILI = w1*Z_rrp + w2*Z_spread - w3*Z_vol. Dynamic weight redistribution. VALID/DEGRADED/DISLOCATED statuses.                                                                                                                                                                                                   |
-| CorrelationEngine                                    | PENDING | Pre-computed aggregates + TA-Lib live                                                                                                                                                                                                                                                                         |
-| GrangerCausalityTest                                 | PENDING | Python analytics worker client                                                                                                                                                                                                                                                                                |
-| RegimeDetector                                       | PENDING | GARCH delegation model                                                                                                                                                                                                                                                                                        |
-| IntradayProxyService                                 | PENDING | Proxy divergence guard                                                                                                                                                                                                                                                                                        |
+| CorrelationEngine                                    | DONE    | Pre-computed aggregates + TA-Lib live (Pearson correlation, OLS beta). 3 tests.                                                                                                                                                                                                                              |
+| GrangerCausalityTest                                 | DONE    | Delegates to Python analytics worker /api/v1/econometrics/granger. RestClientAnalyticsWorkerClient impl. 8 tests.                                                                                                                                                                                           |
+| RegimeDetector                                       | DONE    | Volatility percentile analysis, exogenous shock override, rolling vol. 7 tests.                                                                                                                                                                                                                              |
+| IntradayProxyService                                 | DONE    | Proxy quality monitoring with divergence detection (NORMAL/ELEVATED/DISLOCATED). 5 tests.                                                                                                                                                                                                                   |
 | SignalGenerator                                      | DONE    | Percentile-rank adaptive thresholds, cooldown, transaction cost modeling, 5 status codes                                                                                                                                                                                                                      |
-| KpiProcessor                                         | PENDING | LSI, Repo/Equity Beta, RRP Drain                                                                                                                                                                                                                                                                              |
+| KpiProcessor                                         | DONE    | 6 KPIs (LSI, Repo/Equity Beta, RRP Drain Velocity, Volatility Regime, Efficiency Gap, Systemic Risk Heatmap). 11 tests.                                                                                                                                                                                      |
 | v4 AdaptiveIliCalculator, BayesianWeightOptimizer    | PENDING |                                                                                                                                                                                                                                                                                                               |
 | v5 DiscreteMonitoringCorrection, ReturnGapCalculator | PENDING |                                                                                                                                                                                                                                                                                                               |
 | v5 AumfScenarioEngine, GexWeightedRegimeDetector     | PENDING |                                                                                                                                                                                                                                                                                                               |
@@ -197,7 +199,8 @@
 
 ## Next Priority Tracks
 
-1. **Track 2** (Database Schema) - Complete V1-V18 Flyway migrations, JPA entities, repositories
-2. **Track 4** (Ingestion Layer) - FredClient, NyFedClient, PolygonWs, TimescaleDbWriter
-3. **Track 3** (Analytics Worker) - Econometrics, risk metrics, fixed income endpoints
-4. **Track 5** (Computation Engine) - NormalizationService, IliCalculator, SignalGenerator
+1. **Track 3** (Analytics Worker) - Fixed income (duration, convexity, YTM), Performance (Fama-French, Sharpe/Sortino), v4/v5 services
+2. **Track 4** (Ingestion Layer) - Disk-backed buffer, idempotency, last known good cache, bulkhead, OTel tracing
+3. **Track 5** (Computation Engine) - GrangerCausalityTest, IntradayProxyService, v4/v5 additions
+4. **Track 6** (Landing Page) - Next.js 15 marketing page
+5. **Track 7** (Analytics Dashboard) - Next.js 15 SPA
