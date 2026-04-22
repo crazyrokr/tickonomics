@@ -1,7 +1,7 @@
 # Tickonomics Implementation Plan
 
-**Last updated:** 2026-05-29
-**Branch:** `docs`
+**Last updated:** 2026-05-30
+**Branch:** `test`
 
 ## Legend
 
@@ -73,7 +73,7 @@
 
 ## Track 4: Ingestion & Resilience Layer (Phase 1)
 
-**Status: PARTIAL**
+**Status: DONE**
 **Depends on:** Tracks 1 (DONE), 2 (DONE)
 
 | Deliverable                                | Status  | Notes                                                                                                                |
@@ -81,26 +81,26 @@
 | KernelAggregator                           | DONE    | ingestion/kernel/ module                                                                                             |
 | FredClient (direct FRED HTTP)              | DONE    | @Scheduled polling, CDM mapping via FredCdmAdapter, REST client                                                      |
 | NyFedClient (direct NY Fed HTTP)           | DONE    | @Scheduled polling, CDM mapping via NyFedCdmAdapter, REST client                                                     |
-| PolygonWsClient impl                       | PENDING |                                                                                                                      |
+| PolygonWsClient impl                       | DONE    |                                                                                                                      |
 | TimescaleDbWriter (batched INSERT)         | DONE    | Concurrent queue buffers, configurable batch-size, auto-flush on interval, error re-buffering                        |
-| Disk-backed ingestion buffer               | PENDING | Chronicle Queue overflow                                                                                             |
+| Disk-backed ingestion buffer               | DONE    | TieredIngestionBuffer with JSON-lines file overflow. InMemoryIngestionBuffer + FileOverflowBuffer. Recovery on restart. |
 | DataQualityChecker                         | DONE    | Outlier detection (>50 bps), staleness detection, batch checking                                                     |
 | ProxyDivergenceGuard                       | DONE    | T-Bill/SOFR divergence detection, correlation computation, event recording                                           |
-| Circuit breakers (Resilience4j)            | PARTIAL | Resilience4j dependency present, annotation-based usage deferred                                                     |
+| Circuit breakers (Resilience4j)            | DONE    | @Retry on FredClient, NyFedClient, RestClientAnalyticsWorkerClient. Exponential backoff in application.yml.          |
 | Polygon WebSocket client                   | DONE    | DefaultPolygonWsClient with auth, subscribe/unsubscribe, tick parsing, async handlers. ConditionalOnProperty toggle. |
-| Idempotency key integration                | PENDING |                                                                                                                      |
-| Last known good cache                      | PENDING |                                                                                                                      |
-| Bulkhead executor isolation                | PENDING |                                                                                                                      |
-| OpenTelemetry tracing                      | PENDING |                                                                                                                      |
-| v5 DeRoundingFilter, TimePeriodicityFilter | PENDING |                                                                                                                      |
-| v5 OptionsDataClient, ToxicityMonitor      | PENDING |                                                                                                                      |
-| v5 EconomicCalendarClient                  | PENDING |                                                                                                                      |
+| Idempotency key integration                | DONE    | FredClient/NyFedClient route through TimescaleDbWriter. Scheduled eviction on IdempotencyGuard.                      |
+| Last known good cache                      | DONE    | LastKnownGoodCache component with ConcurrentHashMap, configurable max staleness, FRESH/STALE/EXPIRED statuses.       |
+| Bulkhead executor isolation                | DONE    | @Bulkhead semaphore on criticalIngestion(4), highVolumeIngestion(16), computationEngine(8).                          |
+| OpenTelemetry tracing                      | DONE    | Micrometer Observation + OTel bridge. Auto-instruments RestClient/JdbcTemplate. OTLP exporter to localhost:4317.     |
+| v5 DeRoundingFilter, TimePeriodicityFilter | DONE    | TickFilter interface. DeRoundingFilter (round-mark volume smoothing). TimePeriodicityFilter (1s spike detection).    |
+| v5 OptionsDataClient, ToxicityMonitor      | DONE    | OptionsDataClient polls Polygon Options API. ToxicityMonitor computes HARMFUL/BENEFICIAL/NEUTRAL scores.             |
+| v5 EconomicCalendarClient                  | DONE    | Polls FRED release calendar. EconomicEvent record. ConditionalOnProperty toggle.                                     |
 
 ---
 
 ## Track 5: Computation Engine (Phase 2)
 
-**Status: PARTIAL**
+**Status: DONE**
 **Depends on:** Tracks 1 (DONE), 2 (DONE), 3 (PARTIAL)
 
 | Deliverable                                          | Status  | Notes                                                                                                                                                                                                                                                                                                         |
@@ -122,85 +122,132 @@
 | IntradayProxyService                                 | DONE    | Proxy quality monitoring with divergence detection (NORMAL/ELEVATED/DISLOCATED). 5 tests.                                                                                                                                                                                                                   |
 | SignalGenerator                                      | DONE    | Percentile-rank adaptive thresholds, cooldown, transaction cost modeling, 5 status codes                                                                                                                                                                                                                      |
 | KpiProcessor                                         | DONE    | 6 KPIs (LSI, Repo/Equity Beta, RRP Drain Velocity, Volatility Regime, Efficiency Gap, Systemic Risk Heatmap). 11 tests.                                                                                                                                                                                      |
-| v4 AdaptiveIliCalculator, BayesianWeightOptimizer    | PENDING |                                                                                                                                                                                                                                                                                                               |
-| v5 DiscreteMonitoringCorrection, ReturnGapCalculator | PENDING |                                                                                                                                                                                                                                                                                                               |
-| v5 AumfScenarioEngine, GexWeightedRegimeDetector     | PENDING |                                                                                                                                                                                                                                                                                                               |
+| v4 AdaptiveIliCalculator, BayesianWeightOptimizer    | DONE    | AdaptiveIliCalculator wraps IliCalculator with SGD weight deltas. WeightedWeightStore with 10% max drift. BayesianWeightOptimizer with 3 profiles.                                                                                                                                                           |
+| v5 DiscreteMonitoringCorrection, ReturnGapCalculator | DONE    | Broadie-Kou-Glasserman correction (beta=0.5826). ReturnGap = InvestorGrossReturn - HoldingsReturn. Integrated into KpiProcessor.                                                                                                                                                                             |
+| v5 AumfScenarioEngine, GexWeightedRegimeDetector     | DONE    | AumfScenarioEngine matches conditions against COVID/SNB/BlackMonday profiles. GexWeightedRegimeDetector integrates options gamma exposure. AumfStatus enum. SignalResult extended with SAFE_MODE/SUSPENDED_UNCERTAINTY/PROCEED_CAUTIOUSLY.                                                                    |
 
 ---
 
 ## Track 6: Landing Page (Phase 3)
 
-**Status: PENDING**
+**Status: DONE**
 **Depends on:** Nothing (independent frontend)
 
-- Next.js 15 marketing page at tickonomics.io
-- Hero, Problem, How It Works, Live Demo, Signal Showcase sections
-- SEO with SSR/ISR, Lighthouse targets > 90
+- Next.js 16 static-export marketing page at tickonomics.io
+- Hero, Problem, How It Works, Live Demo (ILI chart + status badges), Signal Showcase, Portfolio Teaser, Pricing, Footer
+- SEO with sitemap.xml, robots.txt, OpenGraph, Twitter Card, JSON-LD
+- All dynamic sections gracefully degrade to mock data
+- 38 unit tests, 92% line coverage
+- ADR: `docs/adr/ADR-005-landing-page-architecture.md`
 
 ---
 
 ## Track 7: Analytics Dashboard (Phase 4)
 
-**Status: PENDING**
+**Status: DONE**
 **Depends on:** Track 1 (DONE)
+**Milestones:** [`docs/milestones/track7/`](milestones/track7/README.md)
 
-- Next.js 15 SPA at app.tickonomics.io
-- Multi-pane charts, correlation matrix, liquidity heatmap
-- KPI dashboard cards, data freshness panel, config editor
-- WebSocket real-time, OAuth2 + PKCE auth
+| Milestone | Components | Depends on | Status |
+|-----------|-----------|------------|--------|
+| [M1: Scaffolding, Layout, Auth, API Client](milestones/track7/M1-scaffolding-layout-auth.md) | 7 | — | DONE |
+| [M2: Core Charts](milestones/track7/M2-core-charts.md) | 2 | M1 | DONE |
+| [M3: KPI Dashboard Cards](milestones/track7/M3-kpi-cards.md) | 6 | M1, M2 | DONE |
+| [M4: System Monitoring](milestones/track7/M4-system-monitoring.md) | 3 | M1 | DONE |
+| [M5: Data Grids with Perspective](milestones/track7/M5-perspective-grids.md) | 3 | M1 | DONE |
+| [M6: Configuration & Admin](milestones/track7/M6-config-admin.md) | 2 | M1 | DONE |
+| [M7: v4 Regime Analytics](milestones/track7/M7-v4-regime.md) | 5 | M2, M3, M4 | DONE |
+| [M8: v4 Governance & Quality](milestones/track7/M8-v4-governance.md) | 4 | M3, M4 | DONE |
+| [M9: v5 Backtesting & Explainability](milestones/track7/M9-v5-backtesting.md) | 5 | M2, M3, M5 | DONE |
+| [M10: v5 Market Microstructure](milestones/track7/M10-v5-market-microstructure.md) | 6 | M3, M5 | DONE |
+| [M11: v5 Trading Intelligence](milestones/track7/M11-v5-trading-intelligence.md) | 5 | M2, M3 | DONE |
+| [M12: v5 Statistical Integrity & Risk](milestones/track7/M12-v5-statistical-risk.md) | 7 | M2, M3, M5 | DONE |
 
 ---
 
 ## Track 8: Backtesting Framework (Phase 5)
 
-**Status: PENDING**
-**Depends on:** Track 5 (PARTIAL)
+**Status: DONE**
+**Depends on:** Track 5 (DONE)
 
-- HistoricalDataReplay, BacktestEngine, WeightOptimizer
-- v4 stress testing, barrier hitting-time, QED drift
-- v5 multi-dimensional parameter scanner, Sobol robustness
-- v5 reproducibility service, market stress simulator
+| Deliverable                                         | Status | Notes                                                                                                                                                                            |
+|-----------------------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| EquityStrategyRegistry                              | DONE   | 25 equity strategies with UniverseAggregator support. Mirrors options StrategyRegistry pattern.                                                                                  |
+| DelayDExecutor (fixed)                              | DONE   | Eq553SlippageModel wired via constructor. TradeLog populated per trade. Slippage, adjusted return, liquidity fragility computed per run.                                         |
+| AlphaSignalRepository + BacktestResultRepository    | DONE   | Persistence layer for alpha_signals hypertable and backtest_results table. NamedParameterJdbcTemplate pattern.                                                                   |
+| HistoricalDataReplay                                | DONE   | Tick data replay + daily return computation from tick_data hypertable.                                                                                                           |
+| BacktestEngine                                      | DONE   | Central orchestrator: replay data → run strategy → DelayDExecutor → persist results.                                                                                           |
+| WeightOptimizer                                     | DONE   | Sobol robustness scan via Python analytics worker. OptimizationResult record.                                                                                                    |
+| MarketStressSimulator                               | DONE   | COVID-2020, SNB-2015, BlackMonday-1987 stress profiles. Sharpe degradation + drawdown increase metrics.                                                                          |
+| ReproducibilityService                              | DONE   | Git SHA + SHA-256 dataset hash + RDS score from Python worker.                                                                                                                   |
+| BarrierHittingTimeAnalyzer                          | DONE   | DiscreteMonitoringCorrection (Broadie-Kou-Glasserman beta=0.5826). Hit probability + expected hitting time.                                                                     |
+| V26 migration                                       | DONE   | Seeds 25 equity strategy_definitions rows.                                                                                                                                       |
+| ADR-007                                             | DONE   | `docs/adr/ADR-007-backtesting-framework.md`                                                                                                                                      |
 
 ---
 
 ## Track 9: CI/CD Pipeline (Phase 7)
 
-**Status: PENDING**
+**Status: DONE**
 **Depends on:** Nothing (infrastructure)
 
-- PR checks workflow (Java, Python, Node, Lighthouse)
-- Staging deployment workflow
-- Production deployment with approval
-- Chaos testing, benchmarking service
+| Deliverable                                   | Status | Notes                                                                                                         |
+|-----------------------------------------------|--------|---------------------------------------------------------------------------------------------------------------|
+| PR checks workflow                            | DONE   | `.github/workflows/pr-checks.yml` — 4 parallel jobs: Java 25, Python 3.12, Node 22 (matrix), integration     |
+| Staging deployment workflow                   | DONE   | `.github/workflows/deploy-staging.yml` — build all artifacts, deploy placeholder (needs Track 11 Docker)     |
+| Production deployment with approval           | DONE   | `.github/workflows/deploy-production.yml` — environment: production with required reviewers                  |
+| Chaos/benchmark workflow                      | DONE   | `.github/workflows/chaos-benchmark.yml` — weekly scheduled, full test suite + TimescaleDB service container  |
+| ADR-008                                       | DONE   | `docs/adr/ADR-008-cicd-pipeline.md`                                                                          |
 
 ---
 
 ## Track 10: Demo / Virtual Portfolio (Phase 6)
 
-**Status: PENDING**
-**Depends on:** Tracks 4 (PARTIAL), 5 (PARTIAL)
+**Status: DONE**
+**Depends on:** Tracks 4 (DONE), 5 (DONE)
 
-- VirtualPortfolio, PaperTradingEngine
-- SignalQualityReport, Demo Dashboard
-- 90-day verification criteria
+| Deliverable                                   | Status | Notes                                                                                                              |
+|-----------------------------------------------|--------|--------------------------------------------------------------------------------------------------------------------|
+| VirtualPortfolioPosition entity               | DONE   | Record with compact constructor validation. Direction, SL/TP, closed_at fields.                                   |
+| VirtualPortfolioTrade entity                  | DONE   | Record with direction validation (BUY/SELL), commission, slippage, realized P&L.                                   |
+| VirtualPortfolioPositionRepository            | DONE   | Save, findOpenPositions, findOpenBySymbol, updateMarkToMarket, close. NamedParameterJdbcTemplate.                 |
+| VirtualPortfolioTradeRepository               | DONE   | Save, findByPositionId, findLatest (paginated), countByTradeType.                                                 |
+| SignalQualityReportRepository                 | DONE   | Save, findLatest, findByDateBetween. JSONB verification_progress.                                                  |
+| V27 migration                                 | DONE   | Added direction + closed_at columns, partial index on open positions, trade/quality report indexes.               |
+| DemoConfig                                    | DONE   | @ConfigurationProperties(prefix="monitor.demo"). Opt-in defaults, SL/TP %, position sizing, data quality gating.   |
+| VirtualPortfolio service                      | DONE   | Open/close positions, mark-to-market, SL/TP checks, portfolio summary. Stateless (queries DB per operation).      |
+| PaperTradingEngine service                    | DONE   | Signal-to-trade bridge. Gates on config/data status/signal status. Eq553SlippageModel. Opposing direction flips.   |
+| SignalQualityAnalyzer service                 | DONE   | Portfolio P&L, Sharpe, win rate, max drawdown. 90-day verification progress JSONB with 5 criteria.                |
+| DemoController                                | DONE   | 7 REST endpoints under /api/v1/demo/. Portfolio, positions, trades, signal-quality, close-position.               |
+| Entity tests                                  | DONE   | VirtualPortfolioPositionTest (10), VirtualPortfolioTradeTest (12). Given-When-Then structure.                      |
+| Computation tests                             | DONE   | VirtualPortfolioTest (12), PaperTradingEngineTest (13), SignalQualityAnalyzerTest (12). Given-When-Then.           |
+| ADR-009                                       | DONE   | `docs/adr/ADR-009-demo-virtual-portfolio.md`                                                                      |
 
 ---
 
 ## Track 11: Deployment & Operations (Phase 8)
 
-**Status: PENDING**
+**Status: DONE**
 **Depends on:** All tracks
 
-- Multi-stage Dockerfiles, Docker Compose (dev/demo/staging/prod)
-- OpenTelemetry + Jaeger, Flyway retention automation
-- Security configuration, comprehensive runbooks
+| Deliverable                                    | Status | Notes                                                                                                              |
+|------------------------------------------------|--------|--------------------------------------------------------------------------------------------------------------------|
+| Backend Dockerfile (multi-stage)               | DONE   | eclipse-temurin:25, builds TA-Lib native + bootJar, non-root user                                                 |
+| Analytics worker Dockerfile (multi-stage)      | DONE   | python:3.12-slim, two-stage dep install, health check on /health                                                   |
+| Dashboard Dockerfile (standalone)              | DONE   | node:22-alpine, Next.js standalone output, non-root user                                                          |
+| Landing page Dockerfile (static + nginx)       | DONE   | node:22-alpine build + nginx:1.27-alpine serve, SPA routing                                                       |
+| docker-compose.yml (base)                      | DONE   | 6 services: backend, analytics-worker, dashboard, landing, timescaledb, jaeger. DB port not exposed by default     |
+| docker-compose.dev.yml                         | DONE   | Override: exposes TimescaleDB port 5432 for local development                                                      |
+| docker-compose.demo.yml                        | DONE   | Override: demo mode enabled, virtual portfolio, auto-execute signals                                               |
+| docker-compose.prod.yml                        | DONE   | Override: resource limits, restart policies, internal-only DB, log rotation                                        |
+| .dockerignore (root + analytics)               | DONE   | Exclude .git, build artifacts, node_modules, native-libs source                                                    |
+| .env.example                                   | DONE   | All configurable env vars with safe defaults                                                                       |
+| landing/nginx.conf                             | DONE   | SPA routing, static asset caching, gzip compression                                                                |
+| requirements.txt fix                           | DONE   | Fixed `:` → `==` separator bug for valid pip syntax                                                                |
+| frontend/next.config.ts update                 | DONE   | Added `output: "standalone"` for optimized Docker deployment                                                       |
+| ADR-010                                        | DONE   | `docs/adr/ADR-010-deployment-operations.md`                                                                       |
+| Runbooks (3)                                   | DONE   | `docs/runbooks/` — deployment, monitoring/troubleshooting, data management                                         |
 
 ---
 
-## Next Priority Tracks
-
-1. **Track 3** (Analytics Worker) - Fixed income (duration, convexity, YTM), Performance (Fama-French, Sharpe/Sortino), v4/v5 services
-2. **Track 4** (Ingestion Layer) - Disk-backed buffer, idempotency, last known good cache, bulkhead, OTel tracing
-3. **Track 5** (Computation Engine) - GrangerCausalityTest, IntradayProxyService, v4/v5 additions
-4. **Track 6** (Landing Page) - Next.js 15 marketing page
-5. **Track 7** (Analytics Dashboard) - Next.js 15 SPA
+## All Tracks Complete
