@@ -28,3 +28,4 @@ replay_pid*
 **/build/*
 ssrn-*.pdf
 .gitignore
+**/__pycache__/*
