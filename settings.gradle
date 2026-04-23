@@ -1,0 +1,11 @@
+rootProject.name = 'tickonomics'
+
+include 'api-contracts'
+include 'cdm'
+include 'ingestion'
+include 'computation'
+include 'persistence'
+include 'web'
+include 'app'
+include 'integration-tests'
+include 'analytics'

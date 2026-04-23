@@ -1,0 +1,111 @@
+openapi: 3.1.0
+info:
+  title: Tickonomics API
+  version: 1.0.0
+  description: API for the Tickonomics Quantitative Engine.
+
+paths:
+  /api/v1/quant/strategies/active:
+    get:
+      summary: List all active strategies and their current status.
+      responses:
+        200:
+          description: List of active strategies with formula references.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StrategyStatus'
+
+  /api/v1/quant/strategies/options/butterfly:
+    post:
+      summary: Calculate butterfly spread signal (Eq. 79-100).
+      parameters:
+        - name: underlying
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlphaSignal'
+
+  /api/v1/quant/risk/tail-parameters:
+    get:
+      summary: Retrieve Generalized Pareto Distribution (GPD) parameters for tail-risk assessment.
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvtMetric'
+
+  /api/v1/quant/audit/intersubjective-reproducibility/{id}:
+    get:
+      summary: Forensic reconstruction path (Coding Rules) for a specific data point.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntersubjectivePath'
+
+components:
+  schemas:
+    StrategyStatus:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        category: { type: string }
+        formula_refs: { type: array, items: { type: string } }
+        active: { type: boolean }
+
+    AlphaSignal:
+      type: object
+      required: [timestamp, strategyId, symbol, direction]
+      properties:
+        timestamp: { type: string, format: date-time }
+        strategyId: { type: string, format: uuid }
+        symbol: { type: string }
+        direction: { type: string, enum: [LONG, SHORT, NEUTRAL] }
+        strength: { type: number, format: double }
+        confidence: { type: number, format: double }
+        expected_move: { type: number, format: double }
+        metrics:
+          type: object
+          additionalProperties: { type: number }
+
+    EvtMetric:
+      type: object
+      properties:
+        shape_xi: { type: number, format: double }
+        scale_beta: { type: number, format: double }
+        threshold_u: { type: number, format: double }
+        tail_var_999: { type: number, format: double }
+
+    IntersubjectivePath:
+      type: object
+      properties:
+        signalId: { type: string, format: uuid }
+        path:
+          type: array
+          items:
+            type: object
+            properties:
+              ruleName: { type: string }
+              ruleVersion: { type: string }
+              inputHash: { type: string }
+              outputValue: { type: number, format: double }
+              irScore: { type: number, format: double }
