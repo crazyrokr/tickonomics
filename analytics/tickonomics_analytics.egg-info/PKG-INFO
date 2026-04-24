@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: tickonomics-analytics
+Version: 0.1.0
+Requires-Python: >=3.12
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn>=0.34.0
+Requires-Dist: pydantic>=2.10.0
+Requires-Dist: numpy>=2.0.0
+Requires-Dist: scipy>=1.14.0
+Requires-Dist: statsmodels>=0.14.0
+Requires-Dist: pyarrow>=18.0.0
+Provides-Extra: test
+Requires-Dist: pytest>=8.0; extra == "test"
+Requires-Dist: httpx>=0.28.0; extra == "test"

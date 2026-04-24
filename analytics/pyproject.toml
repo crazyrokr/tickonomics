@@ -1,0 +1,19 @@
+[project]
+name = "tickonomics-analytics"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "pydantic>=2.10.0",
+    "numpy>=2.0.0",
+    "scipy>=1.14.0",
+    "statsmodels>=0.14.0",
+    "pyarrow>=18.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "httpx>=0.28.0",
+]
