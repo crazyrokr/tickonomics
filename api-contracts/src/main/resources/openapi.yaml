@@ -44,6 +44,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/EvtMetric'
 
+  /api/v1/quant/signals/active:
+    get:
+      summary: Retrieve currently active alpha signals.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of active alpha signals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlphaSignal'
+
+  /api/v1/quant/risk/evt-tail:
+    get:
+      summary: Retrieve EVT tail model output including IRF vectors.
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  irfVector:
+                    $ref: '#/components/schemas/IrfVector'
+
+  /api/v1/quant/macro/shock-response:
+    get:
+      summary: Retrieve structural VAR impulse response for macro shock analysis.
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  irfVector:
+                    $ref: '#/components/schemas/IrfVector'
+
   /api/v1/quant/audit/intersubjective-reproducibility/{id}:
     get:
       summary: Forensic reconstruction path (Coding Rules) for a specific data point.
@@ -109,3 +154,19 @@ components:
               inputHash: { type: string }
               outputValue: { type: number, format: double }
               irScore: { type: number, format: double }
+
+    IrfVector:
+      type: object
+      properties:
+        horizon:
+          type: array
+          items: { type: integer }
+        response_path:
+          type: array
+          items: { type: number, format: double }
+        confidence_high:
+          type: array
+          items: { type: number, format: double }
+        confidence_low:
+          type: array
+          items: { type: number, format: double }
