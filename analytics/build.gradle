@@ -1,1 +1,10 @@
-// Python FastAPI module - see analytics/requirements.txt and analytics/pyproject.toml
+import ru.vyarus.gradle.plugin.python.task.PythonTask
+
+plugins {
+  id 'ru.vyarus.use-python' version '4.1.0'
+}
+
+tasks.register('pytest', PythonTask) {
+  module = 'pytest'
+  command = ['tests', '--junitxml=build/test-results/pytest/results.xml']
+}
