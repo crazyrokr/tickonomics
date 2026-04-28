@@ -86,15 +86,20 @@ sourceSets {
 }
 
 tasks.withType(Test).configureEach {
-    jvmArgs "-Djna.library.path=${talibNativeDir.dir('build').asFile.absolutePath}"
+    jvmArgs "-Djna.library.path=${talibNativeDir.dir('build').asFile.absolutePath}",
+            "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+            "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED"
 }
 
 // --- Dependencies ---
 dependencies {
     api project(':cdm')
+    api project(':api-contracts')
     implementation project(':persistence')
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
+    implementation 'org.apache.arrow:arrow-vector:18.3.0'
+    implementation 'org.apache.arrow:arrow-memory-unsafe:18.3.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-core'
