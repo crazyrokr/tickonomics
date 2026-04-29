@@ -8,3 +8,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     runtimeOnly 'org.postgresql:postgresql'
 }
+
+bootJar {
+  mainClass = "com.tickonomics.TickonomicsApplication"
+}
