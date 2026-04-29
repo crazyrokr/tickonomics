@@ -77,8 +77,8 @@ public class ArrowIpcTransport {
     }
 
     public byte[] serializeAnalysisResult(Map<String, double[]> columns) {
-        List<Field> fields = columns.entrySet().stream()
-                .map(e -> new Field(e.getKey(), FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)), null))
+        List<Field> fields = columns.keySet().stream()
+                .map(name -> new Field(name, FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)), null))
                 .toList();
         Schema schema = new Schema(fields);
         try (VectorSchemaRoot root = VectorSchemaRoot.create(schema, allocator)) {

@@ -8,6 +8,6 @@ public class MarriedPutStrategy extends BaseOptionStrategy {
 
     @Override
     protected double calculateFormula(LegGroup legs) {
-        return -midPrice(legs.components().get(0));
+        return -midPrice(legs.components().getFirst());
     }
 }
