@@ -49,8 +49,8 @@ class NyFedClientTest {
 
             var results = client.fetchRates("sofr");
             assertEquals(2, results.size());
-            assertEquals(4.29, results.get(0).value());
-            assertEquals("sofr", results.get(0).rateType());
+            assertEquals(4.29, results.getFirst().value());
+            assertEquals("sofr", results.getFirst().rateType());
         }
 
         @Test

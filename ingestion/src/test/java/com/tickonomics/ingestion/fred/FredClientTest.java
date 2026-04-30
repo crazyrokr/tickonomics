@@ -54,8 +54,8 @@ class FredClientTest {
 
             var results = client.fetchSeries("EFFR");
             assertEquals(2, results.size());
-            assertEquals(4.33, results.get(0).value());
-            assertEquals("EFFR", results.get(0).seriesId());
+            assertEquals(4.33, results.getFirst().value());
+            assertEquals("EFFR", results.getFirst().seriesId());
         }
 
         @Test
@@ -74,7 +74,7 @@ class FredClientTest {
 
             var results = client.fetchSeries("EFFR");
             assertEquals(1, results.size());
-            assertEquals(4.35, results.get(0).value());
+            assertEquals(4.35, results.getFirst().value());
         }
 
         @Test
