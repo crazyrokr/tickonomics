@@ -1,5 +1,5 @@
 plugins {
-    id 'java-library'
+  id 'java-library'
 }
 
 // --- TA-Lib native + JNA build configuration ---
@@ -13,94 +13,94 @@ def talibJnaVersion = '0.6.4-20251203.1'
 def generatedNativeResources = layout.buildDirectory.dir('generated-resources/native')
 
 tasks.register('cloneTalibNative') {
-    outputs.dir(talibNativeDir)
-    doLast {
-        if (!talibNativeDir.dir('.git').asFile.exists()) {
-            new ProcessBuilder('git', 'clone', 'https://github.com/TA-Lib/ta-lib.git', talibNativeDir.asFile.absolutePath)
-                    .inheritIO().start().waitFor()
-        }
+  outputs.dir(talibNativeDir)
+  doLast {
+    if (!talibNativeDir.dir('.git').asFile.exists()) {
+      new ProcessBuilder('git', 'clone', 'https://github.com/TA-Lib/ta-lib.git', talibNativeDir.asFile.absolutePath)
+          .inheritIO().start().waitFor()
     }
+  }
 }
 
 tasks.register('buildTalibNative') {
-    dependsOn cloneTalibNative
-    outputs.file(talibNativeDir.file('build/libta-lib.so'))
-    doLast {
-        def buildDir = talibNativeDir.dir('build').asFile
-        buildDir.mkdirs()
-        new ProcessBuilder('cmake', '..').directory(buildDir).inheritIO().start().waitFor()
-        new ProcessBuilder('make', "-j${Runtime.runtime.availableProcessors()}").directory(buildDir).inheritIO().start().waitFor()
-    }
+  dependsOn cloneTalibNative
+  outputs.file(talibNativeDir.file('build/libta-lib.so'))
+  doLast {
+    def buildDir = talibNativeDir.dir('build').asFile
+    buildDir.mkdirs()
+    new ProcessBuilder('cmake', '..').directory(buildDir).inheritIO().start().waitFor()
+    new ProcessBuilder('make', "-j${Runtime.runtime.availableProcessors()}").directory(buildDir).inheritIO().start().waitFor()
+  }
 }
 
 tasks.register('cloneTalibJna') {
-    outputs.dir(talibJnaDir)
-    doLast {
-        if (!talibJnaDir.dir('.git').asFile.exists()) {
-            new ProcessBuilder('git', 'clone', 'https://github.com/tuxmonteiro/ta-lib-jna.git', talibJnaDir.asFile.absolutePath)
-                    .inheritIO().start().waitFor()
-        }
+  outputs.dir(talibJnaDir)
+  doLast {
+    if (!talibJnaDir.dir('.git').asFile.exists()) {
+      new ProcessBuilder('git', 'clone', 'https://github.com/tuxmonteiro/ta-lib-jna.git', talibJnaDir.asFile.absolutePath)
+          .inheritIO().start().waitFor()
     }
+  }
 }
 
 tasks.register('buildTalibJna') {
-    dependsOn buildTalibNative, cloneTalibJna
-    def jnaJar = providers.systemProperty('user.home').map { home ->
-        "${home}/.m2/repository/com/tictactec/ta/lib/ta-lib-jna/${talibJnaVersion}/ta-lib-jna-${talibJnaVersion}.jar"
+  dependsOn buildTalibNative, cloneTalibJna
+  def jnaJar = providers.systemProperty('user.home').map { home ->
+    "${home}/.m2/repository/com/tictactec/ta/lib/ta-lib-jna/${talibJnaVersion}/ta-lib-jna-${talibJnaVersion}.jar"
+  }
+  outputs.file(jnaJar)
+  doLast {
+    def pb = new ProcessBuilder('mvn', 'clean', 'install', '-q')
+        .directory(talibJnaDir.asFile)
+        .inheritIO()
+    pb.environment().put('LD_LIBRARY_PATH', talibNativeDir.dir('build').asFile.absolutePath)
+    def exitCode = pb.start().waitFor()
+    if (exitCode != 0) {
+      throw new GradleException("mvn install failed with exit code ${exitCode}")
     }
-    outputs.file(jnaJar)
-    doLast {
-        def pb = new ProcessBuilder('mvn', 'clean', 'install', '-q')
-                .directory(talibJnaDir.asFile)
-                .inheritIO()
-        pb.environment().put('LD_LIBRARY_PATH', talibNativeDir.dir('build').asFile.absolutePath)
-        def exitCode = pb.start().waitFor()
-        if (exitCode != 0) {
-            throw new GradleException("mvn install failed with exit code ${exitCode}")
-        }
-    }
+  }
 }
 
 tasks.register('copyTalibNative', Copy) {
-    dependsOn buildTalibNative
-    from(talibNativeDir.file('build/libta-lib.so'))
-    into generatedNativeResources
+  dependsOn buildTalibNative
+  from(talibNativeDir.file('build/libta-lib.so'))
+  into generatedNativeResources
 }
 
 tasks.register('setupTalib') {
-    dependsOn buildTalibJna, copyTalibNative
-    group = 'Setup'
-    description = 'One-time setup: builds TA-Lib native C library and JNA wrapper, installs JAR to Maven local'
+  dependsOn buildTalibJna, copyTalibNative
+  group = 'Setup'
+  description = 'One-time setup: builds TA-Lib native C library and JNA wrapper, installs JAR to Maven local'
 }
 
 tasks.named('processResources').configure {
-    dependsOn copyTalibNative
+  dependsOn copyTalibNative
 }
 
 sourceSets {
-    main {
-        resources {
-            srcDir generatedNativeResources
-        }
+  main {
+    resources {
+      srcDir generatedNativeResources
     }
+  }
 }
 
 tasks.withType(Test).configureEach {
-    jvmArgs "-Djna.library.path=${talibNativeDir.dir('build').asFile.absolutePath}",
-            "--add-opens", "java.base/java.nio=ALL-UNNAMED",
-            "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED"
+  jvmArgs "-Djna.library.path=${talibNativeDir.dir('build').asFile.absolutePath}",
+      "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+      "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED"
 }
 
 // --- Dependencies ---
 dependencies {
-    api project(':cdm')
-    api project(':api-contracts')
-    implementation project(':persistence')
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
-    implementation 'org.apache.arrow:arrow-vector:18.3.0'
-    implementation 'org.apache.arrow:arrow-memory-unsafe:18.3.0'
+  api project(':cdm')
+  api project(':api-contracts')
+  implementation project(':persistence')
+  implementation 'org.springframework.boot:spring-boot-starter'
+  implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
+  implementation 'org.apache.arrow:arrow-vector:18.3.0'
+  implementation 'org.apache.arrow:arrow-memory-unsafe:18.3.0'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.mockito:mockito-core'
 }

@@ -14,5 +14,4 @@ public record BacktestResult(
     double adjustedReturn,
     double slippageCostBps,
     boolean liquidityFragile,
-    List<Map<String, Object>> tradeLog
-) {}
+    List<Map<String, Object>> tradeLog) {}

@@ -1,9 +1,9 @@
+import numpy as np
+
 from app.services.statistical.yield_curve_service import (
     fit_yield_curve,
     interpolate_yield_curve,
-    nelson_siegel,
 )
-import numpy as np
 
 
 def test_fit_nelson_siegel():

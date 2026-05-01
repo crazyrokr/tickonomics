@@ -4,7 +4,7 @@ from statsmodels.regression.quantile_regression import QuantReg
 
 
 def calculate_quantile_bands(
-    x_data: list[list[float]], y_data: list[float], quantiles: list[float] | None = None
+        x_data: list[list[float]], y_data: list[float], quantiles: list[float] | None = None
 ) -> dict:
     if quantiles is None:
         quantiles = [0.05, 0.95]

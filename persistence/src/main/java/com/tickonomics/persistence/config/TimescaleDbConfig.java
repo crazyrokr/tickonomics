@@ -10,18 +10,19 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 @Configuration
 public class TimescaleDbConfig {
 
-    @Bean
-    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
-        return new NamedParameterJdbcTemplate(dataSource);
-    }
+  @Bean
+  public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
+    return new NamedParameterJdbcTemplate(dataSource);
+  }
 
-    @Bean
-    public FlywayMigrationStrategy flywayMigrationStrategy() {
-        return flyway -> {
-            Flyway.configure()
-                    .baselineOnMigrate(true)
-                    .load();
-            flyway.migrate();
-        };
-    }
+  @Bean
+  public FlywayMigrationStrategy flywayMigrationStrategy() {
+    return flyway -> {
+      Flyway
+          .configure()
+          .baselineOnMigrate(true)
+          .load();
+      flyway.migrate();
+    };
+  }
 }

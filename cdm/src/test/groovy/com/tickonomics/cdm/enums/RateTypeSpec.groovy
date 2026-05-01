@@ -5,12 +5,12 @@ import spock.lang.Unroll
 
 class RateTypeSpec extends Specification {
 
-    @Unroll
-    def "RateType.#rateType toInstrumentType() returns #expected"() {
-        expect:
+  @Unroll
+  def "RateType.#rateType toInstrumentType() returns #expected"() {
+    expect:
         rateType.toInstrumentType() == expected
 
-        where:
+    where:
         rateType          | expected
         RateType.SOFR     | InstrumentType.SOFR
         RateType.EFFR     | InstrumentType.EFFR
@@ -22,10 +22,10 @@ class RateTypeSpec extends Specification {
         RateType.TGA      | InstrumentType.REPO
         RateType.WALCL    | InstrumentType.REPO
         RateType.TBILL_3M | InstrumentType.BILL_3M
-    }
+  }
 
-    def "none of the RateTypes return null for instrument type"() {
-        expect:
+  def "none of the RateTypes return null for instrument type"() {
+    expect:
         RateType.values().every { it.toInstrumentType() != null }
-    }
+  }
 }

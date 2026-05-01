@@ -119,12 +119,12 @@ components:
 
     AlphaSignal:
       type: object
-      required: [timestamp, strategyId, symbol, direction]
+      required: [ timestamp, strategyId, symbol, direction ]
       properties:
         timestamp: { type: string, format: date-time }
         strategyId: { type: string, format: uuid }
         symbol: { type: string }
-        direction: { type: string, enum: [LONG, SHORT, NEUTRAL] }
+        direction: { type: string, enum: [ LONG, SHORT, NEUTRAL ] }
         strength: { type: number, format: double }
         confidence: { type: number, format: double }
         expected_move: { type: number, format: double }

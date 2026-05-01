@@ -10,43 +10,57 @@ import java.util.UUID;
 
 public abstract class BaseEquityStrategy implements BaseStrategy<Map<String, Double>> {
 
-    private final UUID id;
-    private final EquityStrategyType type;
+  private final UUID id;
+  private final EquityStrategyType type;
 
-    protected BaseEquityStrategy(EquityStrategyType type) {
-        this.id = UUID.nameUUIDFromBytes(type.name().getBytes());
-        this.type = type;
+  protected BaseEquityStrategy(EquityStrategyType type) {
+    this.id = UUID.nameUUIDFromBytes(type
+        .name()
+        .getBytes());
+    this.type = type;
+  }
+
+  @Override
+  public UUID strategyId() {
+    return id;
+  }
+
+  @Override
+  public String name() {
+    return type.name();
+  }
+
+  @Override
+  public String category() {
+    return "EQUITY";
+  }
+
+  @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  @Override
+  public AlphaSignal compute(Map<String, Double> input, StrategyContext ctx) {
+    if (ctx.irScore() < 0.9) {
+      return AlphaSignal.neutral(id, "UNIVERSE");
     }
+    return computeSignal(input, ctx);
+  }
 
-    @Override
-    public UUID strategyId() { return id; }
+  protected abstract AlphaSignal computeSignal(Map<String, Double> input, StrategyContext ctx);
 
-    @Override
-    public String name() { return type.name(); }
+  protected AlphaSignal buildSignal(String symbol, String direction, double strength, double confidence) {
+    return new AlphaSignal(id, symbol, direction, strength, confidence, Instant.now(), Map.of());
+  }
 
-    @Override
-    public String category() { return "EQUITY"; }
-
-    @Override
-    public boolean isActive() { return true; }
-
-    @Override
-    public AlphaSignal compute(Map<String, Double> input, StrategyContext ctx) {
-        if (ctx.irScore() < 0.9) {
-            return AlphaSignal.neutral(id, "UNIVERSE");
-        }
-        return computeSignal(input, ctx);
+  protected String mapDirection(double signalStrength) {
+    if (signalStrength > 0.01) {
+      return "LONG";
     }
-
-    protected abstract AlphaSignal computeSignal(Map<String, Double> input, StrategyContext ctx);
-
-    protected AlphaSignal buildSignal(String symbol, String direction, double strength, double confidence) {
-        return new AlphaSignal(id, symbol, direction, strength, confidence, Instant.now(), Map.of());
+    if (signalStrength < -0.01) {
+      return "SHORT";
     }
-
-    protected String mapDirection(double signalStrength) {
-        if (signalStrength > 0.01) return "LONG";
-        if (signalStrength < -0.01) return "SHORT";
-        return "NEUTRAL";
-    }
+    return "NEUTRAL";
+  }
 }

@@ -7,75 +7,75 @@ import spock.lang.Unroll
 
 class CdmInstrumentMapperSpec extends Specification {
 
-    @Unroll
-    def "maps Fred series #series to expected instrument"() {
-        when:
+  @Unroll
+  def "maps Fred series #series to expected instrument"() {
+    when:
         def ref = CdmInstrumentMapper.fromFredSeries(series)
 
-        then:
+    then:
         ref.identifier() == expectedId
         ref.instrumentType() == expectedType
         ref.source() == "FRED"
 
-        where:
+    where:
         series      | expectedId | expectedType
         "EFFR"      | "EFFR"     | InstrumentType.EFFR
         "RRPONTSYD" | "RRP"      | InstrumentType.REPO
         "WTREGEN"   | "TGA"      | InstrumentType.REPO
         "WALCL"     | "WALCL"    | InstrumentType.REPO
         "IORB"      | "IORB"     | InstrumentType.IORB
-    }
+  }
 
-    def "throws IllegalArgumentException for unknown Fred series"() {
-        when:
+  def "throws IllegalArgumentException for unknown Fred series"() {
+    when:
         CdmInstrumentMapper.fromFredSeries("UNKNOWN")
 
-        then:
+    then:
         thrown(IllegalArgumentException)
-    }
+  }
 
-    @Unroll
-    def "maps NyFed rate #rate to expected instrument"() {
-        when:
+  @Unroll
+  def "maps NyFed rate #rate to expected instrument"() {
+    when:
         def ref = CdmInstrumentMapper.fromNyFedRate(rate)
 
-        then:
+    then:
         ref.identifier() == expectedId
         ref.instrumentType() == expectedType
         ref.source() == "NY_FED"
 
-        where:
+    where:
         rate   | expectedId | expectedType
         "sofr" | "SOFR"     | InstrumentType.SOFR
         "tgcr" | "TGCR"     | InstrumentType.TGCR
         "bgcr" | "BGCR"     | InstrumentType.BGCR
-    }
+  }
 
-    def "throws IllegalArgumentException for unknown NyFed rate"() {
-        when:
+  def "throws IllegalArgumentException for unknown NyFed rate"() {
+    when:
         CdmInstrumentMapper.fromNyFedRate("unknown")
 
-        then:
+    then:
         thrown(IllegalArgumentException)
-    }
+  }
 
-    def "maps Polygon symbol to Equity instrument"() {
-        when:
+  def "maps Polygon symbol to Equity instrument"() {
+    when:
         def ref = CdmInstrumentMapper.fromPolygonSymbol("SPY")
 
-        then:
+    then:
         ref.identifier() == "SPY"
         ref.instrumentType() == InstrumentType.EQUITY
         ref.source() == "POLYGON"
-    }
+  }
 
-    def "maps all RateTypes to correct instruments"() {
-        expect:
+  def "maps all RateTypes to correct instruments"() {
+    expect:
         RateType.values().each { rt ->
-            def ref = CdmInstrumentMapper.fromRateType(rt)
-            assert ref != null
-            assert ref.identifier() == rt.name()
-            assert ref.instrumentType() == rt.toInstrumentType()
+          def ref = CdmInstrumentMapper.fromRateType(rt)
+          assert ref != null
+          assert ref.identifier() == rt.name()
+          assert ref.instrumentType() == rt.toInstrumentType()
         }
-    }
+  }
 }

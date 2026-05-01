@@ -1,16 +1,16 @@
 plugins {
-    id 'java-library'
+  id 'java-library'
 }
 
 dependencies {
-    api project(':cdm')
-    api project(':api-contracts')
-    implementation project(':persistence')
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.3.0'
-    implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.3.0'
+  api project(':cdm')
+  api project(':api-contracts')
+  implementation project(':persistence')
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-websocket'
+  implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.3.0'
+  implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
+  implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.3.0'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

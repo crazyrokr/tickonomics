@@ -1,8 +1,8 @@
 package com.tickonomics.computation.strategy;
 
-import java.util.UUID;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 public record AlphaSignal(
     UUID strategyId,
@@ -11,9 +11,8 @@ public record AlphaSignal(
     double strength,
     double confidence,
     Instant timestamp,
-    Map<String, Double> metrics
-) {
-    public static AlphaSignal neutral(UUID strategyId, String symbol) {
-        return new AlphaSignal(strategyId, symbol, "NEUTRAL", 0.0, 0.0, Instant.now(), Map.of());
-    }
+    Map<String, Double> metrics) {
+  public static AlphaSignal neutral(UUID strategyId, String symbol) {
+    return new AlphaSignal(strategyId, symbol, "NEUTRAL", 0.0, 0.0, Instant.now(), Map.of());
+  }
 }

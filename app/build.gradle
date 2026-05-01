@@ -1,12 +1,12 @@
 plugins {
-    id 'org.springframework.boot'
+  id 'org.springframework.boot'
 }
 
 dependencies {
-    implementation project(':web')
-    implementation project(':ingestion')
-    implementation 'org.springframework.boot:spring-boot-starter'
-    runtimeOnly 'org.postgresql:postgresql'
+  implementation project(':web')
+  implementation project(':ingestion')
+  implementation 'org.springframework.boot:spring-boot-starter'
+  runtimeOnly 'org.postgresql:postgresql'
 }
 
 bootJar {

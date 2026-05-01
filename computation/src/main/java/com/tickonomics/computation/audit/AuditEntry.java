@@ -10,5 +10,4 @@ public record AuditEntry(
     String ruleVersion,
     String inputHash,
     double outputValue,
-    double irScore
-) {}
+    double irScore) {}

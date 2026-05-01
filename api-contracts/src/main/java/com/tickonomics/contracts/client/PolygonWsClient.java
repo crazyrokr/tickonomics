@@ -6,15 +6,15 @@ import java.util.function.Consumer;
 
 public interface PolygonWsClient {
 
-    void connect(String apiKey);
+  void connect(String apiKey);
 
-    void subscribe(String symbol);
+  void subscribe(String symbol);
 
-    void unsubscribe(String symbol);
+  void unsubscribe(String symbol);
 
-    void onTick(Consumer<PolygonTick> handler);
+  void onTick(Consumer<PolygonTick> handler);
 
-    void disconnect();
+  void disconnect();
 
-    boolean isConnected();
+  boolean isConnected();
 }

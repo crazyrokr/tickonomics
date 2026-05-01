@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface FederationDataClient {
 
-    List<FredObservation> fetchFredSeries(String seriesId, String apiKey);
+  List<FredObservation> fetchFredSeries(String seriesId, String apiKey);
 
-    List<NyFedRateResponse> fetchNyFedRates(String rateType);
+  List<NyFedRateResponse> fetchNyFedRates(String rateType);
 
-    boolean isHealthy();
+  boolean isHealthy();
 }

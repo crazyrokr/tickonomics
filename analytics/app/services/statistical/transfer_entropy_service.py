@@ -48,7 +48,7 @@ def _transfer_entropy(source: np.ndarray, target: np.ndarray, lag: int = 1) -> f
 
 
 def compute_transfer_entropy(
-    source: list[float], target: list[float], lag: int = 1, n_bootstraps: int = 1000
+        source: list[float], target: list[float], lag: int = 1, n_bootstraps: int = 1000
 ) -> dict:
     src = np.array(source)
     tgt = np.array(target)

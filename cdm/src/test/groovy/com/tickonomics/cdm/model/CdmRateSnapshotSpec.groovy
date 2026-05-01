@@ -8,31 +8,31 @@ import java.time.Instant
 
 class CdmRateSnapshotSpec extends Specification {
 
-    def "valid rate data sets all fields correctly"() {
-        given:
+  def "valid rate data sets all fields correctly"() {
+    given:
         def now = Instant.now()
 
-        when:
+    when:
         def snapshot = new CdmRateSnapshot(now, InstrumentType.SOFR, 5.31, "NY_FED")
 
-        then:
+    then:
         snapshot.time() == now
         snapshot.instrumentType() == InstrumentType.SOFR
         snapshot.value() == 5.31
         snapshot.source() == "NY_FED"
-    }
+  }
 
-    @Unroll
-    def "constructor throws IllegalArgumentException when value is #desc"() {
-        when:
+  @Unroll
+  def "constructor throws IllegalArgumentException when value is #desc"() {
+    when:
         new CdmRateSnapshot(Instant.now(), type, value, "SRC")
 
-        then:
+    then:
         thrown(IllegalArgumentException)
 
-        where:
+    where:
         desc                | type                | value
         "NaN"               | InstrumentType.EFFR | Double.NaN
         "positive infinity" | InstrumentType.TGCR | Double.POSITIVE_INFINITY
-    }
+  }
 }

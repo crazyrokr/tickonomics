@@ -1,9 +1,9 @@
 -- Pre-computed continuous aggregates for rolling correlation, beta, and z-score
 
-CREATE MATERIALIZED VIEW kpi_rolling_correlation
+CREATE
+MATERIALIZED VIEW kpi_rolling_correlation
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
-SELECT
-    time_bucket('1 day', time) AS day,
+SELECT time_bucket('1 day', time) AS day,
     symbol,
     metric,
     AVG(correlation) AS avg_correlation,
@@ -15,14 +15,14 @@ WHERE metric = 'PEARSON_CORRELATION'
 GROUP BY day, symbol, metric;
 
 SELECT add_continuous_aggregate_policy('kpi_rolling_correlation',
-    start_offset => INTERVAL '30 days',
-    end_offset => INTERVAL '1 day',
-    schedule_interval => INTERVAL '1 day');
+                                       start_offset = > INTERVAL '30 days',
+                                       end_offset = > INTERVAL '1 day',
+                                       schedule_interval = > INTERVAL '1 day');
 
-CREATE MATERIALIZED VIEW kpi_rolling_beta
+CREATE
+MATERIALIZED VIEW kpi_rolling_beta
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
-SELECT
-    time_bucket('1 day', time) AS day,
+SELECT time_bucket('1 day', time) AS day,
     symbol,
     AVG(correlation) AS avg_beta,
     AVG(p_value)    AS avg_p_value,
@@ -32,14 +32,14 @@ WHERE metric = 'OLS_BETA'
 GROUP BY day, symbol;
 
 SELECT add_continuous_aggregate_policy('kpi_rolling_beta',
-    start_offset => INTERVAL '90 days',
-    end_offset => INTERVAL '1 day',
-    schedule_interval => INTERVAL '1 day');
+                                       start_offset = > INTERVAL '90 days',
+                                       end_offset = > INTERVAL '1 day',
+                                       schedule_interval = > INTERVAL '1 day');
 
-CREATE MATERIALIZED VIEW kpi_zscore_daily
+CREATE
+MATERIALIZED VIEW kpi_zscore_daily
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
-SELECT
-    time_bucket('1 day', time) AS day,
+SELECT time_bucket('1 day', time) AS day,
     component,
     AVG(z_score)  AS avg_z_score,
     MIN(z_score)  AS min_z_score,
@@ -50,6 +50,6 @@ FROM zscore_series
 GROUP BY day, component;
 
 SELECT add_continuous_aggregate_policy('kpi_zscore_daily',
-    start_offset => INTERVAL '30 days',
-    end_offset => INTERVAL '1 day',
-    schedule_interval => INTERVAL '1 day');
+                                       start_offset = > INTERVAL '30 days',
+                                       end_offset = > INTERVAL '1 day',
+                                       schedule_interval = > INTERVAL '1 day');

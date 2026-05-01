@@ -7,5 +7,4 @@ public record FixedIncomePortfolio(
     List<BondPosition> positions,
     double portfolioDuration,
     double portfolioYield,
-    double convexity
-) {}
+    double convexity) {}

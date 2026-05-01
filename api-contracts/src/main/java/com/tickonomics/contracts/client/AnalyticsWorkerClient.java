@@ -4,9 +4,9 @@ import java.util.Map;
 
 public interface AnalyticsWorkerClient {
 
-    Map<String, Object> sendAnalysisRequest(String function, Map<String, Object> payload);
+  Map<String, Object> sendAnalysisRequest(String function, Map<String, Object> payload);
 
-    byte[] sendArrowRequest(byte[] arrowPayload);
+  byte[] sendArrowRequest(byte[] arrowPayload);
 
-    boolean isHealthy();
+  boolean isHealthy();
 }
