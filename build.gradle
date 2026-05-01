@@ -1,45 +1,53 @@
 plugins {
-    id 'java'
-    id 'io.spring.dependency-management' version '1.1.7' apply false
-    id 'org.springframework.boot' version '3.5.0' apply false
+  id 'java'
+  id 'io.spring.dependency-management' version '1.1.7' apply false
+  id 'org.springframework.boot' version '3.5.0' apply false
 }
 
 allprojects {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'java'
+  apply plugin: 'groovy'
+  apply plugin: 'io.spring.dependency-management'
 
-    group = 'io.tickonomics'
-    version = '0.0.1-SNAPSHOT'
+  group = 'io.tickonomics'
+  version = '0.0.1-SNAPSHOT'
 
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.0"
-        }
+  dependencyManagement {
+    imports {
+      mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.0"
+      mavenBom "org.spockframework:spock-bom:2.4-groovy-4.0"
     }
-
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
-        }
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        options.compilerArgs.add('-parameters')
-    }
-
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+      dependency 'org.apache.groovy:groovy:4.0.29'
     }
+  }
 
-    tasks.named('test') {
-        useJUnitPlatform()
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(25)
     }
+  }
+
+  tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+  }
+
+  dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'org.spockframework:spock-core'
+    testImplementation 'org.apache.groovy:groovy'
+  }
+
+  tasks.named('test') {
+    useJUnitPlatform()
+  }
 }
