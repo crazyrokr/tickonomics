@@ -15,12 +15,13 @@ class TimescaleDbWriterSpec extends Specification {
 
   TickDataRepository tickDataRepository = Mock()
   RateSnapshotRepository rateSnapshotRepository = Mock()
+  IdempotencyGuard idempotencyGuard = Mock()
 
   @Subject
   TimescaleDbWriter writer
 
   def setup() {
-    writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository)
+    writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard)
     writer.batchSize = 10
   }
 

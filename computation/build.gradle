@@ -97,6 +97,7 @@ dependencies {
   api project(':api-contracts')
   implementation project(':persistence')
   implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
   implementation 'org.apache.arrow:arrow-vector:18.3.0'
   implementation 'org.apache.arrow:arrow-memory-unsafe:18.3.0'

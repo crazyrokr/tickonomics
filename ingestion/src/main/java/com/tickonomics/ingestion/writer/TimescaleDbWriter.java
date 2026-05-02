@@ -20,6 +20,7 @@ public class TimescaleDbWriter {
 
   private final TickDataRepository tickDataRepository;
   private final RateSnapshotRepository rateSnapshotRepository;
+  private final IdempotencyGuard idempotencyGuard;
 
   private final ConcurrentLinkedQueue<TickData> tickBuffer = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<RateSnapshot> rateBuffer = new ConcurrentLinkedQueue<>();
@@ -30,12 +31,21 @@ public class TimescaleDbWriter {
   @Value("${writer.flush-interval-ms:500}")
   private int flushIntervalMs;
 
-  public TimescaleDbWriter(TickDataRepository tickDataRepository, RateSnapshotRepository rateSnapshotRepository) {
+  public TimescaleDbWriter(
+      TickDataRepository tickDataRepository,
+      RateSnapshotRepository rateSnapshotRepository,
+      IdempotencyGuard idempotencyGuard) {
     this.tickDataRepository = tickDataRepository;
     this.rateSnapshotRepository = rateSnapshotRepository;
+    this.idempotencyGuard = idempotencyGuard;
   }
 
   public void writeTick(TickData tick) {
+    String key = idempotencyGuard.buildKey("TICK", tick.symbol(), tick.time());
+    if (idempotencyGuard.isDuplicate(key)) {
+      log.debug("Skipping duplicate tick: {}", key);
+      return;
+    }
     tickBuffer.add(tick);
     if (tickBuffer.size() >= batchSize) {
       flushTicks();
@@ -43,6 +53,11 @@ public class TimescaleDbWriter {
   }
 
   public void writeRate(RateSnapshot snapshot) {
+    String key = idempotencyGuard.buildKey("RATE", snapshot.rateType(), snapshot.time());
+    if (idempotencyGuard.isDuplicate(key)) {
+      log.debug("Skipping duplicate rate: {}", key);
+      return;
+    }
     rateBuffer.add(snapshot);
     if (rateBuffer.size() >= batchSize) {
       flushRates();
