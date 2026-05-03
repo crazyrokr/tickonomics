@@ -1,6 +1,7 @@
 package com.tickonomics.computation.kpi;
 
 import com.tickonomics.persistence.repository.RateSnapshotRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -126,6 +127,7 @@ public class KpiProcessor {
                 "Composite stress signal across rate markets");
     }
 
+    @Bulkhead(name = "computationEngine")
     public Map<String, KpiResult> computeAll(CorrelationEngine correlationEngine) {
         Map<String, KpiResult> results = new LinkedHashMap<>();
         results.put("liquidityStress", computeLiquidityStressIndex());
@@ -135,6 +137,15 @@ public class KpiProcessor {
         results.put("efficiencyGap", computeEfficiencyGap());
         results.put("systemicRiskHeatmap", computeSystemicRiskHeatmap());
         return results;
+    }
+
+    public KpiResult computeReturnGap(double investorGrossReturn, double holdingsReturn) {
+        double gap = investorGrossReturn - holdingsReturn;
+        String status = gap > 0.005 ? KpiResult.STATUS_ELEVATED
+                : gap < -0.005 ? KpiResult.STATUS_STRESSED : KpiResult.STATUS_NORMAL;
+
+        return new KpiResult("Return Gap", round(gap), status, "bps",
+                "Execution alpha vs buy-and-hold return");
     }
 
     List<Double> getRecentRates(String rateType, int days) {
