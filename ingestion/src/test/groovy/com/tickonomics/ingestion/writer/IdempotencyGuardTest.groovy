@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -52,17 +51,15 @@ class IdempotencyGuardTest {
   @Nested
   class EvictExpired {
 
-    @Disabled
     @Test
-    void givenExpiredKey_whenEvict_thenRemoved() throws InterruptedException {
+    void givenExpiredKey_whenEvict_thenRemoved() {
+      guard = new IdempotencyGuard(100);
       guard.isDuplicate("old-key");
-      Thread.sleep(100);
-      guard.isDuplicate("new-key");
+      guard.seenKeys.put("old-key", System.currentTimeMillis() - 200);
 
       int evicted = guard.evictExpired();
-      assertTrue(evicted >= 1);
-      assertFalse(guard.isDuplicate("new-key"));
-      assertEquals(1, guard.size());
+      assertEquals(1, evicted);
+      assertFalse(guard.isDuplicate("old-key"));
     }
 
     @Test
@@ -71,6 +68,18 @@ class IdempotencyGuardTest {
       guard.isDuplicate("key-2");
       assertEquals(0, guard.evictExpired());
       assertEquals(2, guard.size());
+    }
+
+    @Test
+    void givenMixedKeys_whenEvict_thenOnlyExpiredRemoved() {
+      guard = new IdempotencyGuard(100);
+      guard.isDuplicate("recent-key");
+      guard.seenKeys.put("expired-key", System.currentTimeMillis() - 200);
+
+      int evicted = guard.evictExpired();
+      assertEquals(1, evicted);
+      assertEquals(1, guard.size());
+      assertTrue(guard.isDuplicate("recent-key"));
     }
   }
 

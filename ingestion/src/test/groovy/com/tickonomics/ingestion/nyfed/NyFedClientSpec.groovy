@@ -1,7 +1,7 @@
 package com.tickonomics.ingestion.nyfed
 
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter
-import com.tickonomics.persistence.repository.RateSnapshotRepository
+import com.tickonomics.ingestion.writer.TimescaleDbWriter
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -9,7 +9,7 @@ import spock.lang.Subject
 class NyFedClientSpec extends Specification {
 
   RestClient.Builder restClientBuilder = Mock()
-  RateSnapshotRepository rateRepository = Mock()
+  TimescaleDbWriter timescaleDbWriter = Mock()
   RestClient restClient = Mock()
 
   @Subject
@@ -17,7 +17,7 @@ class NyFedClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new NyFedClient(restClientBuilder, rateRepository, new NyFedCdmAdapter())
+    client = new NyFedClient(restClientBuilder, timescaleDbWriter, new NyFedCdmAdapter())
   }
 
   def "given valid rates, when fetchRates, then return mapped responses"() {

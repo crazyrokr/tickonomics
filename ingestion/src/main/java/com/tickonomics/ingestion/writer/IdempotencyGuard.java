@@ -2,6 +2,8 @@ package com.tickonomics.ingestion.writer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -34,6 +36,7 @@ public class IdempotencyGuard {
         return existing != null;
     }
 
+    @Scheduled(fixedDelayString = "${guard.evict-interval-ms:3600000}")
     public int evictExpired() {
         long cutoff = System.currentTimeMillis() - ttlMs;
         int evicted = 0;

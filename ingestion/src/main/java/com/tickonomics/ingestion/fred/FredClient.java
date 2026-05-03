@@ -3,8 +3,10 @@ package com.tickonomics.ingestion.fred;
 import com.tickonomics.cdm.adapter.FredCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.FredObservation;
 import com.tickonomics.cdm.model.CdmRateSnapshot;
+import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
-import com.tickonomics.persistence.repository.RateSnapshotRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -23,7 +25,7 @@ public class FredClient {
   private static final List<String> SERIES_IDS = List.of("EFFR", "RRPONTSYD", "WTREGEN", "WALCL", "IORB");
 
   private final RestClient restClient;
-  private final RateSnapshotRepository rateRepository;
+  private final TimescaleDbWriter writer;
   private final FredCdmAdapter cdmAdapter;
 
   @Value("${fred.api-key:}")
@@ -34,21 +36,22 @@ public class FredClient {
 
   public FredClient(
       RestClient.Builder restClientBuilder,
-      RateSnapshotRepository rateRepository,
+      TimescaleDbWriter writer,
       FredCdmAdapter cdmAdapter) {
     this.restClient = restClientBuilder.build();
-    this.rateRepository = rateRepository;
+    this.writer = writer;
     this.cdmAdapter = cdmAdapter;
   }
 
   @Scheduled(fixedDelayString = "${fred.poll-interval-ms:300000}")
+  @Bulkhead(name = "criticalIngestion")
   public void pollAllSeries() {
     for (String seriesId : SERIES_IDS) {
       try {
         var observations = fetchSeries(seriesId);
         for (var obs : observations) {
           var cdm = cdmAdapter.toCdm(obs);
-          rateRepository.save(toEntity(cdm));
+          writer.writeRate(toEntity(cdm));
         }
         log.info("Fetched {} observations for series {}", observations.size(), seriesId);
       } catch (Exception e) {
@@ -57,6 +60,7 @@ public class FredClient {
     }
   }
 
+  @Retry(name = "fredApi")
   public List<FredObservation> fetchSeries(String seriesId) {
     String url =
         baseUrl + "/series/observations?series_id={seriesId}&api_key={apiKey}&file_type=json&sort_order=desc&limit=10";

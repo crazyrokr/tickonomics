@@ -3,8 +3,10 @@ package com.tickonomics.ingestion.nyfed;
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.NyFedRateResponse;
 import com.tickonomics.cdm.model.CdmRateSnapshot;
+import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
-import com.tickonomics.persistence.repository.RateSnapshotRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -23,7 +25,7 @@ public class NyFedClient {
   private static final List<String> RATE_TYPES = List.of("sofr", "tgcr", "bgcr");
 
   private final RestClient restClient;
-  private final RateSnapshotRepository rateRepository;
+  private final TimescaleDbWriter writer;
   private final NyFedCdmAdapter cdmAdapter;
 
   @Value("${nyfed.base-url:https://markets.newyorkfed.org/api}")
@@ -31,21 +33,22 @@ public class NyFedClient {
 
   public NyFedClient(
       RestClient.Builder restClientBuilder,
-      RateSnapshotRepository rateRepository,
+      TimescaleDbWriter writer,
       NyFedCdmAdapter cdmAdapter) {
     this.restClient = restClientBuilder.build();
-    this.rateRepository = rateRepository;
+    this.writer = writer;
     this.cdmAdapter = cdmAdapter;
   }
 
   @Scheduled(fixedDelayString = "${nyfed.poll-interval-ms:300000}")
+  @Bulkhead(name = "criticalIngestion")
   public void pollAllRates() {
     for (String rateType : RATE_TYPES) {
       try {
         var responses = fetchRates(rateType);
         for (var resp : responses) {
           var cdm = cdmAdapter.toCdm(resp);
-          rateRepository.save(toEntity(cdm));
+          writer.writeRate(toEntity(cdm));
         }
         log.info("Fetched {} observations for NY Fed rate {}", responses.size(), rateType);
       } catch (Exception e) {
@@ -54,6 +57,7 @@ public class NyFedClient {
     }
   }
 
+  @Retry(name = "nyfedApi")
   public List<NyFedRateResponse> fetchRates(String rateType) {
     String url = baseUrl + "/rates/all/" + rateType + "/latest.json";
     var response = restClient

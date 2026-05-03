@@ -1,7 +1,7 @@
 package com.tickonomics.ingestion.fred
 
 import com.tickonomics.cdm.adapter.FredCdmAdapter
-import com.tickonomics.persistence.repository.RateSnapshotRepository
+import com.tickonomics.ingestion.writer.TimescaleDbWriter
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -9,7 +9,7 @@ import spock.lang.Subject
 class FredClientSpec extends Specification {
 
   RestClient.Builder restClientBuilder = Mock()
-  RateSnapshotRepository rateRepository = Mock()
+  TimescaleDbWriter timescaleDbWriter = Mock()
   RestClient restClient = Mock()
 
   @Subject
@@ -17,7 +17,7 @@ class FredClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new FredClient(restClientBuilder, rateRepository, new FredCdmAdapter())
+    client = new FredClient(restClientBuilder, timescaleDbWriter, new FredCdmAdapter())
   }
 
   def "given valid observations, when fetchSeries, then return mapped observations"() {

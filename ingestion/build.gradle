@@ -11,6 +11,8 @@ dependencies {
   implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.3.0'
   implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
   implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.3.0'
+  implementation 'io.micrometer:micrometer-observation'
+  implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
