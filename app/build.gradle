@@ -6,7 +6,9 @@ dependencies {
   implementation project(':web')
   implementation project(':ingestion')
   implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
   runtimeOnly 'org.postgresql:postgresql'
+  runtimeOnly 'io.opentelemetry:opentelemetry-exporter-otlp'
 }
 
 bootJar {
