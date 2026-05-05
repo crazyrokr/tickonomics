@@ -30,3 +30,14 @@ ssrn-*.pdf
 .gitignore
 **/__pycache__/*
 native-libs/
+
+# Landing page (Next.js)
+landing/node_modules/
+landing/.next/
+landing/out/
+
+# Dashboard (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/coverage/
