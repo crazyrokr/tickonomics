@@ -5,13 +5,15 @@ import spock.lang.Subject
 
 class DelayDExecutorSpec extends Specification {
 
+  Eq553SlippageModel slippageModel = new Eq553SlippageModel()
+
   @Subject
-  DelayDExecutor executor = new DelayDExecutor()
+  DelayDExecutor executor = new DelayDExecutor(slippageModel)
 
   def "compareDelays produces two results (DELAY_0 and DELAY_1)"() {
     given:
         List<Double> returns = [0.01d, -0.005d, 0.02d, -0.01d, 0.015d]
-        List<Double> execPrices = [0.01d, -0.005d, 0.02d, -0.01d, 0.015d]
+        List<Double> execPrices = [0.01d, -0.005d, 0.02d, -0.01d, 0.015d, 0.01d]
 
     when:
         def results = executor.compareDelays("TEST", returns, execPrices)
@@ -25,7 +27,7 @@ class DelayDExecutorSpec extends Specification {
   def "compareDelays handles very few data points gracefully"() {
     given:
         List<Double> returns = [0.01d]
-        List<Double> execPrices = [0.01d]
+        List<Double> execPrices = [0.01d, 0.01d]
 
     when:
         def results = executor.compareDelays("TEST", returns, execPrices)
@@ -45,14 +47,12 @@ class DelayDExecutorSpec extends Specification {
           signalReturns << sig
           execPrices << (i < 50 ? sig : -sig * 0.01)
         }
+        execPrices << 0.0d
 
     when:
         def results = executor.compareDelays("FRAGILE", signalReturns, execPrices)
 
     then:
         results.size() == 2
-        // The original test didn't assert anything about fragility status specifically, 
-        // just that 2 results were returned. I'll maintain that for now, 
-        // but it's good to know what it's testing.
   }
 }
