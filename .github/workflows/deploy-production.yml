@@ -28,7 +28,14 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
+      - uses: actions/cache@v4
+        id: talib-cache
+        with:
+          path: native-libs
+          key: talib-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+
       - name: Build TA-Lib native
+        if: steps.talib-cache.outputs.cache-hit != 'true'
         run: |
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon
