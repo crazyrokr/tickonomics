@@ -1,0 +1,151 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, test]
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java-build-test:
+    name: Java 25 Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Build TA-Lib native
+        run: |
+          ./gradlew :computation:cloneTalibNative --no-daemon
+          ./gradlew :computation:buildTalibNative --no-daemon
+
+      - name: Build & Test (except integration-tests)
+        run: ./gradlew build -x :integration-tests:test --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: java-test-results
+          path: '**/build/reports/tests/**'
+
+  python-test:
+    name: Python 3.12 Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: analytics/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r analytics/requirements.txt
+
+      - name: Run pytest
+        working-directory: analytics
+        run: python -m pytest tests --junitxml=build/test-results/pytest/results.xml -q
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-test-results
+          path: analytics/build/test-results/**
+
+  frontend-build-test:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [landing, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.app }}
+        run: npm ci
+
+      - name: Lint
+        working-directory: ${{ matrix.app }}
+        run: npm run lint
+
+      - name: Type check
+        working-directory: ${{ matrix.app }}
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: ${{ matrix.app }}
+        run: npm run build
+
+      - name: Test
+        working-directory: ${{ matrix.app }}
+        run: npm test
+
+  integration-test:
+    name: Integration Tests
+    needs: java-build-test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg16
+        env:
+          POSTGRES_DB: tickonomics_test
+          POSTGRES_USER: tickonomics
+          POSTGRES_PASSWORD: tickonomics
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Build TA-Lib native
+        run: |
+          ./gradlew :computation:cloneTalibNative --no-daemon
+          ./gradlew :computation:buildTalibNative --no-daemon
+
+      - name: Run integration tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/tickonomics_test
+          SPRING_DATASOURCE_USERNAME: tickonomics
+          SPRING_DATASOURCE_PASSWORD: tickonomics
+        run: ./gradlew :integration-tests:test --no-daemon

@@ -1,0 +1,90 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [develop]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Build TA-Lib native
+        run: |
+          ./gradlew :computation:cloneTalibNative --no-daemon
+          ./gradlew :computation:buildTalibNative --no-daemon
+
+      - name: Build Spring Boot JAR
+        run: ./gradlew :app:bootJar --no-daemon -x test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: app/build/libs/*.jar
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Package analytics worker
+        run: |
+          pip install --upgrade pip
+          pip install -r analytics/requirements.txt -t analytics/pkg
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build dashboard
+        working-directory: frontend
+        run: npm ci && npm run build
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+
+      - name: Build landing page
+        working-directory: landing
+        run: npm ci && npm run build
+
+  deploy:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy staging environment
+        run: echo "Staging deployment placeholder — requires Track 11 Docker infrastructure"
+
+  smoke-test:
+    name: Smoke Tests
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check
+        run: echo "Smoke test placeholder — verify /actuator/health returns 200"
