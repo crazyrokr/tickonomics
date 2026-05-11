@@ -1,0 +1,28 @@
+INSERT INTO strategy_definitions (name, category, section_ref, priority, complexity_tier, active)
+VALUES
+    ('PRICE_MOMENTUM', 'EQUITY', 'Eq. 266-280', 1, 'TIER_1', true),
+    ('EARNINGS_SURPRISE', 'EQUITY', 'Eq. 281-288', 2, 'TIER_2', true),
+    ('MEAN_REVERSION', 'EQUITY', 'Eq. 294-300', 1, 'TIER_1', true),
+    ('CLUSTER_MEAN_REVERSION', 'EQUITY', 'Eq. 293', 2, 'TIER_2', true),
+    ('PAIRS_COINTEGRATION', 'EQUITY', 'Eq. 301-310', 2, 'TIER_2', true),
+    ('VALUE_BP', 'EQUITY', 'Eq. 289-292', 2, 'TIER_2', true),
+    ('MA_CROSSOVER', 'EQUITY', 'Eq. 311-320', 1, 'TIER_1', true),
+    ('SUPPORT_RESISTANCE', 'EQUITY', 'Eq. 331-340', 2, 'TIER_2', true),
+    ('BB_BREAKOUT', 'EQUITY', 'Eq. 341-350', 2, 'TIER_2', true),
+    ('ACCUM_DIST', 'EQUITY', 'Eq. 351-360', 3, 'TIER_3', true),
+    ('RSI_OSCILLATOR', 'EQUITY', 'Sec 3.15', 1, 'TIER_1', true),
+    ('MACD_DIVERGENCE', 'EQUITY', 'Sec 3.11', 1, 'TIER_1', true),
+    ('BOLLINGER_WIDTH', 'EQUITY', 'Eq. 350', 2, 'TIER_2', true),
+    ('VOLUME_MOMENTUM', 'EQUITY', 'Sec 3.5', 2, 'TIER_2', true),
+    ('STOCHASTIC_CROSS', 'EQUITY', 'Sec 3.15', 2, 'TIER_2', true),
+    ('CHAIKIN_VOL', 'EQUITY', 'Sec 3.18', 3, 'TIER_3', true),
+    ('MFI_INVERSION', 'EQUITY', 'Sec 3.19', 3, 'TIER_3', true),
+    ('TRIX_REVERSAL', 'EQUITY', 'Sec 3.20', 3, 'TIER_3', true),
+    ('COPPOCK_CURVE', 'EQUITY', 'Sec 3.21', 3, 'TIER_3', true),
+    ('KELTNER_CHANNEL', 'EQUITY', 'Sec 3.22', 2, 'TIER_2', true),
+    ('DONCHIAN_CHANNEL', 'EQUITY', 'Sec 3.23', 2, 'TIER_2', true),
+    ('AROON_OSCILLATOR', 'EQUITY', 'Sec 3.24', 3, 'TIER_3', true),
+    ('PARABOLIC_SAR', 'EQUITY', 'Sec 3.25', 2, 'TIER_2', true),
+    ('ZIGZAG_FILTER', 'EQUITY', 'Sec 3.26', 3, 'TIER_3', true),
+    ('ICHIMOKU_CLOUD', 'EQUITY', 'Sec 3.27', 3, 'TIER_3', true)
+ON CONFLICT (name) DO NOTHING;
