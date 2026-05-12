@@ -25,17 +25,23 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            ~/.gradle/configuration-cache
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
       - uses: actions/cache@v4
-        id: talib-cache
+        id: talib-native-cache
         with:
           path: native-libs
-          key: talib-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
 
       - name: Build TA-Lib native
-        if: steps.talib-cache.outputs.cache-hit != 'true'
+        if: steps.talib-native-cache.outputs.cache-hit != 'true'
         run: |
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon
@@ -91,6 +97,12 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
+      - uses: actions/cache@v4
+        with:
+          path: ${{ matrix.app }}/.next/cache
+          key: nextjs-${{ matrix.app }}-${{ hashFiles(format('{0}/package-lock.json', matrix.app)) }}
+          restore-keys: nextjs-${{ matrix.app }}-
+
       - name: Install dependencies
         working-directory: ${{ matrix.app }}
         run: npm ci
@@ -142,17 +154,23 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            ~/.gradle/configuration-cache
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
       - uses: actions/cache@v4
-        id: talib-cache
+        id: talib-native-cache
         with:
           path: native-libs
-          key: talib-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
 
       - name: Build TA-Lib native
-        if: steps.talib-cache.outputs.cache-hit != 'true'
+        if: steps.talib-native-cache.outputs.cache-hit != 'true'
         run: |
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon

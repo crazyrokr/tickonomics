@@ -25,17 +25,23 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            ~/.gradle/configuration-cache
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
       - uses: actions/cache@v4
-        id: talib-cache
+        id: talib-native-cache
         with:
           path: native-libs
-          key: talib-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
 
       - name: Build TA-Lib native
-        if: steps.talib-cache.outputs.cache-hit != 'true'
+        if: steps.talib-native-cache.outputs.cache-hit != 'true'
         run: |
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon
@@ -63,6 +69,12 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - uses: actions/cache@v4
+        with:
+          path: frontend/.next/cache
+          key: nextjs-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: nextjs-frontend-
+
       - name: Build dashboard
         working-directory: frontend
         run: npm ci && npm run build
@@ -72,6 +84,12 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: landing/package-lock.json
+
+      - uses: actions/cache@v4
+        with:
+          path: landing/.next/cache
+          key: nextjs-landing-${{ hashFiles('landing/package-lock.json') }}
+          restore-keys: nextjs-landing-
 
       - name: Build landing page
         working-directory: landing
