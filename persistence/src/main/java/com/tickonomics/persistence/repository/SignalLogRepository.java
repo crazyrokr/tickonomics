@@ -53,6 +53,26 @@ public class SignalLogRepository {
             rs.getString("signal_metadata")));
   }
 
+  public List<SignalLog> findByCreatedAtBetween(Instant from, Instant to) {
+    return jdbc.query(
+        "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, "
+            + "estimated_cost, signal_metadata "
+            + "FROM signal_log WHERE created_at BETWEEN :from AND :to ORDER BY created_at",
+        Map.of("from", from, "to", to),
+        (rs, rowNum) -> new SignalLog(
+            rs
+                .getTimestamp("created_at")
+                .toInstant(),
+            rs.getString("symbol"),
+            rs.getString("direction"),
+            rs.getString("status"),
+            rs.getDouble("ili_percentile"),
+            rs.getDouble("ili_value"),
+            rs.getDouble("expected_move"),
+            rs.getDouble("estimated_cost"),
+            rs.getString("signal_metadata")));
+  }
+
   public List<SignalLog> findLatestByStatus(String status, int limit) {
     return jdbc.query(
         "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, estimated_cost, "
