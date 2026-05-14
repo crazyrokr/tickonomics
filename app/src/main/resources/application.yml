@@ -36,6 +36,16 @@ monitor:
   ingestion:
     lkg-cache:
       max-staleness-seconds: 3600
+  demo:
+    enabled: false
+    virtual-balance: 100000
+    position-size-pct: 5
+    stop-loss-pct: 5
+    take-profit-pct: 10
+    auto-execute-signals: false
+    execute-degraded-signals: true
+    skip-dislocated-signals: true
+    default-addv: 10000000
 
 resilience4j:
   retry:
