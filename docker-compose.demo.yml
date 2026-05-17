@@ -1,0 +1,22 @@
+services:
+  backend:
+    environment:
+      MONITOR_DEMO_ENABLED: "true"
+      MONITOR_DEMO_VIRTUAL_BALANCE: "100000"
+      MONITOR_DEMO_AUTO_EXECUTE_SIGNALS: "true"
+      MONITOR_DEMO_EXECUTE_DEGRADED_SIGNALS: "true"
+      MONITOR_DEMO_SKIP_DISLOCATED_SIGNALS: "true"
+    ports:
+      - "8080:8080"
+
+  analytics-worker:
+    ports:
+      - "8001:8001"
+
+  dashboard:
+    ports:
+      - "3001:3000"
+
+  landing:
+    ports:
+      - "3000:80"

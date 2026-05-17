@@ -1,0 +1,4 @@
+services:
+  timescaledb:
+    ports:
+      - "5432:5432"

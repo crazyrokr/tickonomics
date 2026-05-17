@@ -1,0 +1,86 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/tickonomics
+      SPRING_DATASOURCE_USERNAME: tickonomics
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-tickonomics}
+      ANALYTICS_WORKER_URL: http://analytics-worker:8001
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4317
+      POLYGON_API_KEY: ${POLYGON_API_KEY:-}
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      analytics-worker:
+        condition: service_healthy
+    networks:
+      - tickonomics-net
+    volumes:
+      - ingestion_overflow:/data/overflow
+
+  analytics-worker:
+    build:
+      context: ./analytics
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    networks:
+      - tickonomics-net
+
+  dashboard:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    networks:
+      - tickonomics-net
+
+  landing:
+    build:
+      context: ./landing
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - tickonomics-net
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: tickonomics
+      POSTGRES_USER: tickonomics
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tickonomics}
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tickonomics"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tickonomics-net
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.64
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    networks:
+      - tickonomics-net
+
+volumes:
+  timescaledb_data:
+  ingestion_overflow:
+
+networks:
+  tickonomics-net:
+    driver: bridge
