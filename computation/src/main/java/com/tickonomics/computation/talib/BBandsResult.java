@@ -8,6 +8,9 @@ public record BBandsResult(double[] upper, double[] middle, double[] lower, int 
     if (upper == null || middle == null || lower == null) {
       throw new NullPointerException("Band arrays must not be null");
     }
+    upper = upper.clone();
+    middle = middle.clone();
+    lower = lower.clone();
     if (nbElement < 0) {
       throw new IllegalArgumentException("nbElement must be non-negative: " + nbElement);
     }
