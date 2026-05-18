@@ -144,7 +144,9 @@ public class CorrelationEngine {
         public String metric() { return metric; }
         public double latest() { return latest; }
         public int window() { return window; }
-        public double[] series() { return series; }
+        public double[] series() {
+            return series != null ? series.clone() : null;
+        }
         public boolean valid() { return valid; }
     }
 }
