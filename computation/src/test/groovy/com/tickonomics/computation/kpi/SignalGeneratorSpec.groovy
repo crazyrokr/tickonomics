@@ -4,11 +4,9 @@ import spock.lang.Specification
 
 class SignalGeneratorSpec extends Specification {
 
-  SignalGenerator generator = new SignalGenerator(new NormalizationService())
+  SignalGenerator generator = new SignalGenerator(new NormalizationService(), new SignalGeneratorConfig(80.0, 20.0, 0.001, 3600_000))
 
   def setup() {
-    generator.setCooldownMs(0)
-    generator.setTransactionCostBps(0.1)
   }
 
   private static double[] generateHistory(int count, double base, double step) {

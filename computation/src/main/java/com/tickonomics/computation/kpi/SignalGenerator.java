@@ -10,16 +10,13 @@ import org.springframework.stereotype.Service;
 public class SignalGenerator {
 
   private final NormalizationService normalizationService;
-
-  private double buyThreshold = 80.0;
-  private double sellThreshold = 20.0;
-  private double transactionCostBps = 5.0;
-  private long cooldownMs = 3600_000;
+  private final SignalGeneratorConfig config;
 
   private final Map<String, Instant> lastSignalTime = new HashMap<>();
 
-  public SignalGenerator(NormalizationService normalizationService) {
+  public SignalGenerator(NormalizationService normalizationService, SignalGeneratorConfig config) {
     this.normalizationService = normalizationService;
+    this.config = config;
   }
 
   public Optional<SignalResult> evaluate(String symbol, IliResult iliResult, double[] historicalIliValues) {
@@ -58,7 +55,7 @@ public class SignalGenerator {
     }
 
     double expectedMove = estimateExpectedMove(historicalIliValues, percentile);
-    double estimatedCost = transactionCostBps;
+    double estimatedCost = config.transactionCostBps();
 
     String status = evaluateStatus(iliResult, expectedMove, estimatedCost, symbol);
     if (SignalResult.STATUS_COOLDOWN.equals(status)) {
@@ -79,10 +76,10 @@ public class SignalGenerator {
   }
 
   String determineDirection(double percentile) {
-    if (percentile >= buyThreshold) {
+    if (percentile >= config.buyThreshold()) {
       return SignalResult.DIR_BUY;
     }
-    if (percentile <= sellThreshold) {
+    if (percentile <= config.sellThreshold()) {
       return SignalResult.DIR_SELL;
     }
     return null;
@@ -125,23 +122,10 @@ public class SignalGenerator {
     Instant last = lastSignalTime.get(symbol);
     return last != null && Instant
         .now()
-        .isBefore(last.plusMillis(cooldownMs));
+        .isBefore(last.plusMillis(config.cooldownMs()));
   }
 
   void recordSignal(String symbol) {
     lastSignalTime.put(symbol, Instant.now());
-  }
-
-  public void setThresholds(double buyThreshold, double sellThreshold) {
-    this.buyThreshold = buyThreshold;
-    this.sellThreshold = sellThreshold;
-  }
-
-  public void setTransactionCostBps(double bps) {
-    this.transactionCostBps = bps;
-  }
-
-  public void setCooldownMs(long ms) {
-    this.cooldownMs = ms;
   }
 }
