@@ -62,7 +62,7 @@ public class VirtualPortfolio {
 
   public VirtualPortfolioTrade closePosition(long positionId, double exitPrice) {
     VirtualPortfolioPosition position = positionRepository.findOpenPositions().stream()
-        .filter(p -> p.id() == positionId)
+        .filter(p -> p.id().longValue() == positionId)
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("No open position with id: " + positionId));
 
