@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
@@ -14,6 +15,16 @@ import org.springframework.stereotype.Repository;
 public class AlphaSignalRepository {
 
   private final NamedParameterJdbcTemplate jdbc;
+
+  private final RowMapper<AlphaSignalRecord> rowMapper = (rs, rowNum) -> new AlphaSignalRecord(
+      rs.getTimestamp("time").toInstant(),
+      UUID.fromString(rs.getString("strategy_id")),
+      rs.getString("symbol"),
+      rs.getString("direction"),
+      rs.getDouble("strength"),
+      rs.getDouble("confidence"),
+      rs.getObject("expected_move") != null ? rs.getDouble("expected_move") : null,
+      rs.getString("metadata"));
 
   public AlphaSignalRepository(NamedParameterJdbcTemplate jdbc) {
     this.jdbc = jdbc;
@@ -47,15 +58,7 @@ public class AlphaSignalRepository {
             + "FROM alpha_signals WHERE strategy_id = :strategyId AND time BETWEEN :from AND :to "
             + "ORDER BY time",
         Map.of("strategyId", strategyId, "from", from, "to", to),
-        (rs, rowNum) -> new AlphaSignalRecord(
-            rs.getTimestamp("time").toInstant(),
-            UUID.fromString(rs.getString("strategy_id")),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getDouble("strength"),
-            rs.getDouble("confidence"),
-            rs.getObject("expected_move") != null ? rs.getDouble("expected_move") : null,
-            rs.getString("metadata")));
+        rowMapper);
   }
 
   public List<AlphaSignalRecord> findBySymbolAndTimeBetween(
@@ -65,15 +68,7 @@ public class AlphaSignalRepository {
             + "FROM alpha_signals WHERE symbol = :symbol AND time BETWEEN :from AND :to "
             + "ORDER BY time",
         Map.of("symbol", symbol, "from", from, "to", to),
-        (rs, rowNum) -> new AlphaSignalRecord(
-            rs.getTimestamp("time").toInstant(),
-            UUID.fromString(rs.getString("strategy_id")),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getDouble("strength"),
-            rs.getDouble("confidence"),
-            rs.getObject("expected_move") != null ? rs.getDouble("expected_move") : null,
-            rs.getString("metadata")));
+        rowMapper);
   }
 
   public List<AlphaSignalRecord> findLatestByStrategyId(UUID strategyId, int limit) {
@@ -81,15 +76,7 @@ public class AlphaSignalRepository {
         "SELECT time, strategy_id, symbol, direction, strength, confidence, expected_move, metadata "
             + "FROM alpha_signals WHERE strategy_id = :strategyId ORDER BY time DESC LIMIT :limit",
         Map.of("strategyId", strategyId, "limit", limit),
-        (rs, rowNum) -> new AlphaSignalRecord(
-            rs.getTimestamp("time").toInstant(),
-            UUID.fromString(rs.getString("strategy_id")),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getDouble("strength"),
-            rs.getDouble("confidence"),
-            rs.getObject("expected_move") != null ? rs.getDouble("expected_move") : null,
-            rs.getString("metadata")));
+        rowMapper);
   }
 
   private MapSqlParameterSource toParams(AlphaSignalRecord signal) {
