@@ -4,6 +4,7 @@ import com.tickonomics.persistence.entity.SignalLog;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,6 +14,17 @@ import org.springframework.stereotype.Repository;
 public class SignalLogRepository {
 
   private final NamedParameterJdbcTemplate jdbc;
+
+  private final RowMapper<SignalLog> rowMapper = (rs, rowNum) -> new SignalLog(
+      rs.getTimestamp("created_at").toInstant(),
+      rs.getString("symbol"),
+      rs.getString("direction"),
+      rs.getString("status"),
+      rs.getDouble("ili_percentile"),
+      rs.getDouble("ili_value"),
+      rs.getDouble("expected_move"),
+      rs.getDouble("estimated_cost"),
+      rs.getString("signal_metadata"));
 
   public SignalLogRepository(NamedParameterJdbcTemplate jdbc) {
     this.jdbc = jdbc;
@@ -39,18 +51,7 @@ public class SignalLogRepository {
             + "signal_metadata "
             + "FROM signal_log WHERE symbol = :symbol AND created_at BETWEEN :from AND :to ORDER BY created_at DESC",
         Map.of("symbol", symbol, "from", from, "to", to),
-        (rs, rowNum) -> new SignalLog(
-            rs
-                .getTimestamp("created_at")
-                .toInstant(),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getString("status"),
-            rs.getDouble("ili_percentile"),
-            rs.getDouble("ili_value"),
-            rs.getDouble("expected_move"),
-            rs.getDouble("estimated_cost"),
-            rs.getString("signal_metadata")));
+        rowMapper);
   }
 
   public List<SignalLog> findByCreatedAtBetween(Instant from, Instant to) {
@@ -59,18 +60,7 @@ public class SignalLogRepository {
             + "estimated_cost, signal_metadata "
             + "FROM signal_log WHERE created_at BETWEEN :from AND :to ORDER BY created_at",
         Map.of("from", from, "to", to),
-        (rs, rowNum) -> new SignalLog(
-            rs
-                .getTimestamp("created_at")
-                .toInstant(),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getString("status"),
-            rs.getDouble("ili_percentile"),
-            rs.getDouble("ili_value"),
-            rs.getDouble("expected_move"),
-            rs.getDouble("estimated_cost"),
-            rs.getString("signal_metadata")));
+        rowMapper);
   }
 
   public List<SignalLog> findLatestByStatus(String status, int limit) {
@@ -79,18 +69,7 @@ public class SignalLogRepository {
             + "signal_metadata "
             + "FROM signal_log WHERE status = :status ORDER BY created_at DESC LIMIT :limit",
         Map.of("status", status, "limit", limit),
-        (rs, rowNum) -> new SignalLog(
-            rs
-                .getTimestamp("created_at")
-                .toInstant(),
-            rs.getString("symbol"),
-            rs.getString("direction"),
-            rs.getString("status"),
-            rs.getDouble("ili_percentile"),
-            rs.getDouble("ili_value"),
-            rs.getDouble("expected_move"),
-            rs.getDouble("estimated_cost"),
-            rs.getString("signal_metadata")));
+        rowMapper);
   }
 
   private MapSqlParameterSource toParams(SignalLog signal) {
