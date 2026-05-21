@@ -32,7 +32,7 @@ public class ZscoreSeriesRepository {
         SqlParameterSourceUtils.createBatch(entries
             .stream()
             .map(this::toParams)
-            .toArray(MapSqlParameterSource[]::new)));
+            .toList()));
   }
 
   public List<ZscoreSeries> findByComponentAndTimeBetween(String component, Instant from, Instant to) {

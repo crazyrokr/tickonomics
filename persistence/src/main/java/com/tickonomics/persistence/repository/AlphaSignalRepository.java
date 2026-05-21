@@ -48,7 +48,7 @@ public class AlphaSignalRepository {
         SqlParameterSourceUtils.createBatch(signals
             .stream()
             .map(this::toParams)
-            .toArray(MapSqlParameterSource[]::new)));
+            .toList()));
   }
 
   public List<AlphaSignalRecord> findByStrategyIdAndTimeBetween(

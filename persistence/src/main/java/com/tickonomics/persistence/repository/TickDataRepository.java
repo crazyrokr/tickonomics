@@ -32,7 +32,7 @@ public class TickDataRepository {
         SqlParameterSourceUtils.createBatch(ticks
             .stream()
             .map(this::toParams)
-            .toArray(MapSqlParameterSource[]::new)));
+            .toList()));
   }
 
   public List<TickData> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {

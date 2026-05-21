@@ -30,7 +30,7 @@ public class RateSnapshotRepository {
         SqlParameterSourceUtils.createBatch(snapshots
             .stream()
             .map(this::toParams)
-            .toArray(MapSqlParameterSource[]::new)));
+            .toList()));
   }
 
   public List<RateSnapshot> findByRateTypeAndTimeBetween(String rateType, Instant from, Instant to) {
