@@ -15,5 +15,11 @@ public record CdmTick(
     if (volume < 0) {
       throw new IllegalArgumentException("volume must be non-negative");
     }
+    conditions = conditions != null ? conditions.clone() : null;
+  }
+
+  @Override
+  public int[] conditions() {
+    return conditions != null ? conditions.clone() : null;
   }
 }

@@ -11,5 +11,11 @@ public record PolygonTick(
   public PolygonTick {
     Objects.requireNonNull(time, "time must not be null");
     Objects.requireNonNull(symbol, "symbol must not be null");
+    conditions = conditions != null ? conditions.clone() : null;
+  }
+
+  @Override
+  public int[] conditions() {
+    return conditions != null ? conditions.clone() : null;
   }
 }
