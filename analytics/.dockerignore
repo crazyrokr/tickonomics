@@ -6,3 +6,4 @@ tests
 .mypy_cache
 pkg
 build.gradle
+audit/
