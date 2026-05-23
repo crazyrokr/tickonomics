@@ -1,0 +1,757 @@
+[
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_train_autoencoder_produces_model_state()",
+    "start_line_number": 7
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_train_insufficient_data_returns_error()",
+    "start_line_number": 23
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_train_encoding_dim_too_large_returns_error()",
+    "start_line_number": 33
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_detect_anomalies_flags_outliers()",
+    "start_line_number": 42
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_detect_all_normal_returns_no_anomalies()",
+    "start_line_number": 67
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_detect_with_invalid_model_state_returns_error()",
+    "start_line_number": 84
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_detect_empty_data_returns_error()",
+    "start_line_number": 93
+  },
+  {
+    "test_file": "tests/test_anomaly_service.py",
+    "test_function_name": "def test_detect_wrong_feature_count_returns_error()",
+    "start_line_number": 100
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_bsm_call_greeks_atm()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_bsm_put_greeks_atm()",
+    "start_line_number": 24
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_bsm_call_put_parity()",
+    "start_line_number": 41
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_bsm_deep_itm_call()",
+    "start_line_number": 52
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_bsm_invalid_inputs()",
+    "start_line_number": 67
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_gex_aggregate_basic()",
+    "start_line_number": 74
+  },
+  {
+    "test_file": "tests/test_bsm_service.py",
+    "test_function_name": "def test_gex_empty_positions()",
+    "start_line_number": 99
+  },
+  {
+    "test_file": "tests/test_climate_service.py",
+    "test_function_name": "def test_simulate_climate_returns_valid_structure()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_climate_service.py",
+    "test_function_name": "def test_simulate_climate_energy_shift_sums_within_range()",
+    "start_line_number": 20
+  },
+  {
+    "test_file": "tests/test_climate_service.py",
+    "test_function_name": "def test_simulate_climate_deterministic_with_seed()",
+    "start_line_number": 31
+  },
+  {
+    "test_file": "tests/test_climate_service.py",
+    "test_function_name": "def test_simulate_climate_mean_reverts()",
+    "start_line_number": 40
+  },
+  {
+    "test_file": "tests/test_diagnostics_service.py",
+    "test_function_name": "def test_diagnostics_basic()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_diagnostics_service.py",
+    "test_function_name": "def test_diagnostics_acf_decays()",
+    "start_line_number": 25
+  },
+  {
+    "test_file": "tests/test_diagnostics_service.py",
+    "test_function_name": "def test_diagnostics_insufficient_data()",
+    "start_line_number": 36
+  },
+  {
+    "test_file": "tests/test_diagnostics_service.py",
+    "test_function_name": "def test_diagnostics_convergence_mean_approaches_true()",
+    "start_line_number": 41
+  },
+  {
+    "test_file": "tests/test_drift_service.py",
+    "test_function_name": "def test_simulate_ito_terminal_convergence()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_drift_service.py",
+    "test_function_name": "def test_simulate_ito_with_drift()",
+    "start_line_number": 23
+  },
+  {
+    "test_file": "tests/test_drift_service.py",
+    "test_function_name": "def test_simulate_ito_deterministic_with_seed()",
+    "start_line_number": 41
+  },
+  {
+    "test_file": "tests/test_drift_service.py",
+    "test_function_name": "def test_barrier_hitting_probability_zero_drift()",
+    "start_line_number": 49
+  },
+  {
+    "test_file": "tests/test_drift_service.py",
+    "test_function_name": "def test_barrier_hitting_probability_high_drift()",
+    "start_line_number": 68
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_adf_stationary_series()",
+    "start_line_number": 10
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_adf_insufficient_data()",
+    "start_line_number": 26
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_adf_random_walk()",
+    "start_line_number": 32
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_granger_causal_series()",
+    "start_line_number": 42
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_granger_unequal_length()",
+    "start_line_number": 58
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_granger_insufficient_data()",
+    "start_line_number": 64
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_ols_basic_regression()",
+    "start_line_number": 71
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_ols_multiple_regression()",
+    "start_line_number": 87
+  },
+  {
+    "test_file": "tests/test_econometrics_service.py",
+    "test_function_name": "def test_ols_perfect_fit()",
+    "start_line_number": 105
+  },
+  {
+    "test_file": "tests/test_evt_risk_service.py",
+    "test_function_name": "def test_fit_tail_distribution_with_fat_tails()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_evt_risk_service.py",
+    "test_function_name": "def test_insufficient_data_returns_error()",
+    "start_line_number": 23
+  },
+  {
+    "test_file": "tests/test_evt_risk_service.py",
+    "test_function_name": "def test_no_tail_returns_error()",
+    "start_line_number": 36
+  },
+  {
+    "test_file": "tests/test_evt_risk_service.py",
+    "test_function_name": "def test_simulate_tail_paths_returns_correct_length()",
+    "start_line_number": 51
+  },
+  {
+    "test_file": "tests/test_explainability_service.py",
+    "test_function_name": "def test_feature_importance_basic()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_explainability_service.py",
+    "test_function_name": "def test_feature_importance_unknown_model()",
+    "start_line_number": 16
+  },
+  {
+    "test_file": "tests/test_explainability_service.py",
+    "test_function_name": "def test_feature_importance_empty_features()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_duration_benchmark_bond()",
+    "start_line_number": 18
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_duration_zero_coupon()",
+    "start_line_number": 28
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_duration_mismatched_lengths()",
+    "start_line_number": 34
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_duration_empty()",
+    "start_line_number": 40
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_convexity_benchmark_bond()",
+    "start_line_number": 46
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_convexity_zero_coupon()",
+    "start_line_number": 55
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_convexity_mismatched_lengths()",
+    "start_line_number": 62
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_ytm_par_bond()",
+    "start_line_number": 68
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_ytm_discount_bond()",
+    "start_line_number": 78
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_ytm_premium_bond()",
+    "start_line_number": 86
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_ytm_invalid_price()",
+    "start_line_number": 94
+  },
+  {
+    "test_file": "tests/test_fixed_income_service.py",
+    "test_function_name": "def test_ytm_mismatched_lengths()",
+    "start_line_number": 100
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_comovement_factor_basic()",
+    "start_line_number": 8
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_comovement_factor_uncorrelated()",
+    "start_line_number": 22
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_comovement_insufficient_data()",
+    "start_line_number": 35
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_amihud_basic()",
+    "start_line_number": 41
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_amihud_higher_impact_with_smaller_volume()",
+    "start_line_number": 54
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_amihud_zero_volumes()",
+    "start_line_number": 62
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_amihud_mismatched_lengths()",
+    "start_line_number": 67
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_strategic_runs_basic()",
+    "start_line_number": 72
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_strategic_runs_insufficient_data()",
+    "start_line_number": 90
+  },
+  {
+    "test_file": "tests/test_liquidity_services.py",
+    "test_function_name": "def test_strategic_runs_mismatched_lengths()",
+    "start_line_number": 95
+  },
+  {
+    "test_file": "tests/test_macro_shock_service.py",
+    "test_function_name": "def test_impulse_response_computation()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_macro_shock_service.py",
+    "test_function_name": "def test_insufficient_data()",
+    "start_line_number": 28
+  },
+  {
+    "test_file": "tests/test_multiple_testing_service.py",
+    "test_function_name": "def test_fdr_rejects_false_positives()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_multiple_testing_service.py",
+    "test_function_name": "def test_fdr_detects_true_positives()",
+    "start_line_number": 22
+  },
+  {
+    "test_file": "tests/test_multiple_testing_service.py",
+    "test_function_name": "def test_empty_p_values()",
+    "start_line_number": 36
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sharpe_positive_returns()",
+    "start_line_number": 10
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sharpe_negative_returns()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sharpe_insufficient_data()",
+    "start_line_number": 31
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sharpe_zero_std()",
+    "start_line_number": 37
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sortino_basic()",
+    "start_line_number": 43
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sortino_insufficient_data()",
+    "start_line_number": 54
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_sortino_all_positive()",
+    "start_line_number": 60
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_fama_french_capm()",
+    "start_line_number": 66
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_fama_french_three_factor()",
+    "start_line_number": 82
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_fama_french_insufficient_data()",
+    "start_line_number": 101
+  },
+  {
+    "test_file": "tests/test_performance_service.py",
+    "test_function_name": "def test_fama_french_unequal_lengths()",
+    "start_line_number": 107
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_fair_value_3m_tbill()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_fair_value_invalid_instrument()",
+    "start_line_number": 16
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_fair_value_negative_yield()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_tbill_greeks_basic()",
+    "start_line_number": 26
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_tbill_greeks_longer_duration()",
+    "start_line_number": 38
+  },
+  {
+    "test_file": "tests/test_q_world_pricer_service.py",
+    "test_function_name": "def test_tbill_greeks_invalid()",
+    "start_line_number": 46
+  },
+  {
+    "test_file": "tests/test_quantile_regression_service.py",
+    "test_function_name": "def test_quantile_bands_computation()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_quantile_regression_service.py",
+    "test_function_name": "def test_single_quantile()",
+    "start_line_number": 29
+  },
+  {
+    "test_file": "tests/test_rds_scorer_service.py",
+    "test_function_name": "def test_rds_full_disclosure()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_rds_scorer_service.py",
+    "test_function_name": "def test_rds_no_disclosure()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_rds_scorer_service.py",
+    "test_function_name": "def test_rds_partial_disclosure()",
+    "start_line_number": 30
+  },
+  {
+    "test_file": "tests/test_rds_scorer_service.py",
+    "test_function_name": "def test_rds_breakdown_dimensions()",
+    "start_line_number": 45
+  },
+  {
+    "test_file": "tests/test_rds_scorer_service.py",
+    "test_function_name": "def test_rds_empty_model_name()",
+    "start_line_number": 55
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_garch_regime_classifies_correctly()",
+    "start_line_number": 17
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_garch_regime_high_volatility()",
+    "start_line_number": 32
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_garch_regime_insufficient_data()",
+    "start_line_number": 43
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_cnn_lstm_regime_returns_valid_output()",
+    "start_line_number": 50
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_cnn_lstm_regime_insufficient_data()",
+    "start_line_number": 65
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_qed_regime_stable_state()",
+    "start_line_number": 72
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_qed_regime_no_proxies()",
+    "start_line_number": 89
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_qed_regime_short_series()",
+    "start_line_number": 96
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_rahf_regime_returns_valid_output()",
+    "start_line_number": 104
+  },
+  {
+    "test_file": "tests/test_regime_service.py",
+    "test_function_name": "def test_rahf_regime_insufficient_data()",
+    "start_line_number": 120
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_var_historical_method()",
+    "start_line_number": 10
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_var_parametric_method()",
+    "start_line_number": 23
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_var_insufficient_data()",
+    "start_line_number": 34
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_var_parametric_vs_historical()",
+    "start_line_number": 40
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_cvar_basic()",
+    "start_line_number": 51
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_cvar_insufficient_data()",
+    "start_line_number": 62
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_garch_forecast_basic()",
+    "start_line_number": 68
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_garch_insufficient_data()",
+    "start_line_number": 85
+  },
+  {
+    "test_file": "tests/test_risk_service.py",
+    "test_function_name": "def test_garch_persistence_near_one()",
+    "start_line_number": 91
+  },
+  {
+    "test_file": "tests/test_robustness_service.py",
+    "test_function_name": "def test_robustness_scan_basic()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_robustness_service.py",
+    "test_function_name": "def test_robustness_scan_best_has_highest_sharpe()",
+    "start_line_number": 26
+  },
+  {
+    "test_file": "tests/test_robustness_service.py",
+    "test_function_name": "def test_robustness_scan_insufficient_returns()",
+    "start_line_number": 40
+  },
+  {
+    "test_file": "tests/test_robustness_service.py",
+    "test_function_name": "def test_robustness_scan_invalid_ranges()",
+    "start_line_number": 45
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_sentiment_positive_text()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_sentiment_negative_text()",
+    "start_line_number": 17
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_sentiment_neutral_text()",
+    "start_line_number": 27
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_sentiment_negation()",
+    "start_line_number": 37
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_sentiment_empty_input()",
+    "start_line_number": 46
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_lexicon_basic()",
+    "start_line_number": 51
+  },
+  {
+    "test_file": "tests/test_sentiment_service.py",
+    "test_function_name": "def test_lexicon_mixed_sentiment()",
+    "start_line_number": 65
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_basic_update()",
+    "start_line_number": 4
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_increases_best_performer()",
+    "start_line_number": 23
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_respects_max_delta()",
+    "start_line_number": 37
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_lookback_limit()",
+    "start_line_number": 51
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_empty_weights_error()",
+    "start_line_number": 66
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_empty_performance_error()",
+    "start_line_number": 73
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_weights_not_summing_to_one_error()",
+    "start_line_number": 80
+  },
+  {
+    "test_file": "tests/test_sgd_optimizer_service.py",
+    "test_function_name": "def test_weight_delta_zero_performance()",
+    "start_line_number": 87
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_sobol_call_pricing_near_analytical()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_sobol_put_pricing()",
+    "start_line_number": 27
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_sobol_invalid_inputs()",
+    "start_line_number": 45
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_discrete_correction_basic()",
+    "start_line_number": 57
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_discrete_correction_more_monitoring_means_smaller_correction()",
+    "start_line_number": 76
+  },
+  {
+    "test_file": "tests/test_sobol_service.py",
+    "test_function_name": "def test_discrete_correction_invalid()",
+    "start_line_number": 84
+  },
+  {
+    "test_file": "tests/test_stops_service.py",
+    "test_function_name": "def test_calibrate_stops_basic()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_stops_service.py",
+    "test_function_name": "def test_calibrate_stops_positive_drift()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_stops_service.py",
+    "test_function_name": "def test_calibrate_stops_insufficient_data()",
+    "start_line_number": 32
+  },
+  {
+    "test_file": "tests/test_tournament_service.py",
+    "test_function_name": "def test_tournament_basic()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_tournament_service.py",
+    "test_function_name": "def test_tournament_insufficient_data()",
+    "start_line_number": 24
+  },
+  {
+    "test_file": "tests/test_transfer_entropy_service.py",
+    "test_function_name": "def test_coupled_series_has_significant_te()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_transfer_entropy_service.py",
+    "test_function_name": "def test_independent_series_has_low_te()",
+    "start_line_number": 26
+  },
+  {
+    "test_file": "tests/test_volatility_forecast_service.py",
+    "test_function_name": "def test_volatility_forecast_basic()",
+    "start_line_number": 6
+  },
+  {
+    "test_file": "tests/test_volatility_forecast_service.py",
+    "test_function_name": "def test_volatility_forecast_insufficient_data()",
+    "start_line_number": 21
+  },
+  {
+    "test_file": "tests/test_volatility_forecast_service.py",
+    "test_function_name": "def test_volatility_forecast_invalid_horizon()",
+    "start_line_number": 26
+  },
+  {
+    "test_file": "tests/test_yield_curve_service.py",
+    "test_function_name": "def test_fit_nelson_siegel()",
+    "start_line_number": 9
+  },
+  {
+    "test_file": "tests/test_yield_curve_service.py",
+    "test_function_name": "def test_interpolate_produces_values()",
+    "start_line_number": 26
+  }
+]
