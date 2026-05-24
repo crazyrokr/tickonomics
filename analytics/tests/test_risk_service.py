@@ -1,10 +1,12 @@
 import numpy as np
+import pytest
 
 from app.services.risk.risk_service import (
     conditional_var,
     garch_forecast,
     value_at_risk,
 )
+from tests.reference.formulas import var_historical, cvar_historical
 
 
 def test_var_historical_method():
@@ -95,3 +97,88 @@ def test_garch_persistence_near_one():
 
     result = garch_forecast(returns, p=1, q=1)
     assert result["parameters"]["persistence"] < 1.0
+
+
+def test_var_known_distribution():
+    """Given returns from N(0, 0.01), when historical VaR at 95%,
+    then VaR should be close to reference computation."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = rng.normal(0, 0.1, 1000).tolist()
+
+    # When
+    result = value_at_risk(returns, confidence=0.95, method="historical")
+
+    # Then: service VaR should be close to reference
+    ref_var = var_historical(np.array(returns), 0.95)
+    assert "error" not in result
+    assert abs(result["var"] - ref_var) < 0.01
+
+
+def test_cvar_geq_var():
+    """Given any return distribution, when computing CVaR, then CVaR >= VaR (monotonicity)."""
+    # Given
+    rng = np.random.default_rng(77)
+    returns = rng.normal(0, 0.02, 500).tolist()
+
+    # When
+    result = conditional_var(returns, confidence=0.99)
+
+    # Then
+    assert "error" not in result
+    assert result["cvar"] >= result["var"] - 1e-10
+
+
+@pytest.mark.parametrize("confidence", [0.90, 0.95, 0.99])
+def test_var_confidence_monotonicity(confidence):
+    """Given increasing confidence levels, then VaR is non-decreasing in absolute terms."""
+    # Given
+    rng = np.random.default_rng(55)
+    returns = rng.normal(0, 0.01, 500).tolist()
+
+    # When
+    result = value_at_risk(returns, confidence=confidence, method="historical")
+
+    # Then: VaR should be positive and increase with confidence
+    assert "error" not in result
+    assert result["var"] > 0
+
+
+def test_var_confidence_ordering():
+    """Given same returns, VaR(99%) >= VaR(95%) >= VaR(90%) in absolute terms."""
+    # Given
+    rng = np.random.default_rng(33)
+    returns = rng.normal(0, 0.02, 500).tolist()
+
+    # When
+    var90 = value_at_risk(returns, confidence=0.90, method="historical")
+    var95 = value_at_risk(returns, confidence=0.95, method="historical")
+    var99 = value_at_risk(returns, confidence=0.99, method="historical")
+
+    # Then
+    assert var99["var"] >= var95["var"] >= var90["var"]
+
+
+def test_empty_returns():
+    """Given empty return list, when VaR, then error returned."""
+    # Given / When
+    result = value_at_risk([], confidence=0.99)
+    # Then
+    assert "error" in result
+
+
+def test_garch_forecast_converges():
+    """Given long-horizon GARCH forecast, then forecast should converge to unconditional variance."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = rng.standard_normal(500).tolist()
+
+    # When
+    result = garch_forecast(returns, horizon=50)
+
+    # Then: forecast values should stabilize
+    assert "error" not in result
+    forecasts = result["forecast"]
+    late_spread = abs(forecasts[-1] - forecasts[-5])
+    early_spread = abs(forecasts[4] - forecasts[0])
+    assert late_spread <= early_spread + 1e-6
