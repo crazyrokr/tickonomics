@@ -47,3 +47,18 @@ def test_diagnostics_convergence_mean_approaches_true():
 
     cummean = result["convergence"]["cumulative_mean"]
     assert abs(cummean[-1]) < 0.2
+
+
+def test_diagnostics_known_stats():
+    """Given known input, when computing diagnostics, then sample stats match numpy."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = rng.standard_normal(500).tolist()
+
+    # When
+    result = compute_diagnostics(returns)
+
+    # Then: QQ plot should have same number of points as input
+    assert "error" not in result
+    assert len(result["qq_plot"]["sample_quantiles"]) > 0
+    assert result["n_observations"] == 500

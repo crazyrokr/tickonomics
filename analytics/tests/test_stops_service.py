@@ -32,3 +32,17 @@ def test_calibrate_stops_positive_drift():
 def test_calibrate_stops_insufficient_data():
     """Given fewer than 10 trades, when calibrating, then error returned."""
     assert "error" in calibrate_stops([0.01, 0.02, -0.01])
+
+
+def test_stops_loss_triggers_stop():
+    """Given series of losses, when calibrating, then stop-loss is negative."""
+    # Given
+    rng = np.random.default_rng(42)
+    pnl = (-rng.uniform(0.001, 0.05, 100)).tolist()
+
+    # When
+    result = calibrate_stops(pnl, max_iterations=100, seed=42)
+
+    # Then
+    assert "error" not in result
+    assert result["optimal_stop_loss"] < 0

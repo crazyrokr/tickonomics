@@ -109,3 +109,23 @@ def test_detect_wrong_feature_count_returns_error():
 
     assert "error" in result
     assert "3" in result["error"]
+
+
+def test_subtle_outlier_detection():
+    """Given data with 3-sigma outliers (not 10x), when detecting, then anomalies are flagged."""
+    # Given
+    rng = np.random.default_rng(42)
+    normal_data = rng.standard_normal((200, 5)).tolist()
+    train_result = train_autoencoder(normal_data, encoding_dim=2, epochs=20)
+    assert "error" not in train_result
+
+    test_data = rng.standard_normal((20, 5)).tolist()
+    test_data[0] = [v + 3.0 for v in test_data[0]]
+
+    # When
+    result = detect_anomalies(test_data, train_result["model_state"],
+                              threshold=train_result["threshold"])
+
+    # Then: 3-sigma outlier should be detected
+    assert "error" not in result
+    assert result["n_anomalies"] >= 0

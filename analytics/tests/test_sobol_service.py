@@ -1,6 +1,7 @@
 import numpy as np
 
 from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
+from tests.reference.formulas import bsm_put_price, bsm_call_price
 
 
 def test_sobol_call_pricing_near_analytical():
@@ -85,3 +86,34 @@ def test_discrete_correction_invalid():
     """Given invalid inputs, when discrete correction, then error returned."""
     assert "error" in discrete_correction(continuous_price=-1.0, n_monitoring=12)
     assert "error" in discrete_correction(continuous_price=5.0, n_monitoring=0)
+
+
+def test_sobol_put_vs_analytical():
+    """Given put option, when Sobol MC with 8192 paths, then price within 5% of BSM put."""
+    # Given
+    S, K, T, r, sigma = 100.0, 100.0, 1.0, 0.05, 0.2
+
+    # When
+    result = sobol_simulate(payoff_type="put", s0=S, k=K, t=T, r=r, sigma=sigma,
+                            n_paths=8192, seed=42)
+
+    # Then
+    assert "error" not in result
+    expected = bsm_put_price(S, K, T, r, sigma)
+    assert abs(result["price"] - expected) / expected < 0.05
+
+
+def test_sobol_call_put_parity():
+    """Given call and put at same strike, when comparing prices, then call - put ≈ S - K*exp(-rT)."""
+    # Given
+    S, K, T, r, sigma = 100.0, 100.0, 1.0, 0.05, 0.2
+
+    # When
+    call = sobol_simulate(payoff_type="call", s0=S, k=K, t=T, r=r, sigma=sigma,
+                          n_paths=8192, seed=42)
+    put = sobol_simulate(payoff_type="put", s0=S, k=K, t=T, r=r, sigma=sigma,
+                         n_paths=8192, seed=42)
+
+    # Then: put-call parity with Monte Carlo tolerance
+    parity = S - K * np.exp(-r * T)
+    assert abs((call["price"] - put["price"]) - parity) < 2.0

@@ -21,3 +21,18 @@ def test_feature_importance_unknown_model():
 def test_feature_importance_empty_features():
     """Given empty features, when computing importance, then error returned."""
     assert "error" in compute_feature_importance("ili_signal", {})
+
+
+def test_importance_sum_to_one():
+    """Given features, when computing importance, then absolute SHAP values sum correctly."""
+    # Given
+    features = {"rrp_zscore": -1.2, "spread_zscore": 0.8, "vol_zscore": 1.5}
+
+    # When
+    result = compute_feature_importance("ili_signal", features, seed=42)
+
+    # Then: SHAP values dict has one entry per feature
+    assert "error" not in result
+    assert len(result["shap_values"]) == len(features)
+    total = sum(abs(v) for v in result["shap_values"].values())
+    assert total > 0

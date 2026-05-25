@@ -24,3 +24,18 @@ def test_tournament_basic():
 def test_tournament_insufficient_data():
     """Given fewer than 60 returns, when evaluating, then error returned."""
     assert "error" in evaluate_tournament([0.01] * 50)
+
+
+def test_tournament_ranking_consistency():
+    """Given positive-mean returns, when evaluating, then at least one model has positive Sharpe."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = (rng.standard_normal(200) * 0.01 + 0.001).tolist()
+
+    # When
+    result = evaluate_tournament(returns, seed=42)
+
+    # Then
+    assert "error" not in result
+    sharpes = [m["sharpe"] for m in result["results"].values()]
+    assert any(s > 0 for s in sharpes)

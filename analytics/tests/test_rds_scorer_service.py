@@ -55,3 +55,19 @@ def test_rds_breakdown_dimensions():
 def test_rds_empty_model_name():
     """Given empty model name, when computing RDS, then error returned."""
     assert "error" in compute_rds(model_name="")
+
+
+def test_rds_perfect_reproducibility():
+    """Given all reproducibility flags true, when computing RDS, then score equals max."""
+    # Given / When
+    result = compute_rds(
+        model_name="perfect_model",
+        has_code=True,
+        code_versioned=True,
+        dataset_available=True,
+        hyperparams_documented=True,
+        results_reproducible=True,
+    )
+
+    # Then
+    assert result["rds_score"] == 6

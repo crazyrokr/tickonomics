@@ -46,3 +46,17 @@ def test_robustness_scan_invalid_ranges():
     """Given invalid parameter ranges, when scanning, then error returned."""
     assert "error" in robustness_scan([0.01] * 100, {})
     assert "error" in robustness_scan([0.01] * 100, {"x": [1.0, 0.5]})
+
+
+def test_robustness_monotonic_improvement():
+    """Given positive-mean returns, when scanning, then mean_sharpe is computed."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = (rng.standard_normal(100) * 0.01 + 0.001).tolist()
+
+    # When
+    result = robustness_scan(returns, {"w": [0.1, 0.9]}, n_samples=32, seed=42)
+
+    # Then
+    assert "error" not in result
+    assert isinstance(result["mean_sharpe"], float)

@@ -27,3 +27,17 @@ def test_volatility_forecast_invalid_horizon():
     """Given invalid horizon, when forecasting, then error returned."""
     assert "error" in forecast_volatility([0.01] * 100, horizon_days=0)
     assert "error" in forecast_volatility([0.01] * 100, horizon_days=50)
+
+
+def test_forecast_positive_variance():
+    """Given valid returns, when forecasting, then all forecast variances are positive."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = rng.standard_normal(200).tolist()
+
+    # When
+    result = forecast_volatility(returns, horizon_days=10)
+
+    # Then
+    assert "error" not in result
+    assert all(v > 0 for v in result["forecast"])
