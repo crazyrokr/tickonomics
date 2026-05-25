@@ -110,3 +110,48 @@ def test_ols_perfect_fit():
     result = ols_regression(y, [x])
     assert abs(result["r_squared"] - 1.0) < 1e-6
     assert abs(result["coefficients"][1]["estimate"] - 5.0) < 1e-6
+
+
+def test_adf_on_stationary():
+    """Given white noise, when ADF test, then stationary is True."""
+    # Given
+    rng = np.random.default_rng(42)
+    series = rng.standard_normal(200).tolist()
+
+    # When
+    result = adf_test(series)
+
+    # Then: test statistic should be very negative (stationary)
+    assert "error" not in result
+    assert result["stationary"] is True
+    assert result["test_statistic"] < result["critical_values"]["5%"]
+
+
+def test_granger_no_causality_independent():
+    """Given independent series, when Granger test, then causal should be False."""
+    # Given
+    rng = np.random.default_rng(77)
+    n = 300
+    x = rng.standard_normal(n).tolist()
+    y = rng.standard_normal(n).tolist()
+
+    # When
+    result = granger_causality(x, y)
+
+    # Then
+    assert "error" not in result
+    assert result["causal"] is False or result["p_value"] > 0.01
+
+
+def test_ols_r_squared_range():
+    """Given any regression, when R-squared computed, then 0 <= R^2 <= 1."""
+    # Given
+    rng = np.random.default_rng(33)
+    x = rng.standard_normal(100).tolist()
+    y = rng.standard_normal(100).tolist()
+
+    # When
+    result = ols_regression(y, [x])
+
+    # Then
+    assert 0.0 <= result["r_squared"] <= 1.0

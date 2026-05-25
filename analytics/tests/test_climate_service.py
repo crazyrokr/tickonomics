@@ -52,3 +52,37 @@ def test_simulate_climate_mean_reverts():
     assert result["n_steps"] == 500
     final_mean = result["mean_path"][-1]
     assert abs(final_mean - 0.05) < 0.1
+
+
+def test_simulate_climate_path_count():
+    """Given n_paths=10, when simulating, then output contains exactly 10 paths."""
+    # Given
+    n_paths = 10
+
+    # When
+    result = simulate_climate(n_steps=50, n_paths=n_paths, seed=42)
+
+    # Then
+    assert result["n_paths"] == n_paths
+
+
+def test_simulate_climate_step_count():
+    """Given n_steps=100, when simulating, then mean_path has exactly 100 steps."""
+    # Given
+    n_steps = 100
+
+    # When
+    result = simulate_climate(n_steps=n_steps, n_paths=20, seed=42)
+
+    # Then
+    assert len(result["mean_path"]) == n_steps
+
+
+def test_simulate_climate_positive_carbon_tax_effect():
+    """Given higher carbon tax, when simulating, then fossil reduction is larger."""
+    # Given
+    low_tax = simulate_climate(carbon_tax=10, n_steps=50, n_paths=20, seed=42)
+    high_tax = simulate_climate(carbon_tax=200, n_steps=50, n_paths=20, seed=42)
+
+    # Then
+    assert high_tax["energy_mix_shift"]["fossil_reduction"] >= low_tax["energy_mix_shift"]["fossil_reduction"]

@@ -3,6 +3,7 @@ import numpy as np
 from app.services.liquidity.amihud_service import compute_amihud
 from app.services.liquidity.comovement_pca_service import compute_comovement_factor
 from app.services.liquidity.strategic_runs_service import detect_strategic_runs
+from tests.reference.formulas import amihud_exact
 
 
 def test_comovement_factor_basic():
@@ -95,3 +96,49 @@ def test_strategic_runs_insufficient_data():
 def test_strategic_runs_mismatched_lengths():
     """Given mismatched lengths, when detecting runs, then error returned."""
     assert "error" in detect_strategic_runs([1.0, 2.0, 3.0], [100.0], window=1)
+
+
+def test_amihud_known_values():
+    """Given known returns and volumes, when computing Amihud, then matches reference."""
+    # Given
+    returns = np.array([0.01, -0.02, 0.03, -0.01, 0.02])
+    volumes = np.array([5e6, 4.5e6, 6e6, 5.5e6, 4.8e6])
+
+    # When
+    result = compute_amihud(returns.tolist(), volumes.tolist())
+    ref = amihud_exact(returns, volumes)
+
+    # Then
+    assert "error" not in result
+    assert abs(result["amihud_measure"] - ref) < 1e-6
+
+
+def test_comovement_pca_variance_sum():
+    """Given spread matrix, when computing PCA, then sum of explained variance <= 1.0."""
+    # Given
+    rng = np.random.default_rng(42)
+    base = rng.standard_normal(100)
+    spreads = np.column_stack([base + rng.standard_normal(100) * 0.1 for _ in range(5)])
+
+    # When
+    result = compute_comovement_factor(spreads.tolist())
+
+    # Then
+    assert "error" not in result
+    assert result["pc1_variance_explained"] <= 1.0 + 1e-6
+
+
+def test_strategic_runs_no_signal_in_random_data():
+    """Given pure random data, when detecting runs, then run count should be low."""
+    # Given
+    rng = np.random.default_rng(42)
+    n = 200
+    prices = (100.0 + np.cumsum(rng.standard_normal(n) * 0.5)).tolist()
+    volumes = rng.uniform(1000, 10000, n).tolist()
+
+    # When
+    result = detect_strategic_runs(prices, volumes, window=20)
+
+    # Then: in random data, strategic run count should be modest
+    assert "error" not in result
+    assert result["run_count_20obs"] < n

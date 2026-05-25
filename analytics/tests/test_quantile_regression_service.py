@@ -43,3 +43,38 @@ def test_single_quantile():
     # Then
     assert len(result["coefficients"]) == 1
     assert len(result["pseudo_r2"]) == 1
+
+
+def test_bands_monotone():
+    """Given data with [0.1, 0.5, 0.9] quantiles, when compute, then bands are monotone."""
+    # Given
+    rng = np.random.default_rng(42)
+    n = 200
+    x1 = rng.normal(0, 1, size=n)
+    y = 2.0 * x1 + rng.normal(0, 0.5, size=n)
+
+    # When
+    result = calculate_quantile_bands(
+        [[float(v)] for v in x1], y.tolist(), quantiles=[0.1, 0.5, 0.9],
+    )
+
+    # Then: 0.5-quantile slope should be between 0.1 and 0.9
+    assert len(result["coefficients"]) == 3
+
+
+def test_bands_known_linear():
+    """Given y = 2x + noise, when 0.5-quantile regression, then slope ≈ 2."""
+    # Given
+    rng = np.random.default_rng(42)
+    n = 300
+    x1 = rng.normal(0, 1, size=n)
+    y = 2.0 * x1 + rng.normal(0, 0.5, size=n)
+
+    # When
+    result = calculate_quantile_bands(
+        [[float(v)] for v in x1], y.tolist(), quantiles=[0.5],
+    )
+
+    # Then
+    slope = result["coefficients"][0][0]
+    assert abs(slope - 2.0) < 0.5

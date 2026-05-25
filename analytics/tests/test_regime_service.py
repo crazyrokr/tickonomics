@@ -122,3 +122,32 @@ def test_rahf_regime_insufficient_data():
     result = rahf_regime([0.01] * 50)
 
     assert "error" in result
+
+
+def test_cnn_lstm_regime_output_shape():
+    """Given 300 returns, when CNN-LSTM regime, then output has valid confidence."""
+    # Given
+    returns = _make_returns(300)
+
+    # When
+    result = cnn_lstm_regime(returns, lookback=30)
+
+    # Then
+    assert "error" not in result
+    assert 0 <= result["confidence"] <= 1.0
+
+
+def test_garch_regime_two_clusters():
+    """Given bimodal returns (low + high vol), when GARCH regime, then detects a valid regime."""
+    # Given
+    rng = np.random.default_rng(42)
+    calm = rng.standard_normal(200) * 0.01
+    turbulent = rng.standard_normal(200) * 0.05
+    returns = np.concatenate([calm, turbulent]).tolist()
+
+    # When
+    result = garch_regime(returns)
+
+    # Then
+    assert "error" not in result
+    assert result["regime"] in ("LOW_VOL", "NORMAL", "ELEVATED", "HIGH_VOL")

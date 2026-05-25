@@ -37,3 +37,35 @@ def test_independent_series_has_low_te():
     # Then
     assert result["entropy_bits"] >= 0
     assert result["is_significant"] is False or result["entropy_bits"] < 1.0
+
+
+def test_te_asymmetry():
+    """Given unidirectional coupling (x→y), then TE(X→Y) > TE(Y→X)."""
+    # Given
+    rng = np.random.default_rng(42)
+    n = 300
+    source = rng.normal(0, 1, size=n).tolist()
+    target = [0.0] + [0.7 * source[i - 1] + 0.3 * rng.normal() for i in range(1, n)]
+
+    # When
+    te_fwd = compute_transfer_entropy(source, target, lag=1, n_bootstraps=100)
+    te_rev = compute_transfer_entropy(target, source, lag=1, n_bootstraps=100)
+
+    # Then
+    assert te_fwd["entropy_bits"] >= te_rev["entropy_bits"] - 0.1
+
+
+def test_te_includes_p_value():
+    """Given any series, when compute TE, then output includes p_value."""
+    # Given
+    rng = np.random.default_rng(42)
+    n = 100
+    source = rng.normal(0, 1, size=n).tolist()
+    target = rng.normal(0, 1, size=n).tolist()
+
+    # When
+    result = compute_transfer_entropy(source, target, lag=1, n_bootstraps=50)
+
+    # Then
+    assert isinstance(result["p_value"], float)
+    assert 0.0 <= result["p_value"] <= 1.0

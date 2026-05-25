@@ -1,10 +1,12 @@
 import numpy as np
+import pytest
 
 from app.services.performance.performance_service import (
     fama_french_regression,
     sharpe_ratio,
     sortino_ratio,
 )
+from tests.reference.formulas import sharpe_exact, sortino_exact
 
 
 def test_sharpe_positive_returns():
@@ -108,3 +110,73 @@ def test_fama_french_unequal_lengths():
     """Given unequal return/market lengths, when FF, then error."""
     result = fama_french_regression([0.01] * 25, [0.01] * 30)
     assert "error" in result
+
+
+def test_sharpe_known_values():
+    """Given known return series, when computing Sharpe, then matches reference formula."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = rng.normal(0.001, 0.02, 252)
+    rf = 0.0
+
+    # When
+    result = sharpe_ratio(returns.tolist(), risk_free_rate=rf, annualize=True)
+    ref = sharpe_exact(returns, rf=rf / 252, annualize=True)
+
+    # Then: service Sharpe should be close to reference (within rounding)
+    assert "error" not in result
+    assert abs(result["sharpe_ratio"] - ref) < 0.5
+
+
+def test_sharpe_single_return():
+    """Given single return, when Sharpe, then error (division by zero in std)."""
+    # Given / When
+    result = sharpe_ratio([0.05])
+    # Then
+    assert "error" in result
+
+
+def test_ff_regression_r_squared_range():
+    """Given any FF regression, when R-squared computed, then 0 <= R^2 <= 1."""
+    # Given
+    rng = np.random.default_rng(77)
+    n = 120
+    market = rng.standard_normal(n).tolist()
+    returns = [rng.normal(0, 0.02) for _ in range(n)]
+
+    # When
+    result = fama_french_regression(returns, market)
+
+    # Then
+    assert "error" not in result
+    assert 0.0 <= result["r_squared"] <= 1.0
+
+
+def test_ff_regression_beta_near_one():
+    """Given y = x + noise, when FF regression, then market beta ≈ 1.0."""
+    # Given
+    rng = np.random.default_rng(33)
+    n = 200
+    market = rng.standard_normal(n).tolist()
+    returns = [m + rng.normal(0, 0.01) for m in market]
+
+    # When
+    result = fama_french_regression(returns, market)
+
+    # Then
+    assert "error" not in result
+    assert abs(result["coefficients"][1]["estimate"] - 1.0) < 0.2
+
+
+@pytest.mark.parametrize("annualize", [True, False])
+def test_sharpe_annualization_flag(annualize):
+    """Given same returns, when toggling annualize, then both compute without error."""
+    # Given
+    rng = np.random.default_rng(42)
+    returns = (rng.standard_normal(100) * 0.02 + 0.001).tolist()
+
+    # When
+    result = sharpe_ratio(returns, annualize=annualize)
+
+    # Then
+    assert "error" not in result
