@@ -5,11 +5,14 @@ from app.services.diagnostics.diagnostic_service import compute_diagnostics
 
 def test_diagnostics_basic():
     """Given 200 returns, when computing diagnostics, then all sections are present."""
+    # Given
     rng = np.random.default_rng(42)
     returns = rng.standard_normal(200).tolist()
 
+    # When
     result = compute_diagnostics(returns)
 
+    # Then
     assert "error" not in result
     assert "qq_plot" in result
     assert "sample_quantiles" in result["qq_plot"]
@@ -24,27 +27,36 @@ def test_diagnostics_basic():
 
 def test_diagnostics_acf_decays():
     """Given iid returns, when computing ACF, then absolute returns ACF shows some autocorrelation structure."""
+    # Given
     rng = np.random.default_rng(7)
     returns = rng.standard_normal(500).tolist()
 
+    # When
     result = compute_diagnostics(returns)
 
+    # Then
     acf_abs = result["acf"]["absolute_returns"]
     assert len(acf_abs) > 0
 
 
 def test_diagnostics_insufficient_data():
     """Given fewer than 20 returns, when computing diagnostics, then error returned."""
+    # Given
+    # When
+    # Then
     assert "error" in compute_diagnostics([0.01] * 10)
 
 
 def test_diagnostics_convergence_mean_approaches_true():
     """Given normal returns with known mean, when computing convergence, then cumulative mean approaches zero."""
+    # Given
     rng = np.random.default_rng(42)
     returns = rng.standard_normal(1000).tolist()
 
+    # When
     result = compute_diagnostics(returns)
 
+    # Then
     cummean = result["convergence"]["cumulative_mean"]
     assert abs(cummean[-1]) < 0.2
 

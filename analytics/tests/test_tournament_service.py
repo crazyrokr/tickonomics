@@ -5,11 +5,14 @@ from app.services.benchmark.tournament_service import evaluate_tournament
 
 def test_tournament_basic():
     """Given 200 returns, when evaluating tournament, then all 3 models have results."""
+    # Given
     rng = np.random.default_rng(42)
     returns = (rng.standard_normal(200) * 0.01 + 0.0002).tolist()
 
+    # When
     result = evaluate_tournament(returns, seed=42)
 
+    # Then
     assert "error" not in result
     assert "ili_rule_engine" in result["results"]
     assert "momentum" in result["results"]
@@ -23,6 +26,9 @@ def test_tournament_basic():
 
 def test_tournament_insufficient_data():
     """Given fewer than 60 returns, when evaluating, then error returned."""
+    # Given
+    # When
+    # Then
     assert "error" in evaluate_tournament([0.01] * 50)
 
 

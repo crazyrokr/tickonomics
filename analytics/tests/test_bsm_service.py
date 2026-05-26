@@ -3,6 +3,8 @@ from app.services.greeks.bsm_service import aggregate_gex, bsm_greeks
 
 def test_bsm_call_greeks_atm():
     """Given ATM call, when computing Greeks, then delta near 0.5 and gamma > 0."""
+    # Given
+    # When
     result = bsm_greeks(
         spot_price=100.0,
         strike_price=100.0,
@@ -12,6 +14,7 @@ def test_bsm_call_greeks_atm():
         option_type="call",
     )
 
+    # Then
     assert "error" not in result
     assert 0.4 < result["delta"] < 0.7
     assert result["gamma"] > 0
@@ -23,6 +26,8 @@ def test_bsm_call_greeks_atm():
 
 def test_bsm_put_greeks_atm():
     """Given ATM put, when computing Greeks, then delta near -0.5."""
+    # Given
+    # When
     result = bsm_greeks(
         spot_price=100.0,
         strike_price=100.0,
@@ -32,6 +37,7 @@ def test_bsm_put_greeks_atm():
         option_type="put",
     )
 
+    # Then
     assert "error" not in result
     assert -0.7 < result["delta"] < -0.3
     assert result["gamma"] > 0
@@ -40,17 +46,24 @@ def test_bsm_put_greeks_atm():
 
 def test_bsm_call_put_parity():
     """Given same inputs, when call - put, then price difference equals S - K*exp(-rT)."""
+    # Given
     import math
+
+    # When
     call = bsm_greeks(100.0, 100.0, 1.0, 0.05, 0.2, "call")
     put = bsm_greeks(100.0, 100.0, 1.0, 0.05, 0.2, "put")
 
     parity = call["price"] - put["price"]
     expected = 100.0 - 100.0 * math.exp(-0.05 * 1.0)
+
+    # Then
     assert abs(parity - expected) < 0.01
 
 
 def test_bsm_deep_itm_call():
     """Given deep ITM call, when computing Greeks, then delta near 1.0."""
+    # Given
+    # When
     result = bsm_greeks(
         spot_price=150.0,
         strike_price=100.0,
@@ -60,12 +73,16 @@ def test_bsm_deep_itm_call():
         option_type="call",
     )
 
+    # Then
     assert "error" not in result
     assert result["delta"] > 0.9
 
 
 def test_bsm_invalid_inputs():
     """Given invalid inputs, when computing Greeks, then error returned."""
+    # Given
+    # When
+    # Then
     assert "error" in bsm_greeks(0, 100, 1, 0.05, 0.2)
     assert "error" in bsm_greeks(100, 100, -1, 0.05, 0.2)
     assert "error" in bsm_greeks(100, 100, 1, 0.05, 0.2, "invalid")
@@ -73,6 +90,7 @@ def test_bsm_invalid_inputs():
 
 def test_gex_aggregate_basic():
     """Given mixed call/put positions, when aggregating GEX, then net GEX is computed."""
+    # Given
     positions = [
         {"spot_price": 450.0, "strike_price": 445.0, "time_to_expiry": 0.0833,
          "risk_free_rate": 0.05, "implied_volatility": 0.18, "option_type": "call",
@@ -85,8 +103,10 @@ def test_gex_aggregate_basic():
          "quantity": 200, "open_interest": 8000},
     ]
 
+    # When
     result = aggregate_gex(positions)
 
+    # Then
     assert "error" not in result
     assert "net_gex" in result
     assert "total_call_gamma" in result
@@ -98,4 +118,7 @@ def test_gex_aggregate_basic():
 
 def test_gex_empty_positions():
     """Given empty positions list, when aggregating GEX, then error returned."""
+    # Given
+    # When
+    # Then
     assert "error" in aggregate_gex([])
