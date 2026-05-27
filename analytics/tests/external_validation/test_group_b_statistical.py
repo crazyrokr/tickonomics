@@ -20,10 +20,8 @@ from .conftest import TOL_LOW, TOL_MEDIUM, TOL_STATISTICAL, make_garch_data
 
 # ---------------------------------------------------------------------------
 # Step 19 — risk_service.garch_forecast vs scipy.optimize.minimize (L-BFGS-B)
-# Bug B1: GARCH gradient ascent only updates omega; alpha/beta stay at
-# their initial values (0.1 and 0.85).
+# Fixed B1: GARCH now uses scipy.optimize.minimize with full MLE.
 # ---------------------------------------------------------------------------
-@pytest.mark.xfail(reason="B1: GARCH gradient ascent only updates omega", strict=False)
 def test_step19_garch_forecast_vs_scipy_lbfgsb():
     # Given — GARCH(1,1) data with known parameters
     true_omega, true_alpha, true_beta = 0.1, 0.15, 0.80
@@ -64,9 +62,9 @@ def test_step19_garch_forecast_vs_scipy_lbfgsb():
     assert svc_params["beta"][0] == pytest.approx(oracle_beta, rel=0.30)
 
 
-def test_step19_garch_alpha_beta_are_initial_values():
-    """Confirm B1: alpha and beta are never updated from initial values."""
-    # Given — GARCH(1,1) data
+def test_step19_garch_alpha_beta_are_estimated():
+    """Verify B1 fix: alpha and beta are now estimated via MLE, not stuck at initial values."""
+    # Given — GARCH(1,1) data with known true parameters
     returns, _ = make_garch_data(omega=0.1, alpha=0.15, beta=0.80,
                                   n=1000, seed=42)
     returns_list = returns.tolist()
@@ -74,10 +72,11 @@ def test_step19_garch_alpha_beta_are_initial_values():
     # When
     result = garch_forecast(returns_list, p=1, q=1, horizon=5)
 
-    # Then — service hardcodes alpha=[0.1] and beta=[0.85] as initial values
-    # and never updates them (B1 bug). This documents the exact broken values.
-    assert result["parameters"]["alpha"] == [pytest.approx(0.1, abs=TOL_MEDIUM)]
-    assert result["parameters"]["beta"] == [pytest.approx(0.85, abs=TOL_MEDIUM)]
+    # Then — alpha and beta should be estimated near true values (within 50%)
+    assert result["parameters"]["alpha"][0] != pytest.approx(0.1, abs=TOL_MEDIUM)
+    assert result["parameters"]["beta"][0] != pytest.approx(0.85, abs=TOL_MEDIUM)
+    assert result["parameters"]["alpha"][0] == pytest.approx(0.15, rel=0.50)
+    assert result["parameters"]["beta"][0] == pytest.approx(0.80, rel=0.50)
 
 
 # ---------------------------------------------------------------------------
@@ -229,10 +228,8 @@ def test_step22_impulse_response_point_estimates_vs_manual_ols():
         assert svc_var2[i] == pytest.approx(oracle_irf_var2[i], abs=TOL_STATISTICAL)
 
 
-@pytest.mark.xfail(reason="B5: CI uses response*-1.96 instead of response-1.96*SE",
-                   strict=False)
-def test_step22_impulse_response_ci_bug_b5():
-    """Verify B5: confidence intervals are response*-1.96 instead of response +/- 1.96*SE."""
+def test_step22_impulse_response_ci_proper():
+    """Verify B5 fix: confidence intervals are bootstrap-based, not response*-1.96."""
     # Given — simple 2-variable VAR(1)
     rng = np.random.default_rng(42)
     n = 500
@@ -247,14 +244,21 @@ def test_step22_impulse_response_ci_bug_b5():
     # When
     result = compute_impulse_response(columns, data, steps=5)
 
-    # Then — the B5 bug: CI_low = response * -1.96 (instead of response - 1.96*SE)
-    # So CI_low should be exactly -1.96 * response for each step
+    # Then — CIs should NOT be the broken response*-1.96 / response*1.96 pattern
+    # and CI bounds should be ordered correctly for steps > 0
     for col in columns:
-        for i in range(len(result["response_paths"][col])):
+        for i in range(1, len(result["response_paths"][col])):
             response = result["response_paths"][col][i]
             ci_low = result["confidence_low"][col][i]
-            # If B5 bug exists: ci_low == response * -1.96
-            assert ci_low == pytest.approx(response * -1.96, abs=TOL_MEDIUM)
+            ci_high = result["confidence_high"][col][i]
+            assert ci_low < ci_high, (
+                f"CI_low ({ci_low}) should be < CI_high ({ci_high}) at step {i}"
+            )
+            # B5 bug produced ci_low = response * -1.96 and ci_high = response * 1.96
+            # so ci_high / ci_low == -1.0 exactly. Verify this is NOT the case.
+            assert ci_high != pytest.approx(-ci_low, abs=TOL_MEDIUM), (
+                f"B5 bug pattern: ci_high ({ci_high}) ≈ -ci_low ({ci_low}) at step {i}"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -367,9 +371,8 @@ def test_step24_transfer_entropy_bidirectional():
 # ---------------------------------------------------------------------------
 # Step 25 — volatility_forecast_service (delegates to GARCH, B1)
 # ---------------------------------------------------------------------------
-@pytest.mark.xfail(reason="B1: delegates to broken GARCH", strict=False)
 def test_step25_volatility_forecast_reasonable():
-    """Volatility forecast delegates to garch_forecast which has bug B1."""
+    """Volatility forecast delegates to garch_forecast (B1 fixed)."""
     # Given — GARCH(1,1) data with known parameters
     returns, sigma2_true = make_garch_data(omega=0.1, alpha=0.15, beta=0.80,
                                             n=1000, seed=42)

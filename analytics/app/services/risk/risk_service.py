@@ -1,6 +1,7 @@
 """Risk metrics service: VaR, CVaR, GARCH volatility forecasting."""
 
 import numpy as np
+from scipy import optimize
 from typing import Optional
 
 
@@ -96,31 +97,48 @@ def _estimate_garch(r: np.ndarray, p: int, q: int):
     r2 = r ** 2
     var_r2 = np.var(r2) if np.var(r2) > 0 else 1e-6
 
-    omega = var_r2 * 0.1
-    alpha = [0.1 / p] * p
-    beta = [0.85 / q] * q
+    omega_init = var_r2 * 0.1
+    alpha_init = [0.1 / p] * p
+    beta_init = [0.85 / q] * q
 
-    for _ in range(50):
-        sigma2 = _compute_conditional_variance(r, omega, alpha, beta, p, q)
+    def neg_log_likelihood(params):
+        omega = params[0]
+        alpha_coeffs = params[1 : 1 + p]
+        beta_coeffs = params[1 + p : 1 + p + q]
+        if omega <= 0 or any(a < 0 for a in alpha_coeffs) or any(b < 0 for b in beta_coeffs):
+            return 1e12
+        sum_ab = sum(alpha_coeffs) + sum(beta_coeffs)
+        if sum_ab >= 1.0:
+            return 1e12
+        alpha_list = alpha_coeffs.tolist()
+        beta_list = beta_coeffs.tolist()
+        uncond_var = omega / (1.0 - sum_ab)
+        sigma2 = np.full(n, uncond_var)
+        start = max(p, q)
+        for t in range(start, n):
+            arch = sum(alpha_list[i] * r2[t - i - 1] for i in range(p))
+            garch = sum(beta_list[j] * sigma2[t - j - 1] for j in range(q))
+            sigma2[t] = omega + arch + garch
         sigma2 = np.maximum(sigma2, 1e-10)
-
         ll = np.sum(-0.5 * (np.log(2 * np.pi) + np.log(sigma2) + r2 / sigma2))
-        grad_omega = np.sum(0.5 * (1.0 / sigma2 - r2 / sigma2 ** 2))
+        return -ll
 
-        lr = 0.001
-        omega_new = max(1e-8, omega + lr * grad_omega)
+    x0 = [omega_init] + alpha_init + beta_init
+    bounds = [(1e-8, None)] + [(1e-6, 0.999)] * p + [(1e-6, 0.999)] * q
 
-        sum_ab = sum(alpha) + sum(beta)
-        if sum_ab >= 0.999:
-            scale = 0.999 / sum_ab
-            alpha = [a * scale for a in alpha]
-            beta = [b * scale for b in beta]
+    result = optimize.minimize(neg_log_likelihood, x0, method="L-BFGS-B",
+                               bounds=bounds, options={"maxiter": 5000})
 
-        if abs(omega_new - omega) < 1e-8:
-            break
-        omega = omega_new
+    omega = max(1e-8, result.x[0])
+    alpha_coeffs = [max(1e-6, float(v)) for v in result.x[1 : 1 + p]]
+    beta_coeffs = [max(1e-6, float(v)) for v in result.x[1 + p : 1 + p + q]]
 
-    return omega, alpha, beta
+    if sum(alpha_coeffs) + sum(beta_coeffs) >= 0.999:
+        scale = 0.999 / (sum(alpha_coeffs) + sum(beta_coeffs))
+        alpha_coeffs = [a * scale for a in alpha_coeffs]
+        beta_coeffs = [b * scale for b in beta_coeffs]
+
+    return omega, alpha_coeffs, beta_coeffs
 
 
 def _compute_conditional_variance(r: np.ndarray, omega: float, alpha: list[float], beta: list[float], p: int, q: int):

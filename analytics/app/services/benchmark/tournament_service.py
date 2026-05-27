@@ -36,8 +36,8 @@ def evaluate_tournament(
 
     rng_slice = rng.standard_normal(len(momentum_returns)) * 0.01
     combined = momentum_returns + rng_slice
-    lstm_sharpe = _compute_sharpe(combined)
-    lstm_hit = _compute_hit_rate(combined)
+    noise_sharpe = _compute_sharpe(combined)
+    noise_hit = _compute_hit_rate(combined)
 
     def _regime_best(series):
         if len(series) < 10:
@@ -52,7 +52,7 @@ def evaluate_tournament(
         elif sharpe < -0.5:
             return "momentum"
         else:
-            return "lstm"
+            return "momentum_noise"
 
     regime_breakdown = {
         "uptrend": _regime_best(r[:third]),
@@ -64,7 +64,7 @@ def evaluate_tournament(
         "results": {
             "ili_rule_engine": {"sharpe": round(ili_sharpe, 4), "hit_rate": round(ili_hit, 4)},
             "momentum": {"sharpe": round(momentum_sharpe, 4), "hit_rate": round(momentum_hit, 4)},
-            "lstm": {"sharpe": round(lstm_sharpe, 4), "hit_rate": round(lstm_hit, 4)},
+            "momentum_noise": {"sharpe": round(noise_sharpe, 4), "hit_rate": round(noise_hit, 4)},
         },
         "regime_breakdown": regime_breakdown,
         "n_observations": n,

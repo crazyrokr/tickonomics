@@ -211,9 +211,8 @@ def test_step32_lexicon_neutral_text():
 # ---------------------------------------------------------------------------
 # Step 33 — regime_service sub-model validation
 # ---------------------------------------------------------------------------
-@pytest.mark.xfail(reason="B1: GARCH gradient ascent only updates omega", strict=False)
 def test_step33_garch_regime_runs():
-    """garch_regime should classify regime without error (xfail: inherits B1)."""
+    """garch_regime should classify regime without error (B1 fixed)."""
     # Given — 200 synthetic returns
     rng = np.random.default_rng(42)
     returns = rng.normal(0.0001, 0.02, size=200).tolist()
@@ -308,9 +307,8 @@ def test_step33_qed_regime_stable_single_well():
     assert "crash_probability" in result
 
 
-@pytest.mark.xfail(reason="B1: RAHF uses garch_forecast which inherits B1", strict=False)
 def test_step33_rahf_regime_runs():
-    """rahf_regime should run without error (xfail: inherits B1 via GARCH)."""
+    """rahf_regime should run without error (B1 fixed)."""
     # Given — 200 synthetic returns
     rng = np.random.default_rng(42)
     returns = rng.normal(0.0001, 0.02, size=200).tolist()
@@ -397,9 +395,8 @@ def test_step34_momentum_sharpe_manual_verification():
     )
 
 
-@pytest.mark.xfail(reason="B6: LSTM is momentum+noise, not a real LSTM", strict=False)
-def test_step34_lstm_is_not_real_lstm():
-    """LSTM results should differ from pure momentum due to noise injection (B6: not a real LSTM)."""
+def test_step34_momentum_noise_differs_from_pure_momentum():
+    """Verify B6 fix: momentum_noise differs from pure momentum due to noise injection."""
     # Given
     rng = np.random.default_rng(42)
     returns = (rng.normal(0.001, 0.02, size=100)).tolist()
@@ -409,16 +406,11 @@ def test_step34_lstm_is_not_real_lstm():
     assert "error" not in result
 
     mom_sharpe = result["results"]["momentum"]["sharpe"]
-    lstm_sharpe = result["results"]["lstm"]["sharpe"]
+    noise_sharpe = result["results"]["momentum_noise"]["sharpe"]
 
-    # Then — LSTM is just momentum + random noise, so it should differ slightly
-    # but not be a fundamentally different computation
-    # If this were a real LSTM, the difference would be substantial and meaningful
-    # Flag: the "LSTM" Sharpe is computed as Sharpe(momentum_returns + N(0,0.01))
-    # This test documents that LSTM is NOT a real LSTM implementation
-    assert lstm_sharpe != mom_sharpe, (
-        "LSTM Sharpe equals momentum Sharpe — if they match exactly, "
-        "the noise injection did nothing, confirming B6"
+    # Then — momentum_noise is momentum + N(0,0.01), so it should differ slightly
+    assert noise_sharpe != mom_sharpe, (
+        "momentum_noise Sharpe equals momentum Sharpe — noise injection had no effect"
     )
 
 
@@ -438,7 +430,7 @@ def test_step34_regime_breakdown_structure():
     assert "sideways" in breakdown
     assert "downtrend" in breakdown
     for regime_key, model_name in breakdown.items():
-        assert model_name in {"ili_rule_engine", "momentum", "lstm"}, (
+        assert model_name in {"ili_rule_engine", "momentum", "momentum_noise"}, (
             f"Unexpected model name '{model_name}' for regime '{regime_key}'"
         )
 

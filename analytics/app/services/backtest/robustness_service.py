@@ -42,8 +42,16 @@ def robustness_scan(
     for i in range(actual_samples):
         params = {param_names[j]: float(scaled[i, j]) for j in range(dim)}
 
-        n_active = max(1, int(n_returns * 0.5))
+        n_active = max(10, int(n_returns * params.get("window", 0.5)))
+        n_active = min(n_active, n_returns)
         active_returns = returns_arr[-n_active:]
+
+        threshold = params.get("threshold", 0.0)
+        if threshold > 0:
+            mask = np.abs(active_returns) > threshold
+            if mask.sum() < 5:
+                mask = np.ones(len(active_returns), dtype=bool)
+            active_returns = active_returns[mask]
 
         sharpe = float(np.mean(active_returns) / np.std(active_returns, ddof=1)) if np.std(active_returns, ddof=1) > 0 else 0.0
         cumulative = np.cumsum(active_returns)

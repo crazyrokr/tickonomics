@@ -56,7 +56,7 @@ def adf_test(series: list[float], max_lags: Optional[int] = None) -> dict:
     adf_stat = beta[1] / se[1]
 
     critical_values = {"1%": -3.43, "5%": -2.86, "10%": -2.57}
-    p_value = _adf_pvalue(adf_stat)
+    p_value = _adf_pvalue(adf_stat, n)
 
     return {
         "test_statistic": round(float(adf_stat), 4),
@@ -160,9 +160,9 @@ def ols_regression(y: list[float], x: list[list[float]]) -> dict:
     }
 
 
-def _adf_pvalue(stat: float) -> float:
-    approx = np.exp(-0.1234 - 1.6221 * stat - 0.0502 * stat ** 2)
-    return float(np.clip(approx, 0.0, 1.0))
+def _adf_pvalue(stat: float, n: int = 500) -> float:
+    from statsmodels.tsa.stattools import mackinnonp
+    return float(mackinnonp(stat, regression="c", N=1, lags=None))
 
 
 def _granger_restricted(y: np.ndarray, lag: int):

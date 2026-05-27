@@ -16,7 +16,7 @@ def test_tournament_basic():
     assert "error" not in result
     assert "ili_rule_engine" in result["results"]
     assert "momentum" in result["results"]
-    assert "lstm" in result["results"]
+    assert "momentum_noise" in result["results"]
     for model_name, metrics in result["results"].items():
         assert "sharpe" in metrics
         assert "hit_rate" in metrics

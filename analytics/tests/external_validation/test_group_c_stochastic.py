@@ -227,13 +227,10 @@ def test_step28_barrier_hitting_vs_analytical():
 
 
 # ---------------------------------------------------------------------------
-# Step 29 — robustness_service Sobol sampling (BUG_FOUND B2)
+# Step 29 — robustness_service Sobol sampling (B2 fixed)
 # ---------------------------------------------------------------------------
-@pytest.mark.xfail(reason="B2: Sobol params never used in evaluation", strict=False)
-def test_step29_robustness_scan_sobol_params_ignored():
-    """B2 bug: robustness_scan generates Sobol parameter samples but never
-    actually varies the evaluation — all Sharpe values should be identical,
-    confirming the sampled parameters have no effect on the result."""
+def test_step29_robustness_scan_sobol_params_diverse():
+    """Verify B2 fix: Sobol-sampled parameters produce diverse Sharpe values."""
     # Given — synthetic strategy returns and two parameter ranges
     rng = np.random.default_rng(42)
     strategy_returns = rng.normal(0.001, 0.02, 100).tolist()
@@ -250,15 +247,12 @@ def test_step29_robustness_scan_sobol_params_ignored():
         seed=42,
     )
 
-    # Then — if B2 bug exists, all Sharpe values will be identical because
-    # the Sobol-generated params are never used in the evaluation logic
+    # Then — Sobol-sampled parameters should produce diverse Sharpe values
     sharpe_values = [r["sharpe"] for r in result["results"]]
     unique_sharpes = set(sharpe_values)
-
-    # If only one unique Sharpe value, the bug is confirmed (all results identical)
-    assert len(unique_sharpes) == 1, (
-        f"Expected all Sharpe values to be identical (B2 bug), "
-        f"but found {len(unique_sharpes)} distinct values"
+    assert len(unique_sharpes) > 10, (
+        f"Expected diverse Sharpe values from parameter sweep, "
+        f"but found only {len(unique_sharpes)} distinct values"
     )
 
 

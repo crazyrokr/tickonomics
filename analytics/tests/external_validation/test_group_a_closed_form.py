@@ -573,9 +573,8 @@ def test_step12_acf_ar1_vs_statsmodels():
 
 
 # ---------------------------------------------------------------------------
-# Step 13 — q_world_pricer_service vs textbook CIR (BUG_FOUND B4)
+# Step 13 — q_world_pricer_service vs textbook CIR (B4 fixed)
 # ---------------------------------------------------------------------------
-@pytest.mark.xfail(reason="B4: CIR a(t,T) formula may be incorrect", strict=False)
 def test_step13_q_world_cir_vs_textbook():
     # Given — textbook CIR parameters for 1Y T-Bill
     instrument = "1Y_TBILL"
@@ -775,7 +774,6 @@ def test_step17_adf_white_noise_stationary():
     assert oracle[1] < 0.05  # statsmodels also says stationary
 
 
-@pytest.mark.xfail(reason="B3: ADF p-value approximation may be inaccurate", strict=False)
 def test_step17_adf_pvalue_vs_statsmodels():
     # Given — AR(1) phi=0.9 (near unit root but stationary)
     rng = np.random.default_rng(30)

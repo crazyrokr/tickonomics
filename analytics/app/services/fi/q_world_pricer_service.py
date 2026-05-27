@@ -1,5 +1,7 @@
 """Q-World bond pricer: CIR model fair-value T-Bill yield."""
 
+import math
+
 import numpy as np
 from scipy import optimize
 
@@ -29,15 +31,19 @@ def compute_fair_value(
     theta = current_yield * 0.98
     sigma = 0.01
     r0 = current_yield
+    lam = 0.0
 
-    b = (1.0 - np.exp(-kappa * tenor)) / kappa
-    a = (kappa * theta / (sigma ** 2)) * (
-        (kappa + 0.5 * sigma ** 2 / kappa) * tenor
-        - b
-        - 0.25 * sigma ** 2 * b ** 2 / kappa
+    h = math.sqrt(kappa ** 2 + 2 * sigma ** 2)
+    B = 2.0 * (math.exp(h * tenor) - 1.0) / (
+        2.0 * h + (kappa + lam + h) * (math.exp(h * tenor) - 1.0)
     )
+    A = (
+        2.0 * h * math.exp((kappa + lam + h) * tenor / 2.0)
+        / (2.0 * h + (kappa + lam + h) * (math.exp(h * tenor) - 1.0))
+    ) ** (2.0 * kappa * theta / sigma ** 2)
 
-    fair_yield = -(a - b * r0) / tenor
+    log_P = math.log(A) - B * r0
+    fair_yield = -log_P / tenor
 
     residual = current_yield - fair_yield
     residual_std = 0.02
