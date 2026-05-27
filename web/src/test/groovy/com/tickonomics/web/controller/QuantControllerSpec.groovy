@@ -3,6 +3,7 @@ package com.tickonomics.web.controller
 import com.tickonomics.computation.audit.CodingRule
 import com.tickonomics.computation.audit.IntersubjectiveAuditService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
@@ -14,7 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-@WebMvcTest([QuantController, HealthController])
+@WebMvcTest(value = [QuantController, HealthController], excludeAutoConfiguration = [SecurityAutoConfiguration])
 @Import(IntersubjectiveAuditService.class)
 @ContextConfiguration(classes = [QuantController, HealthController, IntersubjectiveAuditService])
 class QuantControllerSpec extends Specification {
