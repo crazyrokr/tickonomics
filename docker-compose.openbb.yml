@@ -1,0 +1,29 @@
+# OpenBB Platform sidecar for equity/ETF price data.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.openbb.yml up
+#
+# The analytics worker queries OpenBB via its REST API at :8002/api/v1/equity/price
+# for supplemental equity pricing data not covered by Polygon or FRED.
+# This is optional — direct FRED and NY Fed clients remain the primary sources.
+
+services:
+  openbb:
+    image: openbbplatform/openbb:latest
+    container_name: openbb-platform
+    ports:
+      - "8002:8000"
+    networks:
+      - tickonomics-net
+    environment:
+      OPENBB_LOG_LEVEL: INFO
+    volumes:
+      - openbb_data:/home/openbb/.openbb_platform
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  openbb_data:

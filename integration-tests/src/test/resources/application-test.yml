@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:tc:timescaledb:///tickonomics_test
+    username: tickonomics
+    password: tickonomics
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+security:
+  auth-disabled: true
+
+management:
+  tracing:
+    sampling:
+      probability: 0.0
+
+analytics:
+  worker:
+    url: http://localhost:8001
+
+monitor:
+  demo:
+    enabled: false
