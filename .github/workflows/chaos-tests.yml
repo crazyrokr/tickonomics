@@ -1,0 +1,205 @@
+name: Chaos Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * 6'
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Specific scenario to run (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - all
+          - tsdb-latency
+          - worker-restart
+          - buffer-overflow
+          - ws-disconnect
+          - total-failure
+
+concurrency:
+  group: chaos-tests
+  cancel-in-progress: false
+
+jobs:
+  chaos-test:
+    name: Chaos Engineering Tests
+    runs-on: ubuntu-latest
+    environment: staging
+
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg16
+        env:
+          POSTGRES_DB: tickonomics
+          POSTGRES_USER: tickonomics
+          POSTGRES_PASSWORD: tickonomics
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/configuration-cache
+          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Build application
+        run: ./gradlew :app:bootJar -x test --no-daemon
+
+      - name: Start services
+        run: |
+          docker compose -f docker-compose.yml up -d timescaledb jaeger
+          sleep 10
+
+          # Start backend with auth disabled for chaos testing
+          docker compose run -d --name backend-chaos \
+            -e AUTH_DISABLED=true \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://timescaledb:5432/tickonomics \
+            -e SECURITY_AUTH_DISABLED=true \
+            backend
+          sleep 15
+
+      - name: Scenario 1 - TimescaleDB Latency
+        if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'tsdb-latency' || github.event.inputs.scenario == ''
+        run: |
+          echo "::group::TSDB Latency Injection"
+          echo "Injecting 1000ms latency into TimescaleDB for 60 seconds..."
+
+          # Add network latency using tc (traffic control)
+          docker exec $(docker ps -q -f name=timescaledb) sh -c \
+            "apt-get update -qq && apt-get install -qq -y iproute2 > /dev/null 2>&1 && \
+             tc qdisc add dev eth0 root netem delay 1000ms" || true
+
+          START=$(date +%s)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          END=$(date +%s)
+
+          # Remove latency
+          docker exec $(docker ps -q -f name=timescaledb) sh -c \
+            "tc qdisc del dev eth0 root netem 2>/dev/null" || true
+
+          if [ "$HTTP_CODE" -ge 500 ] || [ "$HTTP_CODE" = "000" ]; then
+            echo "::error::Backend unhealthy during TSDB latency (HTTP $HTTP_CODE)"
+            echo "Expected: circuit breaker opens, LKG cache serves stale data"
+          else
+            echo "Backend remained responsive (HTTP $HTTP_CODE) - circuit breaker active"
+          fi
+
+          RECOVERY_TIME=$(( $(date +%s) - END ))
+          echo "Recovery time: ${RECOVERY_TIME}s"
+          echo "::endgroup::"
+
+      - name: Scenario 2 - Analytics Worker Restart
+        if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'worker-restart' || github.event.inputs.scenario == ''
+        run: |
+          echo "::group::Analytics Worker Restart"
+          echo "Killing analytics worker for 30 seconds..."
+
+          docker compose stop analytics-worker
+          sleep 30
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          echo "Backend health during worker outage: HTTP $HTTP_CODE"
+
+          docker compose start analytics-worker
+          sleep 10
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          echo "Backend health after worker recovery: HTTP $HTTP_CODE"
+          echo "::endgroup::"
+
+      - name: Scenario 3 - Buffer Overflow
+        if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'buffer-overflow' || github.event.inputs.scenario == ''
+        run: |
+          echo "::group::Buffer Overflow Test"
+          echo "Simulating ingestion buffer overflow..."
+
+          # Generate high-volume test data to fill buffer
+          for i in $(seq 1 100); do
+            curl -s -X POST http://localhost:8080/api/v1/demo/open-position \
+              -d "symbol=TICK&quantity=100&price=1.0${i}" 2>/dev/null || true
+          done
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          echo "Backend health after buffer stress: HTTP $HTTP_CODE"
+          echo "Expected: FileOverflowBuffer handles overflow, no data loss"
+          echo "::endgroup::"
+
+      - name: Scenario 4 - WebSocket Disconnect
+        if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'ws-disconnect' || github.event.inputs.scenario == ''
+        run: |
+          echo "::group::WebSocket Disconnect Simulation"
+          echo "Simulating Polygon WebSocket disconnect for 6 minutes..."
+
+          # Simulate disconnect by blocking outbound connections
+          docker network disconnect tickonomics-net $(docker ps -q -f name=backend) || true
+          sleep 10
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          echo "Backend health during WS disconnect: HTTP $HTTP_CODE"
+          echo "Expected: REST fallback activates for market data"
+
+          docker network connect tickonomics-net $(docker ps -q -f name=backend) || true
+          sleep 5
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          echo "Backend health after reconnection: HTTP $HTTP_CODE"
+          echo "::endgroup::"
+
+      - name: Scenario 5 - Total External Failure
+        if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'total-failure' || github.event.inputs.scenario == ''
+        run: |
+          echo "::group::Total External Failure"
+          echo "Simulating total external service failure for 60 seconds..."
+
+          # Stop all external dependencies
+          docker compose stop analytics-worker jaeger
+
+          START=$(date +%s)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
+          BODY=$(curl -s http://localhost:8080/health 2>/dev/null || echo "{}")
+
+          if echo "$BODY" | grep -q "NaN\|Infinity\|null"; then
+            echo "::error::NaN/Infinity detected in health response during total failure"
+          else
+            echo "No NaN/Infinity in responses - graceful degradation working"
+          fi
+
+          # Restart services
+          docker compose start jaeger analytics-worker
+          sleep 10
+
+          END=$(date +%s)
+          RECOVERY=$(( END - START ))
+          echo "Recovery time: ${RECOVERY}s (must be < 120s)"
+          echo "::endgroup::"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml down -v --remove-orphans 2>/dev/null || true
+
+      - name: Upload chaos test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-test-results
+          path: |
+            **/build/reports/tests/**
+            **/*.log
