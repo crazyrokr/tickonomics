@@ -14,9 +14,9 @@ WHERE parameter_slice_metadata IS NOT NULL
 GROUP BY day, buy_pct, sell_pct;
 
 SELECT add_continuous_aggregate_policy('ili_robustness_heatmap',
-                                       start_offset = > NULL,
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => NULL,
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');
 
 CREATE
 MATERIALIZED VIEW daily_comovement_factor
@@ -29,9 +29,9 @@ FROM liquidity_comovement_snapshots
 GROUP BY day;
 
 SELECT add_continuous_aggregate_policy('daily_comovement_factor',
-                                       start_offset = > INTERVAL '30 days',
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => INTERVAL '30 days',
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');
 
 CREATE
 MATERIALIZED VIEW daily_toxicity_summary
@@ -42,11 +42,11 @@ SELECT time_bucket('1 day', computed_at) AS day,
     AVG(order_to_trade_ratio) AS avg_otr,
     AVG(round_trip_pct) AS avg_round_trip,
     COUNT(*) AS observations,
-    COUNT(*) FILTER (WHERE toxicity_class = 'HARMFUL') AS harmful_count
+    SUM(CASE WHEN toxicity_class = 'HARMFUL' THEN 1 ELSE 0 END) AS harmful_count
 FROM toxicity_scores
 GROUP BY day, symbol, venue;
 
 SELECT add_continuous_aggregate_policy('daily_toxicity_summary',
-                                       start_offset = > INTERVAL '30 days',
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => INTERVAL '30 days',
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');

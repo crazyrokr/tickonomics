@@ -34,7 +34,7 @@ CREATE TABLE signal_log
 
 CREATE TABLE backtest_results
 (
-    id              BIGSERIAL PRIMARY KEY,
+    id              BIGSERIAL,
     run_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     strategy_config JSONB       NOT NULL,
     date_range      TSTZRANGE   NOT NULL,
@@ -42,8 +42,10 @@ CREATE TABLE backtest_results
     max_drawdown    DOUBLE PRECISION,
     win_rate        DOUBLE PRECISION,
     profit_factor   DOUBLE PRECISION,
-    equity_curve    JSONB
+    equity_curve    JSONB,
+    PRIMARY KEY (id, run_at)
 );
+SELECT create_hypertable('backtest_results', 'run_at', chunk_time_interval => INTERVAL '7 days');
 
 CREATE TABLE ingestion_dlq
 (

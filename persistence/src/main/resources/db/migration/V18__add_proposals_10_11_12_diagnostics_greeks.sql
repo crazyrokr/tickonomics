@@ -12,7 +12,7 @@ CREATE TABLE fed_balance_sheet
     reverse_repo    DOUBLE PRECISION,
     tga_balance     DOUBLE PRECISION
 );
-SELECT create_hypertable('fed_balance_sheet', 'time', chunk_time_interval = > INTERVAL '7 days');
+SELECT create_hypertable('fed_balance_sheet', 'time', chunk_time_interval => INTERVAL '7 days');
 
 CREATE TABLE tournament_results
 (
@@ -40,7 +40,7 @@ CREATE TABLE greeks_sensitivity
     dv01         DOUBLE PRECISION,
     convexity    DOUBLE PRECISION
 );
-SELECT create_hypertable('greeks_sensitivity', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('greeks_sensitivity', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE risk_premium_residuals
 (
@@ -52,7 +52,7 @@ CREATE TABLE risk_premium_residuals
     residual_std     DOUBLE PRECISION,
     dislocated       BOOLEAN DEFAULT FALSE
 );
-SELECT create_hypertable('risk_premium_residuals', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('risk_premium_residuals', 'time', chunk_time_interval => INTERVAL '1 day');
 
 ALTER TABLE backtest_results
     ADD COLUMN adjusted_p_values JSONB;

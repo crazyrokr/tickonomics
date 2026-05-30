@@ -15,9 +15,9 @@ WHERE metric = 'PEARSON_CORRELATION'
 GROUP BY day, symbol, metric;
 
 SELECT add_continuous_aggregate_policy('kpi_rolling_correlation',
-                                       start_offset = > INTERVAL '30 days',
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => INTERVAL '30 days',
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');
 
 CREATE
 MATERIALIZED VIEW kpi_rolling_beta
@@ -32,9 +32,9 @@ WHERE metric = 'OLS_BETA'
 GROUP BY day, symbol;
 
 SELECT add_continuous_aggregate_policy('kpi_rolling_beta',
-                                       start_offset = > INTERVAL '90 days',
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => INTERVAL '90 days',
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');
 
 CREATE
 MATERIALIZED VIEW kpi_zscore_daily
@@ -50,6 +50,6 @@ FROM zscore_series
 GROUP BY day, component;
 
 SELECT add_continuous_aggregate_policy('kpi_zscore_daily',
-                                       start_offset = > INTERVAL '30 days',
-                                       end_offset = > INTERVAL '1 day',
-                                       schedule_interval = > INTERVAL '1 day');
+                                       start_offset => INTERVAL '30 days',
+                                       end_offset => INTERVAL '1 day',
+                                       schedule_interval => INTERVAL '1 day');

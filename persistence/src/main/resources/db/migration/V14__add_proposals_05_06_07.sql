@@ -67,7 +67,7 @@ CREATE TABLE market_gamma_history
     gex_dollar             DOUBLE PRECISION,
     implied_volatility_atm DOUBLE PRECISION
 );
-SELECT create_hypertable('market_gamma_history', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('market_gamma_history', 'time', chunk_time_interval => INTERVAL '1 day');
 
 -- Phantom liquidity index
 CREATE TABLE phantom_liquidity_metrics
@@ -79,29 +79,33 @@ CREATE TABLE phantom_liquidity_metrics
     executed_volume      BIGINT,
     total_volume_at_best BIGINT
 );
-SELECT create_hypertable('phantom_liquidity_metrics', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('phantom_liquidity_metrics', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE liquidity_comovement_snapshots
 (
-    id                     BIGSERIAL PRIMARY KEY,
+    id                     BIGSERIAL,
     computed_at            TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
     comovement_factor      DOUBLE PRECISION NOT NULL,
     variance_explained_pc1 DOUBLE PRECISION,
     variance_explained_pc2 DOUBLE PRECISION,
-    symbols_included       TEXT[] NOT NULL
+    symbols_included       TEXT[] NOT NULL,
+    PRIMARY KEY (id, computed_at)
 );
+SELECT create_hypertable('liquidity_comovement_snapshots', 'computed_at', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE toxicity_scores
 (
-    id                   BIGSERIAL PRIMARY KEY,
+    id                   BIGSERIAL,
     computed_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     symbol               TEXT        NOT NULL,
     venue                TEXT,
     order_to_trade_ratio DOUBLE PRECISION,
     round_trip_pct       DOUBLE PRECISION,
     toxicity_class       TEXT        NOT NULL,
-    confidence           DOUBLE PRECISION
+    confidence           DOUBLE PRECISION,
+    PRIMARY KEY (id, computed_at)
 );
+SELECT create_hypertable('toxicity_scores', 'computed_at', chunk_time_interval => INTERVAL '1 day');
 
 ALTER TABLE tick_data
     ADD COLUMN order_flow_imbalance DOUBLE PRECISION;
@@ -118,7 +122,7 @@ CREATE TABLE behavioural_risk_index
     sentiment_polarity DOUBLE PRECISION,
     regime             TEXT             NOT NULL
 );
-SELECT create_hypertable('behavioural_risk_index', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('behavioural_risk_index', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE trader_type_estimates
 (

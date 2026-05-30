@@ -12,7 +12,7 @@ CREATE TABLE market_events
     magnitude     DOUBLE PRECISION,
     metadata      JSONB
 );
-SELECT create_hypertable('market_events', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('market_events', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE disaster_alerts
 (

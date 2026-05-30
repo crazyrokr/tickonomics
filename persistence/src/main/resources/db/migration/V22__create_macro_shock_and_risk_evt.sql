@@ -10,7 +10,7 @@ CREATE TABLE macro_shock_irfs
     magnitude_std   DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (time, shock_source, target_kpi)
 );
-SELECT create_hypertable('macro_shock_irfs', 'time', chunk_time_interval = > INTERVAL '30 days');
+SELECT create_hypertable('macro_shock_irfs', 'time', chunk_time_interval => INTERVAL '30 days');
 
 CREATE TABLE risk_evt_parameters
 (
@@ -23,4 +23,4 @@ CREATE TABLE risk_evt_parameters
     tail_var_999 DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (time, symbol)
 );
-SELECT create_hypertable('risk_evt_parameters', 'time', chunk_time_interval = > INTERVAL '30 days');
+SELECT create_hypertable('risk_evt_parameters', 'time', chunk_time_interval => INTERVAL '30 days');

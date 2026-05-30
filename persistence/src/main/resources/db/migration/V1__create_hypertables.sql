@@ -8,7 +8,7 @@ CREATE TABLE tick_data
     volume     BIGINT,
     conditions INTEGER[]
 );
-SELECT create_hypertable('tick_data', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('tick_data', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE rate_snapshots
 (
@@ -17,7 +17,7 @@ CREATE TABLE rate_snapshots
     value     DOUBLE PRECISION,
     source    TEXT
 );
-SELECT create_hypertable('rate_snapshots', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('rate_snapshots', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE ili_history
 (
@@ -31,7 +31,7 @@ CREATE TABLE ili_history
     proxy_divergence_status TEXT,
     proxy_divergence_score  DOUBLE PRECISION
 );
-SELECT create_hypertable('ili_history', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('ili_history', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE zscore_series
 (
@@ -41,7 +41,7 @@ CREATE TABLE zscore_series
     z_score       DOUBLE PRECISION,
     lookback_days INTEGER     NOT NULL
 );
-SELECT create_hypertable('zscore_series', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('zscore_series', 'time', chunk_time_interval => INTERVAL '1 day');
 
 CREATE TABLE correlation_outputs
 (
@@ -54,4 +54,4 @@ CREATE TABLE correlation_outputs
     lag_order   INTEGER,
     direction   TEXT
 );
-SELECT create_hypertable('correlation_outputs', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('correlation_outputs', 'time', chunk_time_interval => INTERVAL '1 day');

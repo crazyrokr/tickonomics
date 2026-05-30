@@ -7,7 +7,7 @@ CREATE TABLE quantile_coefficients
     pseudo_r2    DOUBLE PRECISION,
     PRIMARY KEY (time, kpi_name, quantile)
 );
-SELECT create_hypertable('quantile_coefficients', 'time', chunk_time_interval = > INTERVAL '30 days');
+SELECT create_hypertable('quantile_coefficients', 'time', chunk_time_interval => INTERVAL '30 days');
 
 CREATE TABLE synergy_entropy_matrix
 (
@@ -18,4 +18,4 @@ CREATE TABLE synergy_entropy_matrix
     p_value      DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (time, source_a, source_b)
 );
-SELECT create_hypertable('synergy_entropy_matrix', 'time', chunk_time_interval = > INTERVAL '30 days');
+SELECT create_hypertable('synergy_entropy_matrix', 'time', chunk_time_interval => INTERVAL '30 days');

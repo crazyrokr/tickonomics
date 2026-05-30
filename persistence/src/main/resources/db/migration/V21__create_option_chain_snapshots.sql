@@ -18,5 +18,5 @@ CREATE TABLE option_chain_snapshots
     underlying_price DOUBLE PRECISION,
     PRIMARY KEY (time, symbol, strike, expiry, option_type)
 );
-SELECT create_hypertable('option_chain_snapshots', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('option_chain_snapshots', 'time', chunk_time_interval => INTERVAL '1 day');
 CREATE INDEX idx_option_chain_symbol_expiry ON option_chain_snapshots (symbol, expiry, strike);

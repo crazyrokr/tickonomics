@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE strategy_definitions
 (
     id                UUID PRIMARY KEY     DEFAULT gen_random_uuid(),
@@ -24,5 +26,5 @@ CREATE TABLE alpha_signals
     metadata      JSONB,
     PRIMARY KEY (time, strategy_id, symbol)
 );
-SELECT create_hypertable('alpha_signals', 'time', chunk_time_interval = > INTERVAL '7 days');
+SELECT create_hypertable('alpha_signals', 'time', chunk_time_interval => INTERVAL '7 days');
 CREATE INDEX idx_alpha_signals_strategy ON alpha_signals (strategy_id, time DESC);

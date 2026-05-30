@@ -12,7 +12,7 @@ CREATE TABLE sentiment_history
     polarity       DOUBLE PRECISION,
     subjectivity   DOUBLE PRECISION
 );
-SELECT create_hypertable('sentiment_history', 'time', chunk_time_interval = > INTERVAL '1 day');
+SELECT create_hypertable('sentiment_history', 'time', chunk_time_interval => INTERVAL '1 day');
 
 ALTER TABLE virtual_portfolio_trades
     ADD COLUMN execution_type TEXT NOT NULL DEFAULT 'AGGRESSIVE'
@@ -36,7 +36,7 @@ CREATE TABLE pairs_trading_pairs
 
 CREATE TABLE markov_stop_calibrations
 (
-    id                  BIGSERIAL PRIMARY KEY,
+    id                  BIGSERIAL,
     symbol              TEXT             NOT NULL,
     optimal_stop_loss   DOUBLE PRECISION NOT NULL,
     optimal_take_profit DOUBLE PRECISION NOT NULL,
@@ -44,9 +44,10 @@ CREATE TABLE markov_stop_calibrations
     decay_intensity     DOUBLE PRECISION,
     converged           BOOLEAN          NOT NULL DEFAULT FALSE,
     iterations          INTEGER,
-    calibrated_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW()
+    calibrated_at       TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id, calibrated_at)
 );
-SELECT create_hypertable('markov_stop_calibrations', 'calibrated_at', chunk_time_interval = > INTERVAL '7 days');
+SELECT create_hypertable('markov_stop_calibrations', 'calibrated_at', chunk_time_interval => INTERVAL '7 days');
 
 CREATE INDEX idx_sentiment_symbol_time ON sentiment_history (symbol, time DESC);
 CREATE INDEX idx_sentiment_source_type ON sentiment_history (source_type, time DESC);
