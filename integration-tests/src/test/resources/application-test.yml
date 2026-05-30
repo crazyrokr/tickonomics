@@ -6,6 +6,16 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    execute-in-transaction: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+    org.postgresql: DEBUG
 
 security:
   auth-disabled: true

@@ -2,9 +2,14 @@ plugins {
   id 'java'
 }
 
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
 dependencies {
   implementation project(':app')
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-web'
   testImplementation 'org.testcontainers:postgresql'
   testImplementation 'org.testcontainers:junit-jupiter'
 }
