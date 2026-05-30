@@ -1,5 +1,8 @@
 package com.tickonomics.computation.backtest;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Eq553SlippageModel {
 
   private static final double ZETA = 0.15;

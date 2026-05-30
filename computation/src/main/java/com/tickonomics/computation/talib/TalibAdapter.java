@@ -11,9 +11,13 @@ import com.tictactec.ta.lib.functions.Sma;
 import com.tictactec.ta.lib.functions.StdDev;
 import com.tictactec.ta.lib.results.BandsResult;
 import com.tictactec.ta.lib.results.RealResult;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+@Component
+@ConditionalOnResource(resources = "native/libta-lib.so")
 public class TalibAdapter {
 
   public TalibAdapter() {

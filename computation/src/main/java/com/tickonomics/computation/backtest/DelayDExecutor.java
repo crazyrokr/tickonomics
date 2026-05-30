@@ -3,8 +3,10 @@ package com.tickonomics.computation.backtest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import java.util.Map;
 
+@Component
 public class DelayDExecutor {
 
   private static final double FRAGILITY_THRESHOLD = 3.0;

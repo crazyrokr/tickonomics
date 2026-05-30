@@ -3,9 +3,11 @@ package com.tickonomics.computation.equity;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 public class EquityStrategyRegistry {
 
   private final Map<String, BaseEquityStrategy> strategies = new LinkedHashMap<>();
