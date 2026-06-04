@@ -22,7 +22,9 @@ public class FredClient {
 
   private static final Logger log = LoggerFactory.getLogger(FredClient.class);
   private static final DateTimeFormatter FRED_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  private static final List<String> SERIES_IDS = List.of("EFFR", "RRPONTSYD", "WTREGEN", "WALCL", "IORB");
+  private static final List<String> SERIES_IDS = List.of(
+      "EFFR", "RRPONTSYD", "WTREGEN", "WALCL", "IORB",
+      "DGS1MO", "DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS5", "DGS10", "DGS30");
 
   private final RestClient restClient;
   private final TimescaleDbWriter writer;

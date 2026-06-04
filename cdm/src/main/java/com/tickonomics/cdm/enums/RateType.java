@@ -14,7 +14,14 @@ public enum RateType {
   RRP,
   TGA,
   WALCL,
-  TBILL_3M;
+  TBILL_3M,
+  TBILL_1M,
+  TBILL_6M,
+  TBILL_1Y,
+  TBILL_2Y,
+  TBILL_5Y,
+  TBILL_10Y,
+  TBILL_30Y;
 
   /**
    * Resolves the InstrumentType used for grouping in the ILI computation pipeline.
@@ -23,7 +30,7 @@ public enum RateType {
     return switch (this) {
       case SOFR, EFFR, TGCR, BGCR, IORB, OBFR -> InstrumentType.valueOf(name());
       case RRP, TGA, WALCL -> InstrumentType.REPO;
-      case TBILL_3M -> InstrumentType.BILL_3M;
+      case TBILL_3M, TBILL_1M, TBILL_6M, TBILL_1Y, TBILL_2Y, TBILL_5Y, TBILL_10Y, TBILL_30Y -> InstrumentType.BILL_3M;
     };
   }
 }

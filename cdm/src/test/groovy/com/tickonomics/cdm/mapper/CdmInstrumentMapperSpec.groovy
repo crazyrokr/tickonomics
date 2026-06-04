@@ -23,7 +23,15 @@ class CdmInstrumentMapperSpec extends Specification {
         "RRPONTSYD" | "RRP"      | InstrumentType.REPO
         "WTREGEN"   | "TGA"      | InstrumentType.REPO
         "WALCL"     | "WALCL"    | InstrumentType.REPO
-        "IORB"      | "IORB"     | InstrumentType.IORB
+        "IORB"      | "IORB"      | InstrumentType.IORB
+        "DGS1MO"    | "TBILL_1M"  | InstrumentType.BILL_3M
+        "DGS3MO"    | "TBILL_3M"  | InstrumentType.BILL_3M
+        "DGS6MO"    | "TBILL_6M"  | InstrumentType.BILL_3M
+        "DGS1"      | "TBILL_1Y"  | InstrumentType.BILL_3M
+        "DGS2"      | "TBILL_2Y"  | InstrumentType.BILL_3M
+        "DGS5"      | "TBILL_5Y"  | InstrumentType.BILL_3M
+        "DGS10"     | "TBILL_10Y" | InstrumentType.BILL_3M
+        "DGS30"     | "TBILL_30Y" | InstrumentType.BILL_3M
   }
 
   def "throws IllegalArgumentException for unknown Fred series"() {

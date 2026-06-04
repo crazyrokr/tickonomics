@@ -106,6 +106,9 @@ monitor:
     base-url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp
     poll-interval-ms: 86400000
 
+  yield-curve:
+    enabled: true
+
 resilience4j:
   retry:
     instances:
