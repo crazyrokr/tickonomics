@@ -109,6 +109,16 @@ monitor:
   yield-curve:
     enabled: true
 
+  alpha-vantage:
+    enabled: true
+    api-key: ${ALPHAVANTAGE_API_KEY:}
+    base-url: https://www.alphavantage.co/query
+    poll-interval-ms: 86400000
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+    commodities: GOLD,OIL,NATURAL_GAS,COPPER
+    rate-limit-delay-ms: 12100
+    initial-full-load: true
+
 resilience4j:
   retry:
     instances:
@@ -143,6 +153,13 @@ resilience4j:
       fedRssApi:
         max-attempts: 3
         wait-duration: 2s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      alphaVantageApi:
+        max-attempts: 3
+        wait-duration: 12s
         enable-exponential-backoff: true
         exponential-backoff-multiplier: 2
         retry-exceptions:
