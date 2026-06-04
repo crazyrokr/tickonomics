@@ -101,6 +101,11 @@ monitor:
     fomc-url: https://www.federalreserve.gov/feeds/press_monetary.xml
     poll-interval-ms: 3600000
 
+  ken-french:
+    enabled: true
+    base-url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp
+    poll-interval-ms: 86400000
+
 resilience4j:
   retry:
     instances:
