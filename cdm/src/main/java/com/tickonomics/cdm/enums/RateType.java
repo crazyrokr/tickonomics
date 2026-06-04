@@ -21,7 +21,11 @@ public enum RateType {
   TBILL_2Y,
   TBILL_5Y,
   TBILL_10Y,
-  TBILL_30Y;
+  TBILL_30Y,
+  VIX,
+  OIL_WTI,
+  OIL_BRENT,
+  GOLD;
 
   /**
    * Resolves the InstrumentType used for grouping in the ILI computation pipeline.
@@ -31,6 +35,9 @@ public enum RateType {
       case SOFR, EFFR, TGCR, BGCR, IORB, OBFR -> InstrumentType.valueOf(name());
       case RRP, TGA, WALCL -> InstrumentType.REPO;
       case TBILL_3M, TBILL_1M, TBILL_6M, TBILL_1Y, TBILL_2Y, TBILL_5Y, TBILL_10Y, TBILL_30Y -> InstrumentType.BILL_3M;
+      case VIX -> InstrumentType.EQUITY;
+      case OIL_WTI, OIL_BRENT -> InstrumentType.COMMODITY_OIL;
+      case GOLD -> InstrumentType.COMMODITY_GOLD;
     };
   }
 }

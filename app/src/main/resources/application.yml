@@ -119,6 +119,12 @@ monitor:
     rate-limit-delay-ms: 12100
     initial-full-load: true
 
+  datahub:
+    enabled: true
+    base-url: https://datahub.io
+    startup-full-load: true
+    incremental-check-cron: "0 0 2 1 * *"
+
 resilience4j:
   retry:
     instances:
