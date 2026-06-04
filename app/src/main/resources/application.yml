@@ -68,6 +68,28 @@ monitor:
     skip-dislocated-signals: true
     default-addv: 10000000
 
+  equity-price:
+    enabled: true
+    poll-interval-ms: 21600000
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+
+  yahoo-finance:
+    enabled: true
+    base-url: https://query1.finance.yahoo.com
+    connect-timeout: 5s
+    read-timeout: 30s
+
+  finnhub:
+    api-key: ${FINNHUB_API_KEY:}
+    rest-enabled: true
+    rest-url: https://finnhub.io/api/v1
+    ws-enabled: true
+    ws-url: wss://ws.finnhub.io
+    ws-reconnect-backoff-max: 60s
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+    connect-timeout: 5s
+    read-timeout: 30s
+
 resilience4j:
   retry:
     instances:
@@ -79,6 +101,20 @@ resilience4j:
         retry-exceptions:
           - org.springframework.web.client.RestClientException
       nyfedApi:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      yahooFinanceApi:
+        max-attempts: 3
+        wait-duration: 2s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      finnhubApi:
         max-attempts: 3
         wait-duration: 1s
         enable-exponential-backoff: true
