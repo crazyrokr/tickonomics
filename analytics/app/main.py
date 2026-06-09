@@ -1,3 +1,5 @@
+import signal
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,6 +32,16 @@ from app.routers.statistical import (
     transfer_entropy,
     yield_curve,
 )
+
+shutdown_requested = False
+
+
+def _handle_sigterm(signum, frame):
+    global shutdown_requested
+    shutdown_requested = True
+
+
+signal.signal(signal.SIGTERM, _handle_sigterm)
 
 app = FastAPI(title="Tickonomics Analytics", version="0.1.0")
 

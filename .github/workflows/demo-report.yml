@@ -14,7 +14,8 @@ jobs:
     name: Generate Weekly Demo Report
     runs-on: ubuntu-latest
     environment: demo
-
+    permissions:
+      issues: write
     services:
       postgres:
         image: timescale/timescaledb:latest-pg16
