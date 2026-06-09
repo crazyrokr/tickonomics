@@ -1,0 +1,237 @@
+name: Forecast Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+      - 'analytics/**'
+      - 'app/**'
+      - 'computation/**'
+      - 'ingestion/**'
+      - 'persistence/**'
+      - 'web/**'
+      - 'Dockerfile'
+      - '.github/workflows/forecast-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/forecast-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Cloud provider'
+        required: true
+        default: 'aws'
+        type: choice
+        options:
+          - aws
+          - gcp
+          - azure
+      image_tag:
+        description: 'Container image tag'
+        required: false
+        default: 'latest'
+
+env:
+  TF_VERSION: '~> 1.7'
+  REGISTRY: ${{ vars.REGISTRY_URL || '' }}
+
+jobs:
+  build-images:
+    name: Build & Push Container Images
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS Credentials
+        if: vars.CLOUD_PROVIDER == 'aws' || inputs.provider == 'aws'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Login to ECR
+        if: vars.CLOUD_PROVIDER == 'aws' || inputs.provider == 'aws'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ vars.ECR_BACKEND_URL || 'tickonomics/backend' }}:${{ inputs.image_tag || 'latest' }}
+            ${{ vars.ECR_BACKEND_URL || 'tickonomics/backend' }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push analytics image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./analytics
+          file: ./analytics/Dockerfile
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ vars.ECR_ANALYTICS_URL || 'tickonomics/analytics' }}:${{ inputs.image_tag || 'latest' }}
+            ${{ vars.ECR_ANALYTICS_URL || 'tickonomics/analytics' }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive infra/terraform/
+
+      - name: Terraform init (AWS)
+        working-directory: infra/terraform/environments/aws
+        run: terraform init -backend=false
+
+      - name: Terraform validate (AWS)
+        working-directory: infra/terraform/environments/aws
+        run: terraform validate
+
+      - name: Terraform init (GCP)
+        working-directory: infra/terraform/environments/gcp
+        run: terraform init -backend=false
+
+      - name: Terraform validate (GCP)
+        working-directory: infra/terraform/environments/gcp
+        run: terraform validate
+
+      - name: Terraform init (Azure)
+        working-directory: infra/terraform/environments/azure
+        run: terraform init -backend=false
+
+      - name: Terraform validate (Azure)
+        working-directory: infra/terraform/environments/azure
+        run: terraform validate
+
+  terraform-plan:
+    name: Terraform Plan (${{ inputs.provider || 'aws' }})
+    runs-on: ubuntu-latest
+    needs: [terraform-validate]
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        if: inputs.provider == 'aws' || inputs.provider == ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Terraform Init
+        working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
+        run: terraform plan -var="image_tag=${{ inputs.image_tag || github.sha }}" -no-color
+        continue-on-error: true
+
+  terraform-apply:
+    name: Terraform Apply (${{ inputs.provider || 'aws' }})
+    runs-on: ubuntu-latest
+    needs: [build-images, terraform-validate]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        if: inputs.provider == 'aws' || inputs.provider == ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Terraform Init
+        working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
+        run: terraform apply -var="image_tag=${{ inputs.image_tag || github.sha }}" -auto-approve
+
+  smoke-test:
+    name: Forecast Smoke Test
+    runs-on: ubuntu-latest
+    needs: [terraform-apply]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trigger forecast via API Gateway
+        run: |
+          API_ENDPOINT="${{ needs.terraform-apply.outputs.api_gateway_endpoint || vars.FORECAST_API_ENDPOINT }}"
+          if [ -z "$API_ENDPOINT" ]; then
+            echo "No API endpoint available, skipping smoke test"
+            exit 0
+          fi
+
+          RESPONSE=$(curl -sf -X POST "${API_ENDPOINT}/forecast" -H "Content-Type: application/json" || echo '{"status":"FAILED"}')
+          echo "Trigger response: $RESPONSE"
+
+          TASK_ID=$(echo "$RESPONSE" | jq -r '.task_id // empty')
+          if [ -z "$TASK_ID" ]; then
+            echo "Failed to get task_id"
+            exit 1
+          fi
+
+          echo "Forecast task triggered: $TASK_ID"
+          echo "Polling status for up to 60 minutes..."
+
+          for i in $(seq 1 60); do
+            STATUS_RESPONSE=$(curl -sf "${API_ENDPOINT}/forecast/${TASK_ID}" || echo '{"status":"UNKNOWN"}')
+            STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status')
+            echo "  [$i/60] Status: $STATUS"
+
+            if [ "$STATUS" = "COMPLETED" ]; then
+              echo "Forecast completed successfully!"
+              exit 0
+            fi
+
+            if [ "$STATUS" = "FAILED" ]; then
+              echo "Forecast failed!"
+              exit 1
+            fi
+
+            sleep 60
+          done
+
+          echo "Forecast did not complete within 60 minutes"
+          exit 1
