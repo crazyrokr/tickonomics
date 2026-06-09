@@ -192,6 +192,8 @@ jobs:
   smoke-test:
     name: Forecast Smoke Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [terraform-apply]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     steps:
