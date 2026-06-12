@@ -3,7 +3,12 @@ package com.tickonomics.persistence.entity;
 import java.time.Instant;
 
 public record RateSnapshot(
-    Instant time, String rateType, double value, String source) {
+    Instant time,
+    String rateType,
+    double value,
+    String source,
+    Double anomalyScore,
+    Boolean isSuspectAnomaly) {
   public RateSnapshot {
     if (time == null) {
       throw new NullPointerException("time must not be null");

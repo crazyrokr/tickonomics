@@ -89,7 +89,9 @@ public class NyFedClient {
             .instrumentType()
             .name(),
         cdm.value(),
-        cdm.source());
+        cdm.source(),
+        null,
+        null);
   }
 
   record NyFedRatesApiResponse(List<NyFedRateRaw> refRates) {}

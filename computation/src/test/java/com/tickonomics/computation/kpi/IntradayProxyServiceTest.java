@@ -57,7 +57,9 @@ class IntradayProxyServiceTest {
                     now.minusSeconds((long) (count - i) * 86400),
                     rateType,
                     baseValue + i * 0.001,
-                    "TEST"
+                    "TEST",
+                    null,
+                    null
             ));
         }
         return rates;

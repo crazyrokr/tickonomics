@@ -89,8 +89,8 @@ class IdempotencyRoutingSpec extends Specification {
 
     def "given writeRate called directly, when different keys, then all buffered"() {
         given:
-            def rate1 = new RateSnapshot(Instant.parse("2026-05-23T00:00:00Z"), "SOFR", 4.29, "NY_FED")
-            def rate2 = new RateSnapshot(Instant.parse("2026-05-24T00:00:00Z"), "SOFR", 4.30, "NY_FED")
+            def rate1 = new RateSnapshot(Instant.parse("2026-05-23T00:00:00Z"), "SOFR", 4.29, "NY_FED", null, null)
+            def rate2 = new RateSnapshot(Instant.parse("2026-05-24T00:00:00Z"), "SOFR", 4.30, "NY_FED", null, null)
 
         when:
             writer.writeRate(rate1)

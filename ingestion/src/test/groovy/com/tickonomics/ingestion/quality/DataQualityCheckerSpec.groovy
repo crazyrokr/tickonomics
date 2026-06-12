@@ -21,9 +21,9 @@ class DataQualityCheckerSpec extends Specification {
     where:
         curr                                            | prev                                                               | expected
         null                                            | null                                                               | DataQualityChecker.DataQualityResult.MISSING
-        new RateSnapshot(NOW, "SOFR", 4.2910, "NY_FED") | new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.2900, "NY_FED") | DataQualityChecker.DataQualityResult.VALID
-        new RateSnapshot(NOW, "SOFR", 5.00, "NY_FED")   | new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.29, "NY_FED")   | DataQualityChecker.DataQualityResult.OUTLIER
-        new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED")   | null                                                               | DataQualityChecker.DataQualityResult.VALID
+        new RateSnapshot(NOW, "SOFR", 4.2910, "NY_FED", null, null) | new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.2900, "NY_FED", null, null) | DataQualityChecker.DataQualityResult.VALID
+        new RateSnapshot(NOW, "SOFR", 5.00, "NY_FED", null, null)   | new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.29, "NY_FED", null, null)   | DataQualityChecker.DataQualityResult.OUTLIER
+        new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null)   | null                                                               | DataQualityChecker.DataQualityResult.VALID
   }
 
   def "given various time scenarios, when isStale, then return expected result"() {
@@ -44,7 +44,7 @@ class DataQualityCheckerSpec extends Specification {
         batch                                                                                                                                                                                     | expected
         null                                                                                                                                                                                      | DataQualityChecker.DataQualityResult.MISSING
         []                                                                                                                                                                                        | DataQualityChecker.DataQualityResult.MISSING
-        [new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.2900, "NY_FED"), new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.2905, "NY_FED"), new RateSnapshot(NOW, "SOFR", 4.2910, "NY_FED")] | DataQualityChecker.DataQualityResult.VALID
-        [new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.28, "NY_FED"), new RateSnapshot(NOW, "SOFR", 5.50, "NY_FED")]                                                                         | DataQualityChecker.DataQualityResult.OUTLIER
+        [new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.2900, "NY_FED", null, null), new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.2905, "NY_FED", null, null), new RateSnapshot(NOW, "SOFR", 4.2910, "NY_FED", null, null)] | DataQualityChecker.DataQualityResult.VALID
+        [new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.28, "NY_FED", null, null), new RateSnapshot(NOW, "SOFR", 5.50, "NY_FED", null, null)]                                                                         | DataQualityChecker.DataQualityResult.OUTLIER
   }
 }
