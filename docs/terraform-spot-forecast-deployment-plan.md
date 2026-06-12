@@ -6,6 +6,8 @@ The Tickonomics platform currently runs exclusively via Docker Compose with no I
 
 **Key constraints:** The project has no single "forecast" endpoint — the pipeline is a composition of Java `@Scheduled` ingestion, KPI computation services, and Python ML analytics. The orchestration script must drive this end-to-end.
 
+**Storage prerequisite:** The forecast and anomaly detection subsystems have three storage gaps that must be closed before spot-instance orchestration can deliver reliable results. These gaps — forecast result storage, anomaly score wiring, and model state persistence — are addressed in [`docs/forecast-anomaly-storage-gap-elimination-plan.md`](forecast-anomaly-storage-gap-elimination-plan.md). The changes below assume those gaps are resolved (migrations V29, V30; entity/repository updates; `ForecastPersistenceService`, `AnomalyScoringService`, `ModelArtifactService`).
+
 ---
 
 ## Phase 1: Terraform Foundation and AWS Implementation
@@ -91,10 +93,11 @@ The main bootstrap script injected as cloud-init. Orchestrates the full lifecycl
 4. `docker compose up -d` using `docker-compose.forecast.yml`
 5. Wait for all three services healthy (delegated to `health-check.sh`)
 6. Wait for data ingestion — poll `rate_snapshots` row count via `docker exec` psql until >= 50 rows or 10-min timeout
-7. Call forecast pipeline endpoints to trigger KPI/signal computation
-8. Run `collect-results.sh` — curl all relevant API endpoints, `pg_dump`, tar, upload to S3/GCS/Blob
-9. Run `shutdown.sh` — stop containers, sync, unmount disk
-10. Self-terminate the spot instance (if `AUTO_TERMINATE=true`)
+7. **Model warm-start**: Check `model_artifacts` table for active models matching the current data hash. If found, skip retraining — the `ModelArtifactService` will serve cached GARCH parameters and autoencoder weights. Otherwise, trigger training endpoints and persist results via `ForecastPersistenceService`.
+8. Call forecast pipeline endpoints to trigger KPI/signal computation, anomaly scoring (`AnomalyScoringService`), and regime detection
+9. Run `collect-results.sh` — curl all relevant API endpoints, `pg_dump` (including `volatility_forecasts`, `model_artifacts`, anomaly-scored `ili_history`/`rate_snapshots`), tar, upload to S3/GCS/Blob
+10. Run `shutdown.sh` — stop containers, sync, unmount disk
+11. Self-terminate the spot instance (if `AUTO_TERMINATE=true`)
 
 ### 1.4 `compute-spot/user-data.tftpl`
 
@@ -216,7 +219,7 @@ Interactive CLI script for manual runs:
 | `availability_zone` | string | `us-east-1a` | AZ (must match EBS) |
 | `instance_type` | string | `c5.2xlarge` | Spot instance type |
 | `spot_price_max` | string | `0.30` | Max bid price (USD/hr) |
-| `db_volume_size_gb` | number | `50` | Persistent disk size |
+| `db_volume_size_gb` | number | `100` | Persistent disk size (must accommodate model artifacts) |
 | `image_tag` | string | `latest` | Container image tag |
 | `postgres_password` | string (sensitive) | — | TimescaleDB password |
 | `polygon_api_key` | string (sensitive) | `""` | Polygon WebSocket key |
@@ -264,10 +267,10 @@ Create `infra/terraform/versions.tf`, `modules/networking/`, `environments/aws/p
 Create `modules/storage/`, `modules/container-registry/`, `environments/aws/main.tf` (partial wiring).
 
 ### Step 3 — Forecast compose + scripts
-Create `shared/docker-compose.forecast.yml`, all four orchestration scripts, `user-data.tftpl`.
+Create `shared/docker-compose.forecast.yml`, all four orchestration scripts, `user-data.tftpl`. Scripts must account for model warm-start (query `model_artifacts` before training) and collect forecast/anomaly results (include `volatility_forecasts`, `model_artifacts`, anomaly-scored rows in `pg_dump`).
 
 ### Step 4 — Compute module (AWS)
-Create `modules/compute-spot/`, wire into `environments/aws/main.tf`. Manual test: `terraform apply`, verify instance boots and pipeline runs.
+Create `modules/compute-spot/`, wire into `environments/aws/main.tf`. The EBS volume must be large enough to hold not only TimescaleDB data but also `model_artifacts` (autoencoder state can be several MB per version). Increase default `db_volume_size_gb` to 100 GB. Manual test: `terraform apply`, verify instance boots and pipeline runs end-to-end including model caching.
 
 ### Step 5 — Orchestrator module (AWS)
 Create `modules/orchestrator/` with Lambda functions, EventBridge rule, API Gateway, spot interruption handler. Test all three trigger modes.
@@ -297,6 +300,8 @@ Create `.github/workflows/forecast-deploy.yml`, CLI one-shot script, add `tflint
 4. **Spot interruption drill**: Simulate termination during forecast → verify graceful shutdown logs in CloudWatch → verify partial results uploaded → verify EBS survives
 5. **Multi-provider parity**: Run the same forecast on GCP and Azure, compare results for consistency
 6. **Cost validation**: Check AWS Cost Explorer / GCP Billing / Azure Cost Management after 3 test runs — confirm ~$0.35–0.40 per run
+7. **Storage gap verification**: After forecast run, confirm: (a) `volatility_forecasts` table has rows with `forecast_vol` populated and `realized_vol` NULL (back-filled later), (b) `ili_history`/`rate_snapshots` rows have `anomaly_score` and `is_suspect_anomaly` populated, (c) `model_artifacts` has active entries for GARCH and autoencoder models
+8. **Model warm-start verification**: Run a second forecast immediately after the first → confirm `model_artifacts` cache hit (no retraining) in logs → confirm reduced pipeline execution time
 
 ---
 
@@ -323,3 +328,31 @@ Create `.github/workflows/forecast-deploy.yml`, CLI one-shot script, add `tflint
 - `computation/src/main/java/.../lifecycle/GracefulShutdown.java` — new file
 - `analytics/app/main.py` — add SIGTERM handler
 - `analytics/Dockerfile` — add `--timeout-graceful-shutdown 30`
+
+---
+
+## Storage Gap Prerequisites
+
+The following files from [`forecast-anomaly-storage-gap-elimination-plan.md`](forecast-anomaly-storage-gap-elimination-plan.md) must be in place **before** Steps 3–4 above. These are not part of the Terraform infrastructure but are application-layer changes the spot pipeline depends on.
+
+**New (12 files)**:
+- `persistence/.../db/migration/V29__add_volatility_forecasts.sql`
+- `persistence/.../db/migration/V30__add_model_artifacts.sql`
+- `persistence/.../entity/VolatilityForecast.java`
+- `persistence/.../entity/ModelArtifact.java`
+- `persistence/.../repository/VolatilityForecastRepository.java`
+- `persistence/.../repository/ModelArtifactRepository.java`
+- `computation/.../forecast/ForecastPersistenceService.java`
+- `computation/.../anomaly/AnomalyScoringService.java`
+- `computation/.../model/ModelArtifactService.java`
+- `persistence/.../repository/VolatilityForecastRepositoryTest.java`
+- `persistence/.../repository/ModelArtifactRepositoryTest.java`
+- `computation/.../model/ModelArtifactServiceTest.java`
+
+**Modified (6 files)**:
+- `persistence/.../entity/IliHistory.java` — add `anomalyScore`, `isSuspectAnomaly`
+- `persistence/.../entity/RateSnapshot.java` — add `anomalyScore`, `isSuspectAnomaly`
+- `persistence/.../repository/IliHistoryRepository.java` — add `updateAnomalyScore`, update SQL
+- `persistence/.../repository/RateSnapshotRepository.java` — add `updateAnomalyScore`, update SQL
+- `persistence/.../repository/IliHistoryRepositoryTest.java` — update for new columns
+- `persistence/.../repository/RateSnapshotRepositoryTest.java` — update for new columns
