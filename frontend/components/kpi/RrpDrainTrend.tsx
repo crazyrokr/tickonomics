@@ -4,7 +4,7 @@ import type { RrpDrainVelocity } from "@/types/api";
 import { Sparkline } from "@/components/charts/Sparkline";
 
 interface RrpDrainTrendProps {
-  data: RrpDrainVelocity | undefined;
+  data?: RrpDrainVelocity;
   isLoading?: boolean;
 }
 

@@ -3,7 +3,7 @@
 import type { HealthResponse } from "@/types/api";
 
 interface SystemHealthPanelProps {
-  data: HealthResponse | undefined;
+  data?: HealthResponse;
   isLoading?: boolean;
 }
 
