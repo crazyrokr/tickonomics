@@ -51,7 +51,7 @@ class TimescaleDbWriterSpec extends Specification {
   def "given flush all, when buffered, then drained"() {
     given:
         writer.writeTick(new TickData(NOW, "SPY", 450.50, 1000, new int[0]))
-        writer.writeRate(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED"))
+        writer.writeRate(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null))
 
     when:
         writer.flushAll()
@@ -65,7 +65,7 @@ class TimescaleDbWriterSpec extends Specification {
 
   def "given single rate, when write, then buffered not flushed"() {
     given:
-        def rate = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED")
+        def rate = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null)
 
     when:
         writer.writeRate(rate)
@@ -78,7 +78,7 @@ class TimescaleDbWriterSpec extends Specification {
   def "given batch size rates, when write, then auto flushed"() {
     when:
         10.times { i ->
-          writer.writeRate(new RateSnapshot(NOW.plusMillis(i), "SOFR", 4.29 + i * 0.01, "NY_FED"))
+          writer.writeRate(new RateSnapshot(NOW.plusMillis(i), "SOFR", 4.29 + i * 0.01, "NY_FED", null, null))
         }
 
     then:

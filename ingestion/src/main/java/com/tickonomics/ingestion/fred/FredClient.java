@@ -95,7 +95,9 @@ public class FredClient {
             .instrumentType()
             .name(),
         cdm.value(),
-        cdm.source());
+        cdm.source(),
+        null,
+        null);
   }
 
   record FredSeriesResponse(List<FredObservationRaw> observations) {}

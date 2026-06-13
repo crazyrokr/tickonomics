@@ -1,0 +1,31 @@
+swagger: "2.0"
+info:
+  title: Tickonomics Forecast API
+  version: "1.0"
+host: "${region}-${project_id}.cloudfunctions.net"
+schemes:
+  - https
+paths:
+  /forecast:
+    post:
+      summary: Trigger a new forecast run
+      operationId: triggerForecast
+      x-google-backend:
+        address: ${trigger_function_url}
+      responses:
+        "200":
+          description: Forecast triggered successfully
+  /forecast/{taskId}:
+    get:
+      summary: Get forecast task status
+      operationId: getForecastStatus
+      x-google-backend:
+        address: ${trigger_function_url}
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Task status

@@ -89,7 +89,7 @@ class CorrelationEngineTest {
         var snapshots = new java.util.ArrayList<com.tickonomics.persistence.entity.RateSnapshot>();
         for (int i = 0; i < values.length; i++) {
             snapshots.add(new com.tickonomics.persistence.entity.RateSnapshot(
-                    now.minusSeconds((values.length - i) * 86400L), rateType, values[i], "TEST"));
+                    now.minusSeconds((values.length - i) * 86400L), rateType, values[i], "TEST", null, null));
         }
         return snapshots;
     }

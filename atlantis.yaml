@@ -1,0 +1,88 @@
+version: 3
+automerge: false
+parallel_plan: true
+parallel_apply: false
+abort_on_execution_order_fail: true
+
+projects:
+  - name: forecast-aws
+    dir: infra/terraform/environments/aws
+    terraform_version: "1.7.5"
+    autoplan:
+      enabled: true
+      when_modified:
+        - "*.tf"
+        - "*.tfvars"
+        - "../../modules/**/*.tf"
+        - "../../shared/**/*"
+    plan_requirements:
+      - approved
+    apply_requirements:
+      - approved
+      - mergeable
+    workflow: forecast-aws
+
+  - name: forecast-gcp
+    dir: infra/terraform/environments/gcp
+    terraform_version: "1.7.5"
+    autoplan:
+      enabled: true
+      when_modified:
+        - "*.tf"
+        - "*.tfvars"
+        - "../../modules/**/*.tf"
+        - "../../shared/**/*"
+    plan_requirements:
+      - approved
+    apply_requirements:
+      - approved
+      - mergeable
+    workflow: forecast-gcp
+
+  - name: forecast-azure
+    dir: infra/terraform/environments/azure
+    terraform_version: "1.7.5"
+    autoplan:
+      enabled: true
+      when_modified:
+        - "*.tf"
+        - "*.tfvars"
+        - "../../modules/**/*.tf"
+        - "../../shared/**/*"
+    plan_requirements:
+      - approved
+    apply_requirements:
+      - approved
+      - mergeable
+    workflow: forecast-azure
+
+workflows:
+  forecast-aws:
+    plan:
+      steps:
+        - run: terraform fmt -check -recursive ../../modules/ .
+        - run: terraform init -input=false -no-color
+        - run: terraform plan -input=false -no-color -out=$PLANFILE
+    apply:
+      steps:
+        - run: terraform apply -no-color $PLANFILE
+
+  forecast-gcp:
+    plan:
+      steps:
+        - run: terraform fmt -check -recursive ../../modules/ .
+        - run: terraform init -input=false -no-color
+        - run: terraform plan -input=false -no-color -out=$PLANFILE
+    apply:
+      steps:
+        - run: terraform apply -no-color $PLANFILE
+
+  forecast-azure:
+    plan:
+      steps:
+        - run: terraform fmt -check -recursive ../../modules/ .
+        - run: terraform init -input=false -no-color
+        - run: terraform plan -input=false -no-color -out=$PLANFILE
+    apply:
+      steps:
+        - run: terraform apply -no-color $PLANFILE

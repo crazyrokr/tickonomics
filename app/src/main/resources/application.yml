@@ -4,6 +4,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 60s
   datasource:
     url: jdbc:postgresql://localhost:5432/tickonomics
     username: tickonomics
@@ -41,6 +43,7 @@ analytics:
 
 server:
   port: 8080
+  shutdown: graceful
 
 management:
   tracing:

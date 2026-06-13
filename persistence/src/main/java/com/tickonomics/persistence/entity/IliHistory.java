@@ -11,7 +11,9 @@ public record IliHistory(
     String dataStatus,
     String activeWeights,
     String proxyDivergenceStatus,
-    Double proxyDivergenceScore) {
+    Double proxyDivergenceScore,
+    Double anomalyScore,
+    Boolean isSuspectAnomaly) {
   public IliHistory {
     if (time == null) {
       throw new NullPointerException("time must not be null");

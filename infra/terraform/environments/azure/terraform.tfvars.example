@@ -1,0 +1,19 @@
+# Tickonomics Forecast - Azure Environment Variables
+# Copy to terraform.tfvars and fill in values
+
+azure_subscription_id = "00000000-0000-0000-0000-000000000000"
+region                = "East US"
+availability_zone     = "1"
+instance_type         = "Standard_F8s_v2"
+spot_price_max        = "0.30"
+db_volume_size_gb     = 50
+image_tag             = "latest"
+postgres_password     = "CHANGE_ME_STRONG_PASSWORD"
+polygon_api_key       = ""
+fred_api_key          = ""
+schedule_expression   = "0 0 6 * * 1-5"
+auto_terminate        = true
+results_retention_days = 30
+ssh_public_key        = "ssh-rsa AAAA... user@host"
+alert_email           = "alerts@example.com"
+name_prefix           = "tickonomics"
