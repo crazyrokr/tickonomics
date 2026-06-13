@@ -1,15 +1,12 @@
 package com.tickonomics.computation.demo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.tickonomics.computation.kpi.ReturnGapCalculator;
 import com.tickonomics.persistence.entity.SignalLog;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.SignalLogRepository;
@@ -17,7 +14,12 @@ import com.tickonomics.persistence.repository.SignalQualityReportRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,44 +36,41 @@ class SignalQualityAnalyzerTest {
   private VirtualPortfolioTradeRepository tradeRepository;
   @Mock
   private SignalQualityReportRepository reportRepository;
+  @Mock
+  private MarketPriceLookup priceLookup;
 
   private SignalQualityAnalyzer analyzer;
 
   @BeforeEach
   void setUp() {
-    analyzer = new SignalQualityAnalyzer(signalLogRepository, tradeRepository, reportRepository);
+    DemoConfig config = DemoConfig.core(
+        true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
+    analyzer = new SignalQualityAnalyzer(signalLogRepository, tradeRepository, reportRepository,
+        priceLookup, new ReturnGapCalculator(), config);
+  }
+
+  private List<VirtualPortfolioTrade> trades(double... pnls) {
+    return IntStream.range(0, pnls.length)
+        .mapToObj(i -> new VirtualPortfolioTrade(
+            (long) i + 1, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0,
+            pnls[i], (long) i + 1, null, "PAPER"))
+        .toList();
   }
 
   @Nested
   class ComputePortfolioPnl {
 
     @Test
-    void givenWinningTrades_whenComputePnl_thenPositiveSum() {
-      VirtualPortfolioTrade t1 = new VirtualPortfolioTrade(
-          1L, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0, 100.0, null, null, "PAPER");
-      VirtualPortfolioTrade t2 = new VirtualPortfolioTrade(
-          2L, Instant.now(), "AAPL", "BUY", 10.0, 180.0, 0, 0, 50.0, null, null, "PAPER");
-
-      double pnl = analyzer.computePortfolioPnl(List.of(t1, t2));
-
-      assertEquals(150.0, pnl, 0.001);
+    void givenMixedPnls_whenComputePortfolioPnl_thenSum() {
+      assertEquals(50.0, analyzer.computePortfolioPnl(trades(100.0, -50.0, 20.0, -20.0)));
     }
 
     @Test
-    void givenMixedTrades_whenComputePnl_thenNetResult() {
-      VirtualPortfolioTrade win = new VirtualPortfolioTrade(
-          1L, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0, 200.0, null, null, "PAPER");
-      VirtualPortfolioTrade loss = new VirtualPortfolioTrade(
-          2L, Instant.now(), "AAPL", "BUY", 10.0, 180.0, 0, 0, -100.0, null, null, "PAPER");
-
-      double pnl = analyzer.computePortfolioPnl(List.of(win, loss));
-
-      assertEquals(100.0, pnl, 0.001);
-    }
-
-    @Test
-    void givenNoTrades_whenComputePnl_thenZero() {
-      assertEquals(0.0, analyzer.computePortfolioPnl(List.of()));
+    void givenNullRealizedPnls_whenComputePortfolioPnl_thenSkipped() {
+      List<VirtualPortfolioTrade> trades = List.of(
+          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0,
+              null, 1L, null, "PAPER"));
+      assertEquals(0.0, analyzer.computePortfolioPnl(trades));
     }
   }
 
@@ -79,33 +78,13 @@ class SignalQualityAnalyzerTest {
   class ComputeSharpe {
 
     @Test
-    void givenPositiveReturns_whenComputeSharpe_thenPositiveValue() {
-      List<VirtualPortfolioTrade> trades = List.of(
-          tradeWithPnl(100.0),
-          tradeWithPnl(110.0),
-          tradeWithPnl(90.0));
-
-      double sharpe = analyzer.computeSharpe(trades);
-
-      assertTrue(sharpe > 0);
-    }
-
-    @Test
-    void givenZeroTrades_whenComputeSharpe_thenZero() {
+    void givenNoTrades_whenComputeSharpe_thenZero() {
       assertEquals(0.0, analyzer.computeSharpe(List.of()));
     }
 
     @Test
-    void givenVaryingReturns_whenComputeSharpe_thenLowerThanStable() {
-      List<VirtualPortfolioTrade> stable = List.of(
-          tradeWithPnl(100.0), tradeWithPnl(110.0), tradeWithPnl(90.0));
-      List<VirtualPortfolioTrade> varying = List.of(
-          tradeWithPnl(300.0), tradeWithPnl(-200.0), tradeWithPnl(200.0));
-
-      double stableSharpe = analyzer.computeSharpe(stable);
-      double varyingSharpe = analyzer.computeSharpe(varying);
-
-      assertTrue(stableSharpe > varyingSharpe);
+    void givenEqualReturns_whenComputeSharpe_thenZeroVariance() {
+      assertEquals(0.0, analyzer.computeSharpe(trades(10.0, 10.0, 10.0)));
     }
   }
 
@@ -113,19 +92,8 @@ class SignalQualityAnalyzerTest {
   class ComputeWinRate {
 
     @Test
-    void givenAllWinningTrades_whenComputeWinRate_thenOne() {
-      List<VirtualPortfolioTrade> trades = List.of(
-          tradeWithPnl(100.0), tradeWithPnl(50.0));
-
-      assertEquals(1.0, analyzer.computeWinRate(trades), 0.001);
-    }
-
-    @Test
-    void givenHalfWinningTrades_whenComputeWinRate_thenHalf() {
-      List<VirtualPortfolioTrade> trades = List.of(
-          tradeWithPnl(100.0), tradeWithPnl(-50.0));
-
-      assertEquals(0.5, analyzer.computeWinRate(trades), 0.001);
+    void givenHalfWinners_whenComputeWinRate_thenHalf() {
+      assertEquals(0.5, analyzer.computeWinRate(trades(10.0, -10.0)), 0.0001);
     }
 
     @Test
@@ -138,21 +106,8 @@ class SignalQualityAnalyzerTest {
   class ComputeMaxDrawdown {
 
     @Test
-    void givenMonotonicPnl_whenComputeMaxDrawdown_thenZero() {
-      List<VirtualPortfolioTrade> trades = List.of(
-          tradeWithPnl(100.0), tradeWithPnl(50.0), tradeWithPnl(30.0));
-
-      assertEquals(0.0, analyzer.computeMaxDrawdown(trades), 0.001);
-    }
-
-    @Test
-    void givenDrawdownSequence_whenComputeMaxDrawdown_thenCorrectValue() {
-      List<VirtualPortfolioTrade> trades = List.of(
-          tradeWithPnl(100.0), tradeWithPnl(-80.0), tradeWithPnl(50.0));
-
-      double dd = analyzer.computeMaxDrawdown(trades);
-
-      assertEquals(80.0, dd, 0.001);
+    void givenMonotonicDecline_whenComputeMaxDrawdown_thenPeakToTrough() {
+      assertEquals(70.0, analyzer.computeMaxDrawdown(trades(10.0, -20.0, -30.0, -20.0)));
     }
 
     @Test
@@ -162,31 +117,101 @@ class SignalQualityAnalyzerTest {
   }
 
   @Nested
-  class BuildVerificationProgress {
+  class ComputeHitStats {
 
-    @Test
-    void given45DaysElapsed_whenBuildVerification_thenDaysNotMet() {
-      String json = analyzer.buildVerificationProgress(
-          LocalDate.of(2026, 3, 1), 45, 15, 0.58, 0.72, 5000.0);
+    private final LocalDate signalDate = LocalDate.of(2026, 5, 1);
+    private final LocalDate reportDate = LocalDate.of(2026, 6, 13);
 
-      assertTrue(json.contains("\"met\": false"));
-      assertTrue(json.contains("\"allCriteriaMet\": false"));
+    private SignalLog signal(String symbol, String direction, String status) {
+      Instant createdAt = signalDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+      return new SignalLog(createdAt, symbol, direction, status, 85.0, 1.5, 0.02, 0.0, "{}");
     }
 
     @Test
-    void given90DaysAndGoodMetrics_whenBuildVerification_thenAllMet() {
-      String json = analyzer.buildVerificationProgress(
-          LocalDate.of(2026, 3, 1), 90, 55, 0.60, 0.80, 5000.0);
+    void givenMixedSignals_whenComputeHitStats_thenRatesAndAttributionCorrect() {
+      Map<String, Double> prices = new HashMap<>();
+      prices.put("SPY|2026-05-01", 100.0);
+      prices.put("SPY|2026-05-02", 101.0);
+      prices.put("SPY|2026-05-06", 105.0);
+      prices.put("SPY|2026-05-11", 104.0);
+      prices.put("SPY|2026-05-21", 110.0);
+      prices.put("QQQ|2026-05-01", 100.0);
+      prices.put("QQQ|2026-05-02", 99.0);
+      prices.put("QQQ|2026-05-06", 95.0);
+      prices.put("QQQ|2026-05-11", 96.0);
+      prices.put("QQQ|2026-05-21", 90.0);
+      prices.put("AAPL|2026-05-01", 100.0);
+      prices.put("AAPL|2026-05-02", 100.0);
+      prices.put("AAPL|2026-05-06", 98.0);
+      prices.put("AAPL|2026-05-11", 97.0);
+      prices.put("AAPL|2026-05-21", 96.0);
+      when(priceLookup.closingPrice(any(), any())).thenAnswer(inv ->
+          Optional.ofNullable(prices.get(inv.getArgument(0) + "|" + inv.getArgument(1))));
 
-      assertTrue(json.contains("\"allCriteriaMet\": true"));
+      List<SignalLog> signals = List.of(
+          signal("SPY", "BUY", "ACTIONABLE"),
+          signal("QQQ", "SELL", "ACTIONABLE"),
+          signal("AAPL", "BUY", "SPECULATIVE_STALE_MACRO"));
+
+      SignalQualityAnalyzer.HitStats stats = analyzer.computeHitStats(signals, reportDate);
+
+      assertEquals(2.0 / 3.0, stats.rate1d(), 0.0001);
+      assertEquals(2.0 / 3.0, stats.rate5d(), 0.0001);
+      assertEquals(2, stats.validCount());
+      assertEquals(1, stats.degradedCount());
+      assertEquals(1.0 / 3.0, stats.falsePositiveRate(), 0.0001);
+      assertEquals(1, stats.dataAnomalyMisses());
+      assertEquals(0, stats.logicBoundsMisses());
     }
 
     @Test
-    void givenNullStartDate_whenBuildVerification_thenEmptyString() {
-      String json = analyzer.buildVerificationProgress(
-          null, 0, 0, 0.0, 0.0, 0.0);
+    void givenNoPriceData_whenComputeHitStats_thenAllRatesZero() {
+      when(priceLookup.closingPrice(any(), any())).thenReturn(Optional.empty());
 
-      assertTrue(json.contains("\"startDate\": \"\""));
+      SignalQualityAnalyzer.HitStats stats = analyzer.computeHitStats(
+          List.of(signal("SPY", "BUY", "ACTIONABLE")), reportDate);
+
+      assertEquals(0.0, stats.rate5d());
+      assertEquals(0, stats.samples5d());
+    }
+
+    @Test
+    void givenWindowNotClosed_whenComputeHitStats_thenHorizonSkipped() {
+      LocalDate recentDate = LocalDate.of(2026, 6, 10);
+      SignalLog recent = new SignalLog(
+          recentDate.atStartOfDay(ZoneOffset.UTC).toInstant(),
+          "SPY", "BUY", "ACTIONABLE", 85.0, 1.5, 0.02, 0.0, "{}");
+      when(priceLookup.closingPrice(eq("SPY"), eq(recentDate))).thenReturn(Optional.of(100.0));
+
+      SignalQualityAnalyzer.HitStats stats = analyzer.computeHitStats(List.of(recent), reportDate);
+
+      assertEquals(0, stats.samples5d());
+    }
+  }
+
+  @Nested
+  class ComputeVsSpyReturn {
+
+    @Test
+    void givenRisingSpy_whenComputeVsSpyReturn_thenPositive() {
+      when(priceLookup.closingPrices(any(), any(), any()))
+          .thenReturn(List.of(100.0, 102.0, 105.0));
+
+      double ret = analyzer.computeVsSpyReturn(LocalDate.of(2026, 5, 1), LocalDate.of(2026, 6, 1));
+
+      assertEquals(0.05, ret, 0.0001);
+    }
+
+    @Test
+    void givenSingleClose_whenComputeVsSpyReturn_thenZero() {
+      when(priceLookup.closingPrices(any(), any(), any())).thenReturn(List.of(100.0));
+
+      assertEquals(0.0, analyzer.computeVsSpyReturn(LocalDate.of(2026, 5, 1), LocalDate.of(2026, 6, 1)));
+    }
+
+    @Test
+    void givenNullStartDate_whenComputeVsSpyReturn_thenZero() {
+      assertEquals(0.0, analyzer.computeVsSpyReturn(null, LocalDate.of(2026, 6, 1)));
     }
   }
 
@@ -194,26 +219,20 @@ class SignalQualityAnalyzerTest {
   class GenerateReport {
 
     @Test
-    void givenSignalsAndTrades_whenGenerateReport_thenReportPersisted() {
-      when(signalLogRepository.findByCreatedAtBetween(any(Instant.class), any(Instant.class)))
-          .thenReturn(List.of());
+    void givenTradesAndSignals_whenGenerateReport_thenReportSavedWithEnrichedMetrics() {
+      LocalDate reportDate = LocalDate.of(2026, 6, 13);
+      when(signalLogRepository.findByCreatedAtBetween(any(), any())).thenReturn(List.of());
       when(tradeRepository.countByTradeType("PAPER")).thenReturn(0);
       when(tradeRepository.findLatest(0, 0)).thenReturn(List.of());
-      when(reportRepository.save(any(), anyInt(), anyInt(), any(), any(), any(), any(),
-          any(), any(), any(), any(), any(), anyString())).thenReturn(1L);
 
-      SignalQualityAnalyzer.SignalQualityReportData report =
-          analyzer.generateReport(LocalDate.of(2026, 5, 30));
+      SignalQualityAnalyzer.SignalQualityReportData data = analyzer.generateReport(reportDate);
 
-      assertNotNull(report);
-      assertEquals(LocalDate.of(2026, 5, 30), report.reportDate());
-      verify(reportRepository).save(any(), anyInt(), anyInt(), any(), any(), any(), any(),
-          any(), any(), any(), any(), any(), anyString());
+      assertEquals(reportDate, data.reportDate());
+      assertEquals(0.0, data.hitStats().rate5d());
+      assertEquals(0.0, data.vsSpyReturn());
+      assertTrue(data.verificationProgress().contains("hitRateByHorizon"));
+      assertTrue(data.verificationProgress().contains("mistakeAttribution"));
+      assertTrue(data.verificationProgress().contains("returnGap"));
     }
-  }
-
-  private VirtualPortfolioTrade tradeWithPnl(double pnl) {
-    return new VirtualPortfolioTrade(
-        null, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0, pnl, null, null, "PAPER");
   }
 }

@@ -44,7 +44,7 @@ class VirtualPortfolioTest {
 
   @BeforeEach
   void setUp() {
-    config = new DemoConfig(true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
+    config = DemoConfig.core(true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
     portfolio = new VirtualPortfolio(positionRepository, tradeRepository, config);
   }
 

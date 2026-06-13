@@ -76,6 +76,38 @@ monitor:
     execute-degraded-signals: true
     skip-dislocated-signals: true
     default-addv: 10000000
+    advanced-cost-model:
+      enabled: true
+      passive-bps: 0.84
+      aggressive-bps: 2.03
+      large-order-bps: 9.04
+      nbbo-drift-simulation: true
+    randomized-execution:
+      enabled: true
+      window-seconds: 60
+      avoid-round-marks: true
+    market-stability-guard:
+      enabled: true
+      volatility-threshold-pct: 5
+      trigger-latency-ms: 100
+    order-impact-predictor:
+      enabled: true
+      max-impact-threshold-bps: 10
+    market-maker-mode:
+      enabled: false
+      prefer-limit-orders: true
+      spread-capture-target-pct: 60
+    dynamic-stops:
+      enabled: false
+      recalibration-interval: "7d"
+    portfolio-algebra:
+      use-standardized-cost-model: true
+    leverage-rotation:
+      enabled: true
+      ma-window-days: 200
+      benchmark-symbol: "SPY"
+    kill-switch:
+      liquidate-on-activate: true
 
   equity-price:
     enabled: true
