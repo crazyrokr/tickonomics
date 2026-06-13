@@ -17,6 +17,10 @@ on:
           - ws-disconnect
           - total-failure
 
+permissions:
+  contents: read
+  issues: write
+
 concurrency:
   group: chaos-tests
   cancel-in-progress: false
@@ -145,7 +149,7 @@ jobs:
         if: github.event.inputs.scenario == 'all' || github.event.inputs.scenario == 'ws-disconnect' || github.event.inputs.scenario == ''
         run: |
           echo "::group::WebSocket Disconnect Simulation"
-          echo "Simulating Polygon WebSocket disconnect for 6 minutes..."
+          echo "Simulating Finnhub WebSocket disconnect for 6 minutes..."
 
           # Simulate disconnect by blocking outbound connections
           docker network disconnect tickonomics-net $(docker ps -q -f name=backend) || true
@@ -194,6 +198,31 @@ jobs:
         if: always()
         run: |
           docker compose -f docker-compose.yml down -v --remove-orphans 2>/dev/null || true
+
+      - name: Generate Chaos Test Report
+        if: always()
+        run: |
+          {
+            echo "# Chaos Test Report"
+            echo ""
+            echo "- **Date:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- **Run:** ${{ github.run_id }}"
+            echo "- **Scenario filter:** ${{ github.event.inputs.scenario || 'all' }}"
+            echo ""
+            echo "Injected faults: TimescaleDB latency, analytics worker restart, ingestion buffer overflow, Finnhub WebSocket disconnect, and total external failure. See the workflow run logs for per-scenario health-check results and recovery times."
+          } > chaos-report.md
+          cat chaos-report.md
+
+      - name: Post Report as GitHub Issue Comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ vars.CHAOS_TRACKING_ISSUE }}" ]; then
+            gh issue comment "${{ vars.CHAOS_TRACKING_ISSUE }}" --body-file chaos-report.md
+          else
+            echo "CHAOS_TRACKING_ISSUE variable not set; skipping issue comment post."
+          fi
 
       - name: Upload chaos test results
         if: always()
