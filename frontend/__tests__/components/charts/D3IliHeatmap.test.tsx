@@ -2,51 +2,22 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { D3IliHeatmap } from "@/components/charts/D3IliHeatmap";
 
-vi.mock("d3", () => ({
-  select: vi.fn(() => ({
-    selectAll: vi.fn(() => ({
-      remove: vi.fn(),
-      join: vi.fn(() => []),
-    })),
-    attr: vi.fn(() => ({
-      append: vi.fn(() => ({
-        attr: vi.fn(() => ({
-          call: vi.fn(),
-          append: vi.fn(() => ({
-            text: vi.fn(),
-            attr: vi.fn(),
-          })),
-          selectAll: vi.fn(() => ({
-            attr: vi.fn(),
-          })),
-        })),
-      })),
-    })),
-  })),
-  scaleBand: vi.fn(() => ({
-    domain: vi.fn(() => ({
-      range: vi.fn(() => ({
-        padding: vi.fn(() => ({
-          copy: vi.fn(),
-        })),
-      })),
-    })),
-    bandwidth: vi.fn(() => 40),
-  })),
-  scaleLinear: vi.fn(() => ({
-    domain: vi.fn(() => ({
-      range: vi.fn(() => ({
-        clamp: vi.fn(),
-      })),
-    })),
-  })),
-  axisBottom: vi.fn(() => ({
-    tickSize: vi.fn(),
-  })),
-  axisLeft: vi.fn(() => ({
-    tickSize: vi.fn(),
-  })),
-}));
+vi.mock("d3", () => {
+  const chainable = (): unknown => {
+    const fn = (): unknown => chainable();
+    return new Proxy(fn, {
+      get: () => (..._args: unknown[]) => chainable(),
+      apply: () => chainable(),
+    });
+  };
+  return {
+    select: chainable,
+    scaleBand: chainable,
+    scaleLinear: chainable,
+    axisBottom: chainable,
+    axisLeft: chainable,
+  };
+});
 
 describe("D3IliHeatmap", () => {
   it("shows loading skeleton when isLoading is true", () => {
