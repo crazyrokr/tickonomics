@@ -25,7 +25,7 @@ The repository reflects a **substantially implemented platform** whose core anal
 | 8 | Backtesting Framework | ⚠️ Core only | ~45% | HIGH |
 | 9 | CI/CD Pipeline | ⚠️ Partial (placeholders) | ~55% | HIGH |
 | 10 | Demo / Virtual Portfolio | ✅ Finalized (ADR-017) | ~90% | HIGH |
-| 11 | Deployment & Operations | ⚠️ Partial | ~60% | HIGH |
+| 11 | Deployment & Operations | ✅ Finalized (ADR-018) | ~95% | HIGH |
 | 12 | Architecture Diagrams | ✅ Implemented (Mermaid only) | ~90% | HIGH |
 | 13 | Terraform Spot/Forecast | ⚠️ IaC present, runtime broken | ~50% | HIGH |
 | 14 | Production Infrastructure | ❌ Not implemented | ~0% | HIGH |
@@ -48,7 +48,7 @@ The repository reflects a **substantially implemented platform** whose core anal
 | Frontend dashboard components | 47 |
 | Landing components | 15 |
 | GitHub Actions workflows | 8 |
-| Runbooks | 20 (17 plan-aligned + 3 stale/extra) |
+| Runbooks | 20 (all plan-aligned; stale Polygon/OpenBB runbooks replaced in ADR-018) |
 | Terraform modules | 6 (Track 13 only; Track 14 = 0) |
 
 ---
@@ -235,20 +235,22 @@ All 8 planned sections render on `landing/app/page.tsx`. v4 status badges (`regi
 
 ---
 
-### Track 11 — Deployment & Operations ⚠️ ~60%
+### Track 11 — Deployment & Operations ✅ ~95% (finalized — see [ADR-018](adr/ADR-018-systemic-resilience-monitor.md))
 
-**Docker Compose:** base (backend, analytics-worker, dashboard, landing, timescaledb, **jaeger**), dev, prod (resource limits + log rotation), demo (`MONITOR_DEMO_*` env). `Dockerfile` multi-stage, builds native TA-Lib, runs non-root.
+**Finalized 2026-06-13 (ADR-018).** The three open Track 11 gaps are now closed:
 
-**Runbooks:** 20 `.md` files; **17 align with the plan**, but **stale duplicates** `openbb-sidecar-setup.md` and `polygon-websocket-outage.md` remain, and the **v6 Finnhub/free-data-source replacement runbook was never created**. `runbooks/README.md` lists only 3 (out of date).
+**Docker Compose:** base (backend, analytics-worker, dashboard, landing, timescaledb, **jaeger**), dev, prod (resource limits + log rotation), demo (`MONITOR_DEMO_*` env). `Dockerfile` multi-stage, builds native TA-Lib, runs non-root. **`POLYGON_API_KEY` removed** from `docker-compose.yml`; replaced with `FINNHUB_API_KEY` + `ALPHAVANTAGE_API_KEY`. (Virtual threads are enabled globally via `spring.threads.virtual.enabled: true` in `application.yml`, so a `virtual-threads` profile env var is unnecessary.)
+
+**Runbooks:** 20 `.md` files, **all plan-aligned**. The two stale duplicates were renamed + rewritten to their v6 equivalents (`openbb-sidecar-setup.md` → `finnhub-yahoo-setup.md`; `polygon-websocket-outage.md` → `finnhub-websocket-outage.md`), the v6 free-data-source setup runbook is now `finnhub-yahoo-setup.md`, `options-data-pipeline.md` was rewritten for `YahooOptionsClient`, `big-red-button.md` and `systemic-resilience-monitor.md` were rewritten to document the now-real endpoints, and `README.md` indexes all 20 runbooks by category. No live Polygon/OpenBB references remain (only intentional migration-history notes).
 
 | Operational component | Status | Note |
 |:----------------------|:-------|:-----|
 | Bulkhead executor isolation | ✅ IMPLEMENTED | Used in `KpiProcessor`, `FredClient`, `NyFedClient`, schedulers |
 | OpenTelemetry tracing | ✅ IMPLEMENTED | OTLP config + Jaeger in compose |
 | Chronicle Queue overflow volume | ✅ (as `ingestion_overflow`) | Replaces Chronicle (intentional) |
-| Big Red Button kill-switch | ❌ DOCUMENTATION ONLY | 0 Java matches for `KillSwitch`/`BigRedButton`; no endpoint |
-| Systemic Resilience Monitor / Global Safe Mode | ❌ MISSING | runbook exists; only scattered `safe.mode` refs in scenario code |
-| v6 data-source env | ⚠️ STALE | base compose still uses `POLYGON_API_KEY`; no `SPRING_PROFILES_ACTIVE=virtual-threads` |
+| Big Red Button kill-switch | ✅ IMPLEMENTED | `KillSwitch` + `/api/v1/demo/kill-switch/{activate,deactivate,status}`; `PaperTradingEngine` blocks on `isActive()` (ADR-017). *Runbook corrected.* |
+| Systemic Resilience Monitor / Global Safe Mode | ✅ IMPLEMENTED | `SystemicResilienceMonitor` + `CrossModuleResilienceHealthProbe`; correlated-degradation detector with manual-ack recovery; `PaperTradingEngine` blocks on `isSafeModeActive()`; `/api/v1/demo/safe-mode/{status,activate,deactivate}` (ADR-018) |
+| v6 data-source env | ✅ CLEAN | Compose uses `FINNHUB_API_KEY` + `ALPHAVANTAGE_API_KEY`; `.env.example` matches |
 
 ---
 
@@ -277,7 +279,7 @@ All 8 planned sections render on `landing/app/page.tsx`. v4 status badges (`regi
 
 These patterns recur across multiple tracks and represent the highest-leverage items to address:
 
-1. **v6 free-data-source migration is incomplete at the edges.** Source clients are migrated (Track 4 ✅), but legacy Polygon artifacts linger in `cdm/adapter/`, the base `docker-compose.yml` still reads `POLYGON_API_KEY`, the chaos workflow still references "Polygon WebSocket", and the Finnhub/free-source runbook was never written. **Cleanup is partial.**
+1. **v6 free-data-source migration is mostly complete.** Source clients are migrated (Track 4 ✅), the base `docker-compose.yml` now uses `FINNHUB_API_KEY`/`ALPHAVANTAGE_API_KEY` (Track 11 ✅ ADR-018), and the v6 Finnhub/free-source runbooks now exist (`finnhub-yahoo-setup.md`, `finnhub-websocket-outage.md`). **Remaining edges:** legacy Polygon artifacts still linger in `cdm/adapter/` (Track 1), and the chaos workflow still references "Polygon WebSocket" (Track 9).
 
 2. **The ML/sentiment layer is "shape-correct but substance-substituted."** Every ML service except the autoencoder is a numpy/scipy proxy: no `transformers`/FinBERT, no `xgboost`, no `shap`, no `arch`, LSTM ignored, CNN-LSTM untrained. Arrow IPC (the headline transport) is a 4-line stub. Functionally present for demo purposes; diverges materially from the planned dependency model.
 
@@ -289,7 +291,7 @@ These patterns recur across multiple tracks and represent the highest-leverage i
 
 6. **Test coverage is uneven and risky where it matters most.** Computation (57 tests) and analytics (33 tests) are well-covered. **Ingestion coverage was undercounted** in the original report — the module carries ~25 Groovy Spock specs (not just the 4 `.java` tests), so source clients, buffer, cache, and quality monitors were already covered; the real ingestion gaps were the new resilience code (since closed in ADR-013). `integration-tests/` has 2 smoke classes.
 
-7. **Safety/operability controls are documentation-only.** Big Red Button kill-switch and Systemic Resilience Monitor/Global Safe Mode have runbooks but no Java implementation. Regulatory behavioral testing (MiFID II SMC/OTR/circuit breaker) is entirely absent.
+7. **Safety/operability controls are now implemented for the demo path.** Big Red Button kill-switch (ADR-017) and Systemic Resilience Monitor / Global Safe Mode (ADR-018) are now live Java services gated into `PaperTradingEngine`, with REST endpoints. **Still absent:** regulatory behavioral testing (MiFID II SMC/OTR/circuit breaker) — see Track 8.
 
 8. **Production deployment path is not real.** Track 14 is 0% implemented; deploy workflows are `echo` placeholders; the spot pipeline's trigger is a no-op and its healthcheck is broken. The platform runs locally; it does not yet deploy to production.
 
