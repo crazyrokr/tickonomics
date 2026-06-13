@@ -1,0 +1,80 @@
+asyncapi: '2.6.0'
+info:
+  title: Tickonomics Real-Time API
+  version: 1.0.0
+  description: >
+    WebSocket contract for real-time Tickonomics streams. The server pushes price
+    ticks (normalized via the CDM projection) on `/ws/prices` and alpha signal
+    notifications on `/ws/signals`. Clients subscribe by opening a connection to
+    the channel; the server emits messages asynchronously.
+  contact:
+    name: Tickonomics
+
+servers:
+  production:
+    url: ws://localhost:8080
+    protocol: ws
+    description: Local development WebSocket server.
+
+defaultContentType: application/json
+
+channels:
+  /ws/prices:
+    description: Real-time price ticks broadcast to all connected subscribers.
+    subscribe:
+      operationId: subscribePrices
+      message:
+        $ref: '#/components/messages/PriceTick'
+  /ws/signals:
+    description: Real-time alpha signal notifications broadcast to all connected subscribers.
+    subscribe:
+      operationId: subscribeSignals
+      message:
+        $ref: '#/components/messages/SignalNotification'
+
+components:
+  messages:
+    PriceTick:
+      name: PriceTick
+      title: Price Tick
+      summary: A normalized CDM equity tick (symbol, price, volume, timestamp, conditions).
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PriceTick'
+    SignalNotification:
+      name: SignalNotification
+      title: Signal Notification
+      summary: A notification carrying an emitted alpha signal.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SignalNotification'
+
+  schemas:
+    PriceTick:
+      type: object
+      required: [symbol, price, timestamp]
+      properties:
+        symbol: { type: string }
+        price: { type: number, format: double }
+        volume: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+        conditions:
+          type: array
+          items: { type: string }
+        source: { type: string }
+
+    SignalDirection:
+      type: string
+      enum: [LONG, SHORT, NEUTRAL]
+
+    SignalNotification:
+      type: object
+      required: [id, timestamp, symbol, direction]
+      properties:
+        id: { type: string, format: uuid }
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        direction: { $ref: '#/components/schemas/SignalDirection' }
+        strategyId: { type: string, format: uuid }
+        strength: { type: number, format: double }
+        confidence: { type: number, format: double }
