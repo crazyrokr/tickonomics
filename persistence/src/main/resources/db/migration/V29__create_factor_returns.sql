@@ -17,4 +17,10 @@ CREATE TABLE IF NOT EXISTS factor_returns (
 );
 
 SELECT create_hypertable('factor_returns', 'time', chunk_time_interval => INTERVAL '1 year');
-ALTER TABLE factor_returns SET (compress_after = '2 years');
+
+ALTER TABLE factor_returns SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'factor_set, frequency, region',
+    timescaledb.compress_orderby = 'time DESC'
+);
+SELECT add_compression_policy('factor_returns', compress_after => INTERVAL '2 years');

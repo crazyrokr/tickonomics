@@ -26,4 +26,10 @@ CREATE TABLE IF NOT EXISTS index_snapshots (
 );
 
 SELECT create_hypertable('index_snapshots', 'time', chunk_time_interval => INTERVAL '10 years', migrate_data => true);
-ALTER TABLE index_snapshots SET (compress_after = '50 years');
+
+ALTER TABLE index_snapshots SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'index_type',
+    timescaledb.compress_orderby = 'time DESC'
+);
+SELECT add_compression_policy('index_snapshots', compress_after => INTERVAL '50 years');
