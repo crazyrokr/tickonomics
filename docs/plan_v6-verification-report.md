@@ -24,7 +24,7 @@ The repository reflects a **substantially implemented platform** whose core anal
 | 7 | Analytics Dashboard | ⚠️ Components built, page not wired | ~80% | HIGH |
 | 8 | Backtesting Framework | ⚠️ Core only | ~45% | HIGH |
 | 9 | CI/CD Pipeline | ⚠️ Partial (placeholders) | ~55% | HIGH |
-| 10 | Demo / Virtual Portfolio | ⚠️ v1 core only | ~40% | HIGH |
+| 10 | Demo / Virtual Portfolio | ✅ Finalized (ADR-017) | ~90% | HIGH |
 | 11 | Deployment & Operations | ⚠️ Partial | ~60% | HIGH |
 | 12 | Architecture Diagrams | ✅ Implemented (Mermaid only) | ~90% | HIGH |
 | 13 | Terraform Spot/Forecast | ⚠️ IaC present, runtime broken | ~50% | HIGH |
@@ -213,18 +213,25 @@ All 8 planned sections render on `landing/app/page.tsx`. v4 status badges (`regi
 
 ---
 
-### Track 10 — Demo / Virtual Portfolio ⚠️ ~40%
+### Track 10 — Demo / Virtual Portfolio ✅ ~90% (finalized — see [ADR-017](adr/ADR-017-demo-virtual-portfolio-finalization.md))
 
-**v1 core implemented:** `VirtualPortfolio` (open/close/MTM, SL/TP, `PortfolioSummary`), `PaperTradingEngine` (respects `enabled`/`autoExecute`, skips `DISLOCATED` [Finding 3], gates `DEGRADED` [Finding 6], `ACTIONABLE`-only, `Eq553SlippageModel`), `SignalQualityAnalyzer` (= plan's `SignalQualityReport`, renamed), `DemoController` (5 endpoints), `DemoConfig`.
+**v1 core implemented:** `VirtualPortfolio` (open/close/MTM, SL/TP, `PortfolioSummary`), `PaperTradingEngine` (respects `enabled`/`autoExecute`, skips `DISLOCATED` [Finding 3], gates `DEGRADED` [Finding 6], `ACTIONABLE`-only, `Eq553SlippageModel`), `SignalQualityAnalyzer` (= plan's `SignalQualityReport`, renamed), `DemoController`, `DemoConfig`.
 
-**v5 feature set entirely unbuilt** — 11 planned classes absent: `MarketStabilityGuard`, `OrderImpactPredictor`, `MarketMakerExecutionModel`, `RandomizedExecutionWindow`, `FillProbabilityEngine`, `PassiveExecutionHandler`, `SniperExecutionHandler`, `MarkovStopHandler`, plus ~10 config blocks.
+**v5 execution model now implemented (ADR-017):** all eight named classes built and wired into `PaperTradingEngine` — `RandomizedExecutionWindow`, `MarketStabilityGuard`, `OrderImpactPredictor`, `MarketMakerExecutionModel`, `FillProbabilityEngine`, `MarkovStopHandler`, `PassiveExecutionHandler`, `SniperExecutionHandler` — plus nine nested config blocks and a `DemoConfig.core(...)` factory.
 
-**"Island" components (exist but not wired):**
-- `LeverageSignaler` emits `LEVERAGE_ON/OFF` but `VirtualPortfolio` never rotates.
-- `PortfolioManagementAlgebra` implements `CostModel`/`MarginRequirement` but `PaperTradingEngine` uses `Eq553SlippageModel` directly.
-- Python `markov_stop_service.py` + `markov_stop_calibrations` table exist; no Java consumer, `PaperTradingEngine` ignores dynamic stops.
+**"Island" components now wired:**
+- `LeverageSignaler` → `VirtualPortfolio.applyLeverageRotation()` flattens positions on `LEVERAGE_OFF` (`POST /api/v1/demo/leverage-rotation/evaluate`).
+- `PortfolioManagementAlgebra` → standardized cost model applied to each opening trade.
+- `MarkovStopHandler` (new Java consumer) reads `markov_stop_calibrations`; dynamic stops override fixed levels when `dynamic-stops.enabled`.
+- `ComparativeExecutionAnalysis` + `ReturnGapCalculator` → feed the signal-quality report.
 
-**Other gaps:** no kill-switch/Big Red Button; no climate-simulate endpoint; **demo dashboard frontend entirely missing** (no `frontend/components/demo/`); `SignalQualityAnalyzer` is v1-thin (no hit-rate-by-horizon, false-positive rate, degraded/valid breakdown, vs-SPY — DB columns exist but unpopulated).
+**Kill-switch / Big Red Button:** now real — `KillSwitch` service + `/api/v1/demo/kill-switch/{activate,deactivate,status}`; `PaperTradingEngine` blocks on `isActive()`.
+
+**Signal quality enriched:** hit-rate-by-horizon (1/5/10/20d), false-positive rate, avg return per signal, vs-SPY, return gap, mistake attribution, and degraded/valid breakdown — populating the previously-null DB columns + `verification_progress` JSONB. **No DB migration required.**
+
+**Demo dashboard frontend:** new `/demo` route (no auth) mounting `PortfolioSummary`, `TradeHistory`, `SignalQualityMetrics`, `LiveIndicator`, `DisclaimerBanner`, `DemoBadge` + TanStack Query hooks; 29 unit tests added.
+
+**Still deferred:** climate-simulate endpoint, disaster overlay, sentiment-suppressed signals, dual-portfolio A/B runtime, BRI herding/panic guard (speculative / Track 8 overlap), and kill-switch persistence.
 
 ---
 
