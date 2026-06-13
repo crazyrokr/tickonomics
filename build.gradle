@@ -2,6 +2,7 @@ plugins {
   id 'java'
   id 'io.spring.dependency-management' version '1.1.7' apply false
   id 'org.springframework.boot' version '3.5.0' apply false
+  id 'com.github.spotbugs' version '6.5.6' apply false
 }
 
 allprojects {
@@ -14,6 +15,8 @@ allprojects {
 subprojects {
   apply plugin: 'java'
   apply plugin: 'groovy'
+  apply plugin: 'checkstyle'
+  apply plugin: 'com.github.spotbugs'
   apply plugin: 'io.spring.dependency-management'
 
   group = 'io.tickonomics'
@@ -50,4 +53,33 @@ subprojects {
   tasks.named('test') {
     useJUnitPlatform()
   }
+
+  checkstyle {
+    ignoreFailures = true
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+  }
+
+  spotbugs {
+    ignoreFailures = true
+  }
+
+  tasks.named('spotbugsMain').configure {
+    reports {
+      xml.required = true
+      html.required = true
+    }
+  }
+
+  tasks.register('lint') {
+    group = 'verification'
+    description = 'Advisory static analysis: Checkstyle + SpotBugs (never fails the build).'
+    dependsOn tasks.named('checkstyleMain'), tasks.named('checkstyleTest'),
+             tasks.named('spotbugsMain'), tasks.named('spotbugsTest')
+  }
+}
+
+tasks.register('lint') {
+  group = 'verification'
+  description = 'Aggregates advisory static analysis across all modules.'
+  dependsOn subprojects.collect { it.tasks.named('lint') }
 }
