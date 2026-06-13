@@ -18,6 +18,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -148,22 +150,44 @@ public class FinnhubWsClient implements EquityWsClient {
   }
 
   private void processTextMessage(String payload) {
+    for (FinnhubTrade trade : parseFinnhubMessage(payload)) {
+      for (Consumer<FinnhubTrade> handler : handlers) {
+        asyncExecutor.execute(() -> handler.accept(trade));
+      }
+    }
+  }
+
+  /**
+   * Parses a Finnhub trade message payload into typed trades. Package-private for direct unit
+   * testing without a live WebSocket.
+   */
+  List<FinnhubTrade> parseFinnhubMessage(String payload) {
     try {
       JsonNode root = objectMapper.readTree(payload);
-      if (root.has("type") && "trade".equals(root.get("type").asText())) {
-        JsonNode data = root.path("data");
-        if (data.isArray()) {
-          for (JsonNode trade : data) {
-            FinnhubTrade ft = parseTrade(trade);
-            for (Consumer<FinnhubTrade> handler : handlers) {
-              asyncExecutor.execute(() -> handler.accept(ft));
-            }
-          }
-        }
+      if (!root.has("type") || !"trade".equals(root.get("type").asText())) {
+        return List.of();
       }
+      JsonNode data = root.path("data");
+      if (!data.isArray()) {
+        return List.of();
+      }
+      List<FinnhubTrade> trades = new ArrayList<>();
+      for (JsonNode trade : data) {
+        trades.add(parseTrade(trade));
+      }
+      return trades;
     } catch (JsonProcessingException e) {
       log.error("Failed to parse Finnhub message: {}", e.getMessage());
+      return List.of();
     }
+  }
+
+  /**
+   * Exponential backoff step (doubles the delay, capped at {@code maxDelayMs}). Extracted for unit
+   * testing the 1s {@code ->} 60s reconnect schedule.
+   */
+  static int computeNextDelay(int currentDelayMs, int maxDelayMs) {
+    return Math.min(currentDelayMs * 2, maxDelayMs);
   }
 
   private FinnhubTrade parseTrade(JsonNode trade) {
@@ -181,7 +205,7 @@ public class FinnhubWsClient implements EquityWsClient {
     }
     log.info("Scheduling Finnhub WebSocket reconnect in {}ms", reconnectDelayMs);
     reconnectScheduler.schedule(() -> doConnect(apiKey), reconnectDelayMs, TimeUnit.MILLISECONDS);
-    reconnectDelayMs = Math.min(reconnectDelayMs * 2, reconnectBackoffMaxMs);
+    reconnectDelayMs = computeNextDelay(reconnectDelayMs, reconnectBackoffMaxMs);
   }
 
   class FinnhubWsHandler extends TextWebSocketHandler {

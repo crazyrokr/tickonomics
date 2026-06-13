@@ -60,6 +60,12 @@ monitor:
   ingestion:
     lkg-cache:
       max-staleness-seconds: 3600
+    bulkhead:
+      pressure-check-ms: 30000
+  anomaly:
+    enabled: true
+    async-timeout-seconds: 5
+    fallback-to-threshold: true
   demo:
     enabled: false
     virtual-balance: 100000

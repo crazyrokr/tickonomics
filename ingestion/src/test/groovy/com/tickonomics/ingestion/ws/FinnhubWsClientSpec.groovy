@@ -113,4 +113,11 @@ class FinnhubWsClientSpec extends Specification {
     then:
       noExceptionThrown()
   }
+
+  def "given reconnect delay, when computeNextDelay, then doubles and caps at max"() {
+    expect:
+      FinnhubWsClient.computeNextDelay(1000, 60000) == 2000
+      FinnhubWsClient.computeNextDelay(32000, 60000) == 60000
+      FinnhubWsClient.computeNextDelay(30000, 60000) == 60000
+  }
 }
