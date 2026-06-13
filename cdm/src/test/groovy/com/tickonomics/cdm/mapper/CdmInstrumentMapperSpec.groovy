@@ -67,16 +67,6 @@ class CdmInstrumentMapperSpec extends Specification {
         thrown(IllegalArgumentException)
   }
 
-  def "maps Polygon symbol to Equity instrument"() {
-    when:
-        def ref = CdmInstrumentMapper.fromPolygonSymbol("SPY")
-
-    then:
-        ref.identifier() == "SPY"
-        ref.instrumentType() == InstrumentType.EQUITY
-        ref.source() == "POLYGON"
-  }
-
   def "maps all RateTypes to correct instruments"() {
     expect:
         RateType.values().each { rt ->

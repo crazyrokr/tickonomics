@@ -2,7 +2,6 @@ package com.tickonomics.cdm.adapter
 
 import com.tickonomics.cdm.adapter.raw.FredObservation
 import com.tickonomics.cdm.adapter.raw.NyFedRateResponse
-import com.tickonomics.cdm.adapter.raw.PolygonTick
 import com.tickonomics.cdm.enums.InstrumentType
 import spock.lang.Specification
 
@@ -88,33 +87,5 @@ class CdmAdapterSpec extends Specification {
 
     then:
         result.instrumentType() == InstrumentType.BGCR
-  }
-
-  def "PolygonTickCdmAdapter adapts PolygonTick to CdmTick"() {
-    given:
-        def adapter = new PolygonTickCdmAdapter()
-        def raw = new PolygonTick(NOW, "SPY", 450.50, 1000, [0, 1] as int[])
-
-    when:
-        def result = adapter.toCdm(raw)
-
-    then:
-        result.time() == NOW
-        result.symbol() == "SPY"
-        result.price() == 450.50
-        result.volume() == 1000
-        result.conditions() == [0, 1] as int[]
-  }
-
-  def "PolygonTickCdmAdapter adapts PolygonTick with zero volume"() {
-    given:
-        def adapter = new PolygonTickCdmAdapter()
-        def raw = new PolygonTick(NOW, "QQQ", 380.0, 0, [] as int[])
-
-    when:
-        def result = adapter.toCdm(raw)
-
-    then:
-        result.volume() == 0
   }
 }

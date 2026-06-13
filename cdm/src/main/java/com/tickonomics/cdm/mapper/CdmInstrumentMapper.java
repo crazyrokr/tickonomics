@@ -56,13 +56,6 @@ public final class CdmInstrumentMapper {
   }
 
   /**
-   * Maps a Polygon equity symbol to a CDM instrument reference.
-   */
-  public static CdmInstrumentRef fromPolygonSymbol(String symbol) {
-    return new CdmInstrumentRef(symbol, InstrumentType.EQUITY, "POLYGON");
-  }
-
-  /**
    * Maps a RateType to a CDM instrument reference.
    */
   public static CdmInstrumentRef fromRateType(RateType rateType) {
