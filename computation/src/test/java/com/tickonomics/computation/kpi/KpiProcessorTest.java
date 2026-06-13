@@ -34,7 +34,7 @@ class KpiProcessorTest {
         var now = Instant.now();
         var list = new ArrayList<RateSnapshot>(count);
         for (int i = 0; i < count; i++) {
-            list.add(new RateSnapshot(now.minusSeconds((long)(count - i) * 86400), type, base + i * step, "TEST"));
+            list.add(new RateSnapshot(now.minusSeconds((long)(count - i) * 86400), type, base + i * step, "TEST", null, null));
         }
         return list;
     }

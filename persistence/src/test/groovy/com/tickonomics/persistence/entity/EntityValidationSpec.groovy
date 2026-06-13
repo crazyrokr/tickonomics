@@ -48,7 +48,7 @@ class EntityValidationSpec extends Specification {
 
   def "RateSnapshot: given valid args, when construct, then fields set"() {
     when:
-        var snapshot = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED")
+        var snapshot = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null)
     then:
         snapshot.time() == NOW
         snapshot.rateType() == "SOFR"
@@ -58,28 +58,28 @@ class EntityValidationSpec extends Specification {
 
   def "RateSnapshot: given null time, when construct, then throws"() {
     when:
-        new RateSnapshot(null, "SOFR", 4.29, "NY_FED")
+        new RateSnapshot(null, "SOFR", 4.29, "NY_FED", null, null)
     then:
         thrown(NullPointerException)
   }
 
   def "RateSnapshot: given blank rateType, when construct, then throws"() {
     when:
-        new RateSnapshot(NOW, "", 4.29, "NY_FED")
+        new RateSnapshot(NOW, "", 4.29, "NY_FED", null, null)
     then:
         thrown(IllegalArgumentException)
   }
 
   def "RateSnapshot: given NaN value, when construct, then throws"() {
     when:
-        new RateSnapshot(NOW, "SOFR", Double.NaN, "NY_FED")
+        new RateSnapshot(NOW, "SOFR", Double.NaN, "NY_FED", null, null)
     then:
         thrown(IllegalArgumentException)
   }
 
   def "IliHistory: given valid args, when construct, then fields set"() {
     when:
-        var entry = new IliHistory(NOW, 0.85, 1.2, -0.5, 0.3, "VALID", "{\"w1\":0.4}", null, null)
+        var entry = new IliHistory(NOW, 0.85, 1.2, -0.5, 0.3, "VALID", "{\"w1\":0.4}", null, null, null, null)
     then:
         entry.time() == NOW
         entry.iliValue() == 0.85D
@@ -88,14 +88,14 @@ class EntityValidationSpec extends Specification {
 
   def "IliHistory: given null time, when construct, then throws"() {
     when:
-        new IliHistory(null, 0.85, 1.2, -0.5, 0.3, "VALID", null, null, null)
+        new IliHistory(null, 0.85, 1.2, -0.5, 0.3, "VALID", null, null, null, null, null)
     then:
         thrown(NullPointerException)
   }
 
   def "IliHistory: given blank dataStatus, when construct, then throws"() {
     when:
-        new IliHistory(NOW, 0.85, 1.2, -0.5, 0.3, "", null, null, null)
+        new IliHistory(NOW, 0.85, 1.2, -0.5, 0.3, "", null, null, null, null, null)
     then:
         thrown(IllegalArgumentException)
   }

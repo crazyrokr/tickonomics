@@ -25,8 +25,8 @@ class ProxyDivergenceGuardSpec extends Specification {
   def "given identical series, when computeCorrelation, then one"() {
     given:
         def series = [
-            new RateSnapshot(NOW, "TBILL_3M", 4.25, "NY_FED"),
-            new RateSnapshot(NOW.plusSeconds(3600), "TBILL_3M", 4.26, "NY_FED")
+            new RateSnapshot(NOW, "TBILL_3M", 4.25, "NY_FED", null, null),
+            new RateSnapshot(NOW.plusSeconds(3600), "TBILL_3M", 4.26, "NY_FED", null, null)
         ]
 
     when:
@@ -38,7 +38,7 @@ class ProxyDivergenceGuardSpec extends Specification {
 
   def "given single point, when computeCorrelation, then one"() {
     given:
-        def series = [new RateSnapshot(NOW, "TBILL_3M", 4.25, "NY_FED")]
+        def series = [new RateSnapshot(NOW, "TBILL_3M", 4.25, "NY_FED", null, null)]
 
     when:
         double corr = guard.computeCorrelation(series, series)
@@ -50,14 +50,14 @@ class ProxyDivergenceGuardSpec extends Specification {
   def "given constant difference, when computeDivergenceScore, then zero"() {
     given:
         def x = [
-            new RateSnapshot(NOW.minusSeconds(7200), "TBILL_3M", 4.250, "NY_FED"),
-            new RateSnapshot(NOW.minusSeconds(3600), "TBILL_3M", 4.250, "NY_FED"),
-            new RateSnapshot(NOW, "TBILL_3M", 4.250, "NY_FED")
+            new RateSnapshot(NOW.minusSeconds(7200), "TBILL_3M", 4.250, "NY_FED", null, null),
+            new RateSnapshot(NOW.minusSeconds(3600), "TBILL_3M", 4.250, "NY_FED", null, null),
+            new RateSnapshot(NOW, "TBILL_3M", 4.250, "NY_FED", null, null)
         ]
         def y = [
-            new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.350, "NY_FED"),
-            new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.350, "NY_FED"),
-            new RateSnapshot(NOW, "SOFR", 4.350, "NY_FED")
+            new RateSnapshot(NOW.minusSeconds(7200), "SOFR", 4.350, "NY_FED", null, null),
+            new RateSnapshot(NOW.minusSeconds(3600), "SOFR", 4.350, "NY_FED", null, null),
+            new RateSnapshot(NOW, "SOFR", 4.350, "NY_FED", null, null)
         ]
 
     when:

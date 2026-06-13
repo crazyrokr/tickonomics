@@ -19,7 +19,7 @@ class TieredIngestionBufferSpec extends Specification {
             def buffer = new TieredIngestionBuffer<RateSnapshot>(10, tempDir.resolve("rates.jsonl"), RateSnapshot)
 
         when:
-            buffer.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED"))
+            buffer.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null))
 
         then:
             buffer.size() == 1
@@ -31,9 +31,9 @@ class TieredIngestionBufferSpec extends Specification {
             def buffer = new TieredIngestionBuffer<RateSnapshot>(2, tempDir.resolve("rates.jsonl"), RateSnapshot)
 
         when:
-            buffer.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED"))
-            buffer.add(new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED"))
-            buffer.add(new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED"))
+            buffer.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null))
+            buffer.add(new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED", null, null))
+            buffer.add(new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED", null, null))
 
         then:
             buffer.size() == 2
@@ -42,9 +42,9 @@ class TieredIngestionBufferSpec extends Specification {
     def "given overflow items, when drain, then memory drained first then file"() {
         given:
             def buffer = new TieredIngestionBuffer<RateSnapshot>(2, tempDir.resolve("rates.jsonl"), RateSnapshot)
-            def rate1 = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED")
-            def rate2 = new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED")
-            def rate3 = new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED")
+            def rate1 = new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null)
+            def rate2 = new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED", null, null)
+            def rate3 = new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED", null, null)
 
             buffer.add(rate1)
             buffer.add(rate2)
@@ -64,9 +64,9 @@ class TieredIngestionBufferSpec extends Specification {
         given:
             def path = tempDir.resolve("rates.jsonl")
             def buffer1 = new TieredIngestionBuffer<RateSnapshot>(1, path, RateSnapshot)
-            buffer1.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED"))
-            buffer1.add(new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED"))
-            buffer1.add(new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED"))
+            buffer1.add(new RateSnapshot(NOW, "SOFR", 4.29, "NY_FED", null, null))
+            buffer1.add(new RateSnapshot(NOW.plusMillis(1), "EFFR", 4.33, "FRED", null, null))
+            buffer1.add(new RateSnapshot(NOW.plusMillis(2), "TGCR", 4.30, "NY_FED", null, null))
 
         when:
             def buffer2 = new TieredIngestionBuffer<RateSnapshot>(10, path, RateSnapshot)
@@ -90,7 +90,7 @@ class TieredIngestionBufferSpec extends Specification {
         given:
             def buffer = new TieredIngestionBuffer<RateSnapshot>(10, tempDir.resolve("rates.jsonl"), RateSnapshot)
             5.times { i ->
-                buffer.add(new RateSnapshot(NOW.plusMillis(i), "SOFR", 4.29 + i * 0.01, "NY_FED"))
+                buffer.add(new RateSnapshot(NOW.plusMillis(i), "SOFR", 4.29 + i * 0.01, "NY_FED", null, null))
             }
 
         when:
