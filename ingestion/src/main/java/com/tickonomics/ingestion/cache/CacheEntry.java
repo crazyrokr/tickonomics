@@ -8,6 +8,9 @@ public record CacheEntry(
     Instant cachedAt,
     String stalenessStatus) {
 
+    /** HTTP header name marking data served from the LKG cache as fresh or stale. */
+    public static final String X_DATA_AGE_HEADER = "X-Data-Age";
+
     public static final String FRESH = "FRESH";
     public static final String STALE = "STALE";
     public static final String EXPIRED = "EXPIRED";

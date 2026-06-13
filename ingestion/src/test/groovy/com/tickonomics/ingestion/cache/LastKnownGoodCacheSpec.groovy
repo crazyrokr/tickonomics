@@ -3,12 +3,22 @@ package com.tickonomics.ingestion.cache
 import spock.lang.Specification
 import spock.lang.Subject
 
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneOffset
 
 class LastKnownGoodCacheSpec extends Specification {
 
     @Subject
     LastKnownGoodCache cache = new LastKnownGoodCache(2)
+
+    static final Instant T0 = Instant.parse("2026-06-13T10:00:00Z")
+
+    private LastKnownGoodCache cacheFixedAt(Instant instant, long maxStalenessSeconds) {
+        LastKnownGoodCache fixedClockCache = new LastKnownGoodCache(maxStalenessSeconds)
+        fixedClockCache.setClock(Clock.fixed(instant, ZoneOffset.UTC))
+        fixedClockCache
+    }
 
     def "given no entry, when get, then empty returned"() {
         expect:
@@ -93,5 +103,53 @@ class LastKnownGoodCacheSpec extends Specification {
 
         then:
             thrown(IllegalArgumentException)
+    }
+
+    def "given fresh entry, when headerValue, then fresh header returned"() {
+        given:
+            def fixedClockCache = cacheFixedAt(T0, 10)
+            fixedClockCache.put("FRED", 5.25)
+
+        expect:
+            fixedClockCache.headerValue("FRED").get() == CacheEntry.FRESH
+    }
+
+    def "given absent source, when headerValue, then empty and expired"() {
+        given:
+            def fixedClockCache = cacheFixedAt(T0, 10)
+
+        expect:
+            fixedClockCache.get("NOPE").isEmpty()
+            fixedClockCache.headerValue("NOPE").isEmpty()
+            fixedClockCache.isExpired("NOPE")
+    }
+
+    def "given entry aged beyond half staleness, when get, then stale status and stale header"() {
+        given: "6s old with a 10s max staleness (half-life 5s)"
+            def fixedClockCache = cacheFixedAt(T0, 10)
+            fixedClockCache.put("FRED", 5.25)
+            fixedClockCache.setClock(Clock.fixed(T0.plusSeconds(6), ZoneOffset.UTC))
+
+        expect:
+            fixedClockCache.get("FRED").get().stalenessStatus() == CacheEntry.STALE
+            fixedClockCache.headerValue("FRED").get() == CacheEntry.STALE
+    }
+
+    def "given entry aged beyond max staleness, when get, then evicted and expired"() {
+        given: "11s old with a 10s max staleness"
+            def fixedClockCache = cacheFixedAt(T0, 10)
+            fixedClockCache.put("FRED", 5.25)
+            fixedClockCache.setClock(Clock.fixed(T0.plusSeconds(11), ZoneOffset.UTC))
+
+        expect:
+            fixedClockCache.get("FRED").isEmpty()
+            fixedClockCache.headerValue("FRED").isEmpty()
+            fixedClockCache.isExpired("FRED")
+            fixedClockCache.size() == 0
+    }
+
+    def "given header constant, then equals X-Data-Age"() {
+        expect:
+            CacheEntry.X_DATA_AGE_HEADER == "X-Data-Age"
     }
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -18,14 +19,24 @@ public class LastKnownGoodCache {
 
     private final ConcurrentHashMap<String, CacheEntry> entries = new ConcurrentHashMap<>();
     private final Duration maxStaleness;
+    private Clock clock = Clock.systemUTC();
 
     public LastKnownGoodCache(
             @Value("${monitor.ingestion.lkg-cache.max-staleness-seconds:3600}") long maxStalenessSeconds) {
         this.maxStaleness = Duration.ofSeconds(maxStalenessSeconds);
     }
 
+    /** Test hook to advance time deterministically; production uses the system clock. */
+    void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    private Instant now() {
+        return Instant.now(clock);
+    }
+
     public void put(String source, Object value) {
-        CacheEntry entry = new CacheEntry(source, value, Instant.now(), CacheEntry.FRESH);
+        CacheEntry entry = new CacheEntry(source, value, now(), CacheEntry.FRESH);
         entries.put(source, entry);
         log.debug("Cached last known good value for source={}", source);
     }
@@ -36,7 +47,7 @@ public class LastKnownGoodCache {
             return Optional.empty();
         }
 
-        Duration age = Duration.between(entry.cachedAt(), Instant.now());
+        Duration age = Duration.between(entry.cachedAt(), now());
         if (age.compareTo(maxStaleness) > 0) {
             entries.remove(source, entry);
             log.debug("Evicted expired LKG cache entry for source={}, age={}", source, age);
@@ -56,12 +67,21 @@ public class LastKnownGoodCache {
         if (entry == null) {
             return true;
         }
-        Duration age = Duration.between(entry.cachedAt(), Instant.now());
+        Duration age = Duration.between(entry.cachedAt(), now());
         return age.compareTo(maxStaleness) > 0;
     }
 
     public void evict(String source) {
         entries.remove(source);
+    }
+
+    /**
+     * Returns the {@code X-Data-Age} header value ({@code FRESH} or {@code STALE}) for a cached
+     * source, or empty when the entry is absent or expired. Downstream HTTP layers set the header
+     * from this value so consumers can act on data freshness.
+     */
+    public Optional<String> headerValue(String source) {
+        return get(source).map(CacheEntry::stalenessStatus);
     }
 
     public int size() {
