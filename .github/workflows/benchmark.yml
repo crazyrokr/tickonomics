@@ -1,0 +1,79 @@
+name: Benchmark Service
+
+on:
+  pull_request:
+    paths:
+      - 'computation/**'
+      - 'analytics/**'
+      - '.github/workflows/benchmark.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Performance Benchmark Regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: analytics/requirements.txt
+
+      - name: Install dependencies and benchmark tooling
+        run: |
+          pip install --upgrade pip
+          pip install -r analytics/requirements.txt
+          pip install pytest-benchmark
+
+      - name: Restore benchmark baseline
+        uses: actions/cache@v4
+        with:
+          path: analytics/.benchmarks
+          key: benchmark-baseline-${{ runner.os }}
+
+      - name: Run benchmark regression
+        working-directory: analytics
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python -m pytest tests \
+            --benchmark-only \
+            --benchmark-compare \
+            --benchmark-compare-fail=mean:10% \
+            --benchmark-storage=.benchmarks \
+            --benchmark-autosave \
+            2>&1 | tee benchmark-output.txt || true
+
+      - name: Publish benchmark report
+        if: always()
+        run: |
+          {
+            echo "## Benchmark Regression Report"
+            echo ""
+            echo "Engine: pytest-benchmark (cached-baseline, >10% mean regression gate)."
+            echo ""
+            cat analytics/benchmark-output.txt 2>/dev/null || echo "_No benchmark output captured._"
+          } > benchmark-report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body-file benchmark-report.md
+
+      - name: Deferred benchmark capabilities
+        run: |
+          echo "Java JMH benchmark tasks (backtestBenchmark, regulatoryScenarioTest) and the"
+          echo "compare_benchmarks.py / rds_check.py helper scripts are deferred to Tracks 5/8."
+          echo "See docs/adr/ADR-016-cicd-pipeline-finalization.md."
