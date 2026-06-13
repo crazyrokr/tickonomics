@@ -233,6 +233,12 @@ public class DataHubBackfillClient {
   }
 
   private RateSnapshot toEntity(CdmRateSnapshot cdm) {
-    return new RateSnapshot(cdm.time(), cdm.instrumentType().name(), cdm.value(), cdm.source());
+    return new RateSnapshot(
+        cdm.time(),
+        cdm.instrumentType().name(),
+        cdm.value(),
+        cdm.source(),
+        null,
+        null);
   }
 }

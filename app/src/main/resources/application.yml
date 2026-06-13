@@ -88,7 +88,7 @@ monitor:
     rest-url: https://finnhub.io/api/v1
     ws-enabled: true
     ws-url: wss://ws.finnhub.io
-    ws-reconnect-backoff-max: 60s
+    ws-reconnect-backoff-max: 60000
     symbols: SPY,QQQ,IWM,TLT,HYG,GLD
     news-enabled: true
     connect-timeout: 5s
