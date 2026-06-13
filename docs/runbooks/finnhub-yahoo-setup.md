@@ -1,82 +1,109 @@
-# OpenBB Platform Sidecar Setup
+# Finnhub WebSocket Configuration + Yahoo Finance Setup
 
 ## Overview
 
-The OpenBB Platform sidecar provides supplementary market data, econometrics,
-and equity pricing to the analytics worker via a containerised REST API.
+v6 replaced the paid Polygon/OpenBB data layer with free-tier sources. Real-time trades and news
+arrive over the **Finnhub** WebSocket; historical OHLCV, macro, and commodity data are fetched over
+REST from **Yahoo Finance**, **FRED**, **NY Fed**, **Alpha Vantage**, and **Ken French**. No sidecar
+container is required — every client is a direct Java REST/WebSocket client in the `ingestion`
+module.
 
 ## Prerequisites
 
-- Docker Engine >= 24.0
-- Docker Compose v2
-- `docker-compose.openbb.yml` present in the project root
+- Docker Engine >= 24.0, Docker Compose v2
+- A Finnhub API key (free tier) — set as `FINNHUB_API_KEY`
+- An Alpha Vantage API key (free tier) — set as `ALPHAVANTAGE_API_KEY`
+- Yahoo Finance, FRED, NY Fed, and Ken French require **no API key**
 
-## Starting the Sidecar
+## Configuration
 
-```bash
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.openbb.yml \
-  up -d openbb
+Both keys are wired into the backend environment in `docker-compose.yml`:
+
+```yaml
+backend:
+  environment:
+    FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+    ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
 ```
 
-The container takes up to 60 seconds to become ready. Wait for the health check
-to pass before proceeding.
-
-## Health Check
+They bind to `monitor.finnhub.api-key` and `monitor.alpha-vantage.api-key` in
+`app/src/main/resources/application.yml`. For local development, export them or add to `.env`:
 
 ```bash
-curl -s http://localhost:8002/api/v1/health
+export FINNHUB_API_KEY=xxxxxxxx
+export ALPHAVANTAGE_API_KEY=xxxxxxxx
 ```
 
-Expected response: `{"status": "ok"}`
-
-## Configuring the Analytics Worker
-
-Set the environment variable so the analytics worker can reach OpenBB:
+## Starting the Stack
 
 ```bash
-export ANALYTICS_OPENBB_URL=http://openbb:8002
+docker compose up -d
 ```
 
-In `docker-compose.openbb.yml` this is already wired through the internal
-network. For local development add it to your `.env` file.
+The backend starts once TimescaleDB and the analytics worker pass their health checks.
 
-## Available Endpoints
+## Verifying the Finnhub WebSocket
 
-| Endpoint | Purpose |
-|---|---|
-| `/api/v1/equity/price` | Historical and current equity prices |
-| `/api/v1/econometrics` | Econometric data feeds |
-
-Full OpenAPI spec is available at `http://localhost:8002/docs`.
-
-## Data Persistence
-
-All cached data is stored in the `openbb_data` Docker volume:
+After startup, confirm trade subscriptions are live:
 
 ```bash
-docker volume inspect openbb_data
+docker compose logs backend --tail=100 | grep -i "finnhub"
 ```
 
-The volume survives container restarts. To wipe cached data:
+Look for successful `FinnhubWsClient` trade subscription lines for the configured symbols
+(`monitor.finnhub.symbols`, default `SPY,QQQ,IWM,TLT,HYG,GLD`). The client auto-reconnects with
+exponential backoff up to `ws-reconnect-backoff-max` (60s); see
+[finnhub-websocket-outage.md](finnhub-websocket-outage.md) for the outage procedure.
+
+## Verifying Yahoo Finance REST
+
+Confirm historical OHLCV fetches are working (no key required — public endpoints with rate
+limiting):
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.openbb.yml down -v
+docker compose logs backend --tail=100 | grep -i "yahoo"
 ```
+
+The `YahooFinanceClient` is the primary equity source; `FinnhubEquityClient` is the configured REST
+fallback when Yahoo is unavailable.
+
+## Free Data Source Inventory
+
+| Client | Data | Key required | Module |
+|---|---|---|---|
+| `FinnhubWsClient` | Real-time trades | `FINNHUB_API_KEY` | ingestion |
+| `FinnhubEquityClient` | Equity aggregates (REST fallback) | `FINNHUB_API_KEY` | ingestion |
+| `FinnhubNewsClient` | Market news | `FINNHUB_API_KEY` | ingestion |
+| `YahooFinanceClient` | Historical OHLCV (primary equity) | none | ingestion |
+| `YahooOptionsClient` | Options chains | none | ingestion |
+| `AlphaVantageClient` | Commodities + equities | `ALPHAVANTAGE_API_KEY` | ingestion |
+| `FredClient` | FRED macro series | none | ingestion |
+| `NyFedClient` | SOFR / rates | none | ingestion |
+| `FrenchFactorClient` | Ken French factor data | none | ingestion |
+| `DataHubBackfillClient` | CSV backfill | none | ingestion |
+| `FedRSSClient` | Fed speeches / FOMC feeds | none | ingestion |
 
 ## Troubleshooting
 
-### Slow Startup
+### WebSocket does not subscribe
 
-The health check has a 60-second start period. If it still fails after that:
+Confirm the key is non-empty and the symbols list is populated:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.openbb.yml logs openbb --tail 50
+docker compose exec backend printenv FINNHUB_API_KEY
 ```
 
-### API Rate Limits
+An empty key disables the WS client (`monitor.finnhub.ws-enabled`). Check
+`monitor.finnhub.api-key` resolved correctly in the logs.
 
-OpenBB proxies external providers that enforce rate limits. If you see `429`
-responses, reduce request frequency or check the provider dashboard for quota
-status.
+### Yahoo Finance rate limiting
+
+Yahoo public endpoints throttle aggressive polling. If you see intermittent `429`s, the
+`yahooFinanceApi` resilience4j retry instance backs off automatically; sustained throttling
+indicates the poll interval (`monitor.equity-price.poll-interval-ms`) is too aggressive.
+
+## Reference
+
+- Plan: `docs/plan_v6/11-deployment-operations.md` — "Finnhub WebSocket Configuration + Yahoo
+  Finance Setup" runbook
+- ADR-012 — free data source migration
