@@ -1,112 +1,130 @@
-# Systemic Resilience Monitoring Runbook
+# Systemic Resilience Monitor — Global Safe Mode Runbook
 
 ## Purpose
 
-Monitor cross-module risk indicators and manage Global Safe Mode transitions to protect against adverse market conditions.
+Monitor cross-module health indicators and manage **Global Safe Mode** to protect against correlated
+degradation. Implemented by `SystemicResilienceMonitor` (ADR-018); this is the *automatic*
+counterpart to the manual kill-switch ([big-red-button.md](big-red-button.md)).
 
-## Monitored Components
+## Health Indicators
 
-| Component | Location | Role |
+Global Safe Mode evaluates three indicators on a fixed schedule (default every 5s — meets the <5s
+correlation-detection SLA). Each is "degraded" when:
+
+| Indicator | Degraded when | Source |
 |---|---|---|
-| BehaviouralRiskProcessor (BRI) | Risk module | Detects anomalous trading patterns |
-| RegimeDetector | Analytics module | Identifies market regime shifts |
-| ProxyDivergenceGuard | Ingestion module | Detects data source dislocations |
+| Ingestion overflow utilization | buffer fill ≥ `overflow-utilization-threshold-pct` (default 80%) | `CrossModuleResilienceHealthProbe` |
+| Analytics worker | reported unhealthy, **or** probe latency ≥ `worker-latency-threshold-ms` (default 5000ms) | `AnalyticsWorkerClient.isHealthy()` |
+| Proxy divergence | an intraday SOFR/T-Bill dislocation is active | `ProxyDivergenceGuard.checkDivergence()` |
 
-## Dashboard
+Unknown readings (e.g. no buffer bean registered, probe unreachable) are **never** counted as
+degraded — a partially wired deployment cannot trip Safe Mode through missing data alone.
 
-Monitor the **Global Safe Mode** indicator on the analytics dashboard at `http://localhost:3000/dashboard`. When lit, the system operates under reduced risk parameters.
+## Activation — Correlated Degradation
 
-## Check BRI Score
+Safe Mode auto-activates when **at least `min-degraded-indicators`** (default 2) indicators are
+degraded simultaneously:
 
-Query the behavioural risk index for elevated scores:
+- A **single** degraded indicator does **not** trip Safe Mode — this is the false-positive guard.
+- Two or more degraded indicators indicate correlated (systemic) degradation and latch Safe Mode on.
 
-```sql
-SELECT time, symbol, bri_score, risk_level
-FROM behavioural_risk_index
-WHERE bri_score > 0.7
-ORDER BY time DESC
-LIMIT 20;
+When active, `PaperTradingEngine.processSignal` rejects every signal with reason `global_safe_mode`.
+
+## Check Safe Mode Status
+
+```bash
+curl -s http://localhost:8080/api/v1/demo/safe-mode/status | jq .
 ```
 
-BRI score thresholds:
+Example response when latched:
 
-| Score | Level | Action |
+```json
+{
+  "active": true,
+  "autoActivated": true,
+  "manualOverride": false,
+  "enabled": true,
+  "lastReason": "overflow_utilization_exceeded + analytics_worker_degraded",
+  "lastActivationAt": "2026-06-13T10:00:00Z",
+  "degradedIndicators": ["overflow_utilization_exceeded", "analytics_worker_degraded"],
+  "recoveryReady": false
+}
+```
+
+`recoveryReady` reflects *current* health (all indicators healthy), independent of the latch — it
+tells the operator when it is safe to clear, but does not clear Safe Mode on its own.
+
+## Recovery — Manual Acknowledgment
+
+Safe Mode **latches**: it does not auto-clear when health returns. Recovery requires an explicit
+manual acknowledgment (verify `recoveryReady: true` first):
+
+```bash
+# 1. Confirm all indicators are healthy
+curl -s http://localhost:8080/api/v1/demo/safe-mode/status | jq '.recoveryReady'
+# true
+
+# 2. Clear Safe Mode
+curl -X POST http://localhost:8080/api/v1/demo/safe-mode/deactivate | jq .
+# {"active": false, "source": "manual_ack"}
+```
+
+`deactivate` clears both the auto-latch and any manual override.
+
+## Manual Override (force Safe Mode)
+
+Operators can force Safe Mode on without waiting for auto-detection (e.g. proactive de-risking):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/demo/safe-mode/activate | jq .
+# {"active": true, "source": "manual_override"}
+```
+
+## Diagnosing Active Indicators
+
+When Safe Mode is latched, drill into the underlying signal:
+
+```bash
+# Ingestion overflow depth
+docker compose logs backend --tail=200 | grep -i "OVERFLOW_QUEUE_GROWING"
+
+# Analytics worker health + latency
+curl -s http://localhost:8001/health | jq .
+
+# Proxy divergence (SOFR vs T-Bill)
+docker compose exec timescaledb psql -U tickonomics -c \
+  "SELECT detected_at, divergence_score, correlation, status FROM proxy_divergence_events
+   WHERE resolved_at IS NULL ORDER BY detected_at DESC LIMIT 5;"
+```
+
+## Disabling
+
+To disable Global Safe Mode entirely (e.g. in an environment where the probe inputs are not wired),
+set `monitor.demo.global-safe-mode.enabled: false`. When disabled, neither auto-detection nor manual
+override can activate Safe Mode.
+
+## Configuration
+
+Under `monitor.demo.global-safe-mode` in `application.yml`:
+
+| Property | Default | Description |
 |---|---|---|
-| < 0.3 | LOW | Normal operations |
-| 0.3 - 0.7 | MEDIUM | Monitor closely |
-| > 0.7 | HIGH | Contributes to Safe Mode trigger |
+| `enabled` | `true` | Master switch |
+| `overflow-utilization-threshold-pct` | `80` | Buffer fill % counted as degraded |
+| `worker-latency-threshold-ms` | `5000` | Worker latency counted as degraded |
+| `min-degraded-indicators` | `2` | Correlated-degradation threshold (1–3) |
+| `evaluation-interval-ms` | `5000` | Scheduled probe cadence |
 
-## Check Market Regime
+## Operational Notes
 
-Search backend logs for high-volatility regime detection:
+- **Volatile state:** like the kill-switch, Safe Mode state is in-memory; a process restart returns
+  it to inactive (ADR-017 / ADR-018 trade-off).
+- **Escalation:** if Safe Mode auto-latches more than 3 times in 24h, escalate to the risk committee
+  — persistent correlated degradation signals an upstream data or infra problem.
 
-```bash
-docker compose logs backend --tail=500 | grep "RegimeType.HIGH_VOL"
-```
+## Reference
 
-Alternatively, query the regime state directly:
-
-```sql
-SELECT time, regime_type, confidence
-FROM regime_history
-ORDER BY time DESC
-LIMIT 10;
-```
-
-## Safe Mode Triggers
-
-Safe Mode activates when **all three** conditions are met simultaneously:
-
-1. BRI score > 0.7 (HIGH)
-2. Regime = `HIGH_VOL`
-3. Proxy divergence detected (data dislocation)
-
-## Safe Mode Behavior
-
-When Global Safe Mode is active:
-
-- Position sizes reduced by 50%
-- Signal thresholds widened (higher confidence required)
-- No auto-execute (manual confirmation required)
-- Increased logging and monitoring frequency
-
-## Recovery from Safe Mode
-
-Safe Mode deactivates when **all three** conditions are sustained for 30 minutes:
-
-1. BRI score < 0.3 (LOW)
-2. Regime = `METASTABLE`
-3. No proxy divergence detected
-
-Verify recovery conditions:
-
-```sql
-SELECT MAX(bri_score) FROM behavioural_risk_index
-WHERE time > NOW() - INTERVAL '30 minutes';
--- Must return < 0.3
-```
-
-```bash
-docker compose logs backend --since=30m | grep "RegimeType.METASTABLE" | tail -1
-```
-
-## Cross-Module Health Check
-
-Verify all system components are healthy:
-
-```bash
-# Backend health
-curl -s http://localhost:8080/actuator/health | jq '.status'
-
-# Analytics service health
-curl -s http://localhost:8000/health | jq '.status'
-
-# TimescaleDB connectivity
-docker compose exec timescaledb pg_isready -U tickonomics
-```
-
-Expected: all three return healthy/ready status.
-
-## Escalation
-
-If Safe Mode triggers more than 3 times in a 24-hour window, escalate to the risk committee for manual review and potential parameter adjustment.
+- ADR-018 — Systemic Resilience Monitor design
+- `computation/.../demo/SystemicResilienceMonitor.java`, `ResilienceHealthProbe.java`,
+  `ResilienceHealthSnapshot.java`
+- `app/.../CrossModuleResilienceHealthProbe.java` (probe wiring)

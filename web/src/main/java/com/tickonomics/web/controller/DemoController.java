@@ -4,6 +4,7 @@ import com.tickonomics.computation.demo.KillSwitch;
 import com.tickonomics.computation.demo.MarketPriceLookup;
 import com.tickonomics.computation.demo.PaperTradingEngine;
 import com.tickonomics.computation.demo.SignalQualityAnalyzer;
+import com.tickonomics.computation.demo.SystemicResilienceMonitor;
 import com.tickonomics.computation.demo.VirtualPortfolio;
 import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
@@ -34,6 +35,7 @@ public class DemoController {
   private final KillSwitch killSwitch;
   private final MarketPriceLookup priceLookup;
   private final LeverageSignaler leverageSignaler;
+  private final SystemicResilienceMonitor resilienceMonitor;
 
   public DemoController(
       VirtualPortfolio portfolio,
@@ -43,7 +45,8 @@ public class DemoController {
       SignalLogRepository signalLogRepository,
       KillSwitch killSwitch,
       MarketPriceLookup priceLookup,
-      LeverageSignaler leverageSignaler) {
+      LeverageSignaler leverageSignaler,
+      SystemicResilienceMonitor resilienceMonitor) {
     this.portfolio = portfolio;
     this.tradingEngine = tradingEngine;
     this.qualityAnalyzer = qualityAnalyzer;
@@ -52,6 +55,7 @@ public class DemoController {
     this.killSwitch = killSwitch;
     this.priceLookup = priceLookup;
     this.leverageSignaler = leverageSignaler;
+    this.resilienceMonitor = resilienceMonitor;
   }
 
   @GetMapping("/portfolio")
@@ -154,6 +158,33 @@ public class DemoController {
   @GetMapping("/kill-switch/status")
   public ResponseEntity<Map<String, Object>> killSwitchStatus() {
     return ResponseEntity.ok(Map.of("active", killSwitch.isActive()));
+  }
+
+  @GetMapping("/safe-mode/status")
+  public ResponseEntity<Map<String, Object>> safeModeStatus() {
+    SystemicResilienceMonitor.StatusReport report = resilienceMonitor.status();
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("active", report.active());
+    body.put("autoActivated", report.autoActivated());
+    body.put("manualOverride", report.manualOverride());
+    body.put("enabled", report.enabled());
+    body.put("lastReason", report.lastReason());
+    body.put("lastActivationAt", report.lastActivationAt());
+    body.put("degradedIndicators", report.degradedIndicators());
+    body.put("recoveryReady", report.recoveryReady());
+    return ResponseEntity.ok(body);
+  }
+
+  @PostMapping("/safe-mode/activate")
+  public ResponseEntity<Map<String, Object>> activateSafeMode() {
+    resilienceMonitor.activateManual();
+    return ResponseEntity.ok(Map.of("active", true, "source", "manual_override"));
+  }
+
+  @PostMapping("/safe-mode/deactivate")
+  public ResponseEntity<Map<String, Object>> deactivateSafeMode() {
+    resilienceMonitor.deactivateManual();
+    return ResponseEntity.ok(Map.of("active", false, "source", "manual_ack"));
   }
 
   @PostMapping("/leverage-rotation/evaluate")

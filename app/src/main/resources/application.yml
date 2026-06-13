@@ -62,6 +62,8 @@ monitor:
       max-staleness-seconds: 3600
     bulkhead:
       pressure-check-ms: 30000
+    resilience:
+      buffer-capacity: 10000
   anomaly:
     enabled: true
     async-timeout-seconds: 5
@@ -108,6 +110,12 @@ monitor:
       benchmark-symbol: "SPY"
     kill-switch:
       liquidate-on-activate: true
+    global-safe-mode:
+      enabled: true
+      overflow-utilization-threshold-pct: 80
+      worker-latency-threshold-ms: 5000
+      min-degraded-indicators: 2
+      evaluation-interval-ms: 5000
 
   equity-price:
     enabled: true

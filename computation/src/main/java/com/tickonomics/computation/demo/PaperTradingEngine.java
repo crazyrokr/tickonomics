@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 /**
  * Bridges {@code SignalGenerator} output to the {@link VirtualPortfolio}, applying the v1 data-gate
  * chain (demo-enabled, ILI dislocated/degraded, ACTIONABLE-only) and the v5 execution-model
- * guardrails: kill-switch, market-stability circuit breaker, pre-trade systemic-impact check,
+ * guardrails: kill-switch, global safe mode, market-stability circuit breaker, pre-trade systemic-impact check,
  * market-maker / fill-probability execution, dynamic Markov stops, standardized cost model,
  * randomized execution window, and dual passive-vs-sniper execution sampling for the comparative
  * analysis surfaced in the signal-quality report.
@@ -29,6 +29,7 @@ public class PaperTradingEngine {
   private final Eq553SlippageModel slippageModel;
   private final DemoConfig config;
   private final KillSwitch killSwitch;
+  private final SystemicResilienceMonitor resilienceMonitor;
   private final MarketStabilityGuard marketStabilityGuard;
   private final OrderImpactPredictor orderImpactPredictor;
   private final MarkovStopHandler markovStopHandler;
@@ -47,6 +48,7 @@ public class PaperTradingEngine {
       Eq553SlippageModel slippageModel,
       DemoConfig config,
       KillSwitch killSwitch,
+      SystemicResilienceMonitor resilienceMonitor,
       MarketStabilityGuard marketStabilityGuard,
       OrderImpactPredictor orderImpactPredictor,
       MarkovStopHandler markovStopHandler,
@@ -61,6 +63,7 @@ public class PaperTradingEngine {
     this.slippageModel = slippageModel;
     this.config = config;
     this.killSwitch = killSwitch;
+    this.resilienceMonitor = resilienceMonitor;
     this.marketStabilityGuard = marketStabilityGuard;
     this.orderImpactPredictor = orderImpactPredictor;
     this.markovStopHandler = markovStopHandler;
@@ -84,6 +87,9 @@ public class PaperTradingEngine {
     }
     if (killSwitch.isActive()) {
       return TradeResult.skipped("kill_switch_active");
+    }
+    if (resilienceMonitor.isSafeModeActive()) {
+      return TradeResult.skipped("global_safe_mode");
     }
     if (config.marketStabilityGuard().enabled()
         && ctx.recentPortfolioReturns() != null && !ctx.recentPortfolioReturns().isEmpty()
