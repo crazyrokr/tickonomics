@@ -4,6 +4,7 @@ import com.tickonomics.cdm.adapter.FredCdmAdapter
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter
 import com.tickonomics.ingestion.fred.FredClient
 import com.tickonomics.ingestion.nyfed.NyFedClient
+import com.tickonomics.ingestion.tracing.IngestionTracer
 import com.tickonomics.persistence.entity.RateSnapshot
 import com.tickonomics.persistence.repository.RateSnapshotRepository
 import com.tickonomics.persistence.repository.TickDataRepository
@@ -28,16 +29,17 @@ class IdempotencyRoutingSpec extends Specification {
 
     RestClient.Builder restClientBuilder = Mock()
     RestClient restClient = Mock()
+    IngestionTracer tracer = new IngestionTracer(null, false)
 
     def setup() {
         restClientBuilder.build() >> restClient
-        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard)
+        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer)
         writer.batchSize = 500
     }
 
     def "given FredClient writes same observation twice, when routed through writer, then no duplicate"() {
         given:
-            def fredClient = new FredClient(restClientBuilder, writer, new FredCdmAdapter())
+            def fredClient = new FredClient(restClientBuilder, writer, new FredCdmAdapter(), tracer)
             def obs = [
                 new FredClient.FredObservationRaw("2026-05-23", "4.33")
             ]
@@ -56,14 +58,14 @@ class IdempotencyRoutingSpec extends Specification {
             writer.flushAll()
 
         then:
-            1 * rateSnapshotRepository.saveAll(_ as List) >> { List<RateSnapshot> batch ->
+            1 * rateSnapshotRepository.saveAllIdempotent(_ as List) >> { List batch ->
                 assert batch.size() == 1
             }
     }
 
     def "given NyFedClient writes same rate twice, when routed through writer, then no duplicate"() {
         given:
-            def nyfedClient = new NyFedClient(restClientBuilder, writer, new NyFedCdmAdapter())
+            def nyfedClient = new NyFedClient(restClientBuilder, writer, new NyFedCdmAdapter(), tracer)
             def rates = [
                 new NyFedClient.NyFedRateRaw("2026-05-23", 4.29)
             ]
@@ -82,7 +84,7 @@ class IdempotencyRoutingSpec extends Specification {
             writer.flushAll()
 
         then:
-            1 * rateSnapshotRepository.saveAll(_ as List) >> { List<RateSnapshot> batch ->
+            1 * rateSnapshotRepository.saveAllIdempotent(_ as List) >> { List batch ->
                 assert batch.size() == 1
             }
     }
@@ -98,6 +100,6 @@ class IdempotencyRoutingSpec extends Specification {
             writer.flushAll()
 
         then:
-            1 * rateSnapshotRepository.saveAll { List<RateSnapshot> batch -> batch.size() == 2 }
+            1 * rateSnapshotRepository.saveAllIdempotent { List batch -> batch.size() == 2 }
     }
 }

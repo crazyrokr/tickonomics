@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.TickData;
 import java.time.Instant;
 import java.util.List;
@@ -12,6 +13,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TickDataRepository {
 
+  private static final String INSERT_SQL =
+      "INSERT INTO tick_data (time, symbol, price, volume, conditions) "
+          + "VALUES (:time, :symbol, :price, :volume, :conditions)";
+
+  private static final String IDEMPOTENT_INSERT_SQL =
+      "INSERT INTO tick_data (time, symbol, price, volume, conditions, idempotency_key) "
+          + "VALUES (:time, :symbol, :price, :volume, :conditions, :idempotencyKey) "
+          + "ON CONFLICT (time, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING";
+
   private final NamedParameterJdbcTemplate jdbc;
 
   public TickDataRepository(NamedParameterJdbcTemplate jdbc) {
@@ -19,19 +29,31 @@ public class TickDataRepository {
   }
 
   public void save(TickData tick) {
-    jdbc.update(
-        "INSERT INTO tick_data (time, symbol, price, volume, conditions) VALUES (:time, :symbol, :price, :volume, "
-            + ":conditions)",
-        toParams(tick));
+    jdbc.update(INSERT_SQL, toParams(tick));
   }
 
   public void saveAll(List<TickData> ticks) {
     jdbc.batchUpdate(
-        "INSERT INTO tick_data (time, symbol, price, volume, conditions) VALUES (:time, :symbol, :price, :volume, "
-            + ":conditions)",
+        INSERT_SQL,
         SqlParameterSourceUtils.createBatch(ticks
             .stream()
             .map(this::toParams)
+            .toList()));
+  }
+
+  /**
+   * Batch insert with durable idempotency-key deduplication. Returns the per-row JDBC affected-row
+   * counts ({@code 0} where a duplicate key was suppressed by {@code ON CONFLICT DO NOTHING}).
+   */
+  public int[] saveAllIdempotent(List<IdempotentRow<TickData>> rows) {
+    if (rows == null || rows.isEmpty()) {
+      return new int[0];
+    }
+    return jdbc.batchUpdate(
+        IDEMPOTENT_INSERT_SQL,
+        SqlParameterSourceUtils.createBatch(rows
+            .stream()
+            .map(this::toIdempotentParams)
             .toList()));
   }
 
@@ -76,5 +98,9 @@ public class TickDataRepository {
         .addValue("price", tick.price())
         .addValue("volume", tick.volume())
         .addValue("conditions", tick.conditions() != null ? tick.conditions() : new int[]{});
+  }
+
+  private MapSqlParameterSource toIdempotentParams(IdempotentRow<TickData> row) {
+    return toParams(row.row()).addValue("idempotencyKey", row.idempotencyKey());
   }
 }
