@@ -178,4 +178,126 @@ export async function getConfigHistory(): Promise<ConfigHistoryEntry[]> {
   return request<ConfigHistoryEntry[]>("/api/v1/config/history");
 }
 
+// ── Demo / virtual portfolio endpoints ──────────────────────────────────
+
+export interface DemoPortfolio {
+  balance: number;
+  initialBalance: number;
+  realizedPnl: number;
+  unrealizedPnl: number;
+  totalPnl: number;
+  openPositions: number;
+  totalTrades: number;
+  winRate: number;
+  enabled: boolean;
+}
+
+export interface DemoPosition {
+  id: number;
+  symbol: string;
+  direction: string;
+  quantity: number;
+  entryPrice: number;
+  currentPrice: number | null;
+  unrealizedPnl: number | null;
+  stopLossPrice: number | null;
+  takeProfitPrice: number | null;
+  openedAt: string;
+}
+
+export interface DemoTrade {
+  id: number;
+  symbol: string;
+  direction: string;
+  quantity: number;
+  fillPrice: number;
+  commission: number;
+  slippage: number;
+  realizedPnl: number | null;
+  executedAt: string;
+  tradeType: string;
+}
+
+export interface DemoSignalQuality {
+  reportDate?: string;
+  totalSignals?: number;
+  actionableSignals?: number;
+  hitRate5d?: number;
+  falsePositiveRate?: number;
+  avgReturnPerSignal?: number;
+  portfolioPnl?: number;
+  portfolioSharpe?: number;
+  vsSpyReturn?: number;
+  verificationProgress?: string;
+  [key: string]: unknown;
+}
+
+export interface KillSwitchStatus {
+  active: boolean;
+}
+
+export interface LeverageRotationResult {
+  signal: string;
+  benchmarkPrice: number;
+  sma200: number;
+  deviation: number;
+  closedTrades: number;
+}
+
+export async function getDemoPortfolio(): Promise<DemoPortfolio> {
+  return request<DemoPortfolio>("/api/v1/demo/portfolio");
+}
+
+export async function getDemoPositions(): Promise<DemoPosition[]> {
+  return request<DemoPosition[]>("/api/v1/demo/positions");
+}
+
+export async function getDemoTrades(
+  limit = 50,
+  offset = 0,
+): Promise<DemoTrade[]> {
+  return request<DemoTrade[]>(
+    `/api/v1/demo/trades?limit=${limit}&offset=${offset}`,
+  );
+}
+
+export async function getDemoSignalQuality(): Promise<DemoSignalQuality> {
+  return request<DemoSignalQuality>("/api/v1/demo/signal-quality");
+}
+
+export async function getKillSwitchStatus(): Promise<KillSwitchStatus> {
+  return request<KillSwitchStatus>("/api/v1/demo/kill-switch/status");
+}
+
+export async function activateKillSwitch(
+  prices?: Record<string, number>,
+): Promise<{ active: boolean; liquidatedTrades?: number }> {
+  return request<{ active: boolean; liquidatedTrades?: number }>(
+    "/api/v1/demo/kill-switch/activate",
+    {
+      method: "POST",
+      body: JSON.stringify(prices ?? {}),
+    },
+  );
+}
+
+export async function deactivateKillSwitch(): Promise<KillSwitchStatus> {
+  return request<KillSwitchStatus>("/api/v1/demo/kill-switch/deactivate", {
+    method: "POST",
+    body: "{}",
+  });
+}
+
+export async function evaluateLeverageRotation(
+  prices?: Record<string, number>,
+): Promise<LeverageRotationResult> {
+  return request<LeverageRotationResult>(
+    "/api/v1/demo/leverage-rotation/evaluate",
+    {
+      method: "POST",
+      body: JSON.stringify(prices ?? {}),
+    },
+  );
+}
+
 export { ApiError, API_BASE_URL };
