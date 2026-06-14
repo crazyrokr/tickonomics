@@ -1,0 +1,147 @@
+services:
+  backend:
+    image: tickonomics-backend:latest
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: virtual-threads
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/tickonomics
+      SPRING_DATASOURCE_USERNAME: tickonomics
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
+      FRED_API_KEY: ${FRED_API_KEY:-}
+      ANALYTICS_WORKER_URL: http://analytics-worker:8001
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4317
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus,metrics
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    volumes:
+      - ingestion_overflow:/data/overflow
+    restart: unless-stopped
+
+  analytics-worker:
+    image: tickonomics-analytics:latest
+    ports:
+      - "8001:8001"
+    environment:
+      TRACING_ENABLED: "true"
+      TRACING_EXPORTER: otlp
+      TRACING_ENDPOINT: http://jaeger:4317
+    restart: unless-stopped
+
+  dashboard:
+    image: tickonomics-dashboard:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: tickonomics
+      POSTGRES_USER: tickonomics
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    command: >
+      postgres
+      -c shared_buffers=4GB
+      -c effective_cache_size=12GB
+      -c work_mem=64MB
+      -c maintenance_work_mem=512MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=64MB
+      -c default_statistics_target=200
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c max_connections=50
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tickonomics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.64
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ../../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../infra/terraform/modules/observability/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=90d"
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../../monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.2.0
+    volumes:
+      - ../../monitoring/loki.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.2.0
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ../../monitoring/promtail.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  timescaledb_data:
+  ingestion_overflow:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  default:
+    name: tickonomics-net
+    driver: bridge

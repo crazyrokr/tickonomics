@@ -1,0 +1,78 @@
+{
+  "title": "Overview",
+  "tags": ["tickonomics", "overview"],
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "title": "Service Health",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
+      "targets": [
+        { "expr": "up{job=~\"backend|analytics-worker|timescaledb|caddy\"}", "legendFormat": "{{job}}" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] },
+          "mappings": [{ "type": "value", "value": "1", "text": "UP" }, { "type": "value", "value": "0", "text": "DOWN" }]
+        }
+      }
+    },
+    {
+      "title": "Request Rate",
+      "type": "graph",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
+      "targets": [
+        { "expr": "rate(http_server_requests_seconds_count{job=\"backend\"}[1m])", "legendFormat": "{{uri}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "title": "Error Rate (5xx)",
+      "type": "graph",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
+      "targets": [
+        { "expr": "rate(http_server_requests_seconds_count{job=\"backend\",status=~\"5..\"}[1m]) / rate(http_server_requests_seconds_count{job=\"backend\"}[1m])", "legendFormat": "5xx rate" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 0.1 } }
+    },
+    {
+      "title": "P95 Latency",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job=\"backend\"}[1m]))", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{job=\"backend\"}[1m]))", "legendFormat": "p50" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "title": "JVM Memory",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "jvm_memory_used_bytes{job=\"backend\",area=\"heap\"}", "legendFormat": "Heap used" },
+        { "expr": "jvm_memory_max_bytes{job=\"backend\",area=\"heap\"}", "legendFormat": "Heap max" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "title": "Container CPU",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(container_cpu_usage_seconds_total{name=~\"tickonomics.*\"}[1m])", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Container Memory",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "container_memory_usage_bytes{name=~\"tickonomics.*\"}", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    }
+  ]
+}

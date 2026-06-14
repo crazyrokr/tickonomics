@@ -101,3 +101,31 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# --- Track 14: Production Infrastructure ---
+
+variable "grafana_password" {
+  description = "Grafana admin password for the observability stack"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "oauth_client_secret" {
+  description = "OAuth2 / Keycloak client secret"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "domain_name" {
+  description = "Root domain name for Route53 hosted zone"
+  type        = string
+  default     = "tickonomics.io"
+}
+
+variable "landing_cname_target" {
+  description = "CNAME target for apex domain (e.g. Vercel deployment URL)"
+  type        = string
+  default     = ""
+}

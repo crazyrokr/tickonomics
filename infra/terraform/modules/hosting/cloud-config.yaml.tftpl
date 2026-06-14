@@ -1,0 +1,187 @@
+#cloud-config
+write_files:
+  - path: /opt/tickonomics/.env
+    permissions: "0600"
+    content: |
+      POSTGRES_PASSWORD=${postgres_password}
+      FINNHUB_API_KEY=${finnhub_api_key}
+      ALPHAVANTAGE_API_KEY=${alphavantage_api_key}
+      FRED_API_KEY=${fred_api_key}
+      GRAFANA_PASSWORD=${grafana_password}
+      DB_PASSWORD=${postgres_password}
+
+  - path: /opt/tickonomics/Caddyfile
+    permissions: "0644"
+    content: |
+      ${domain_name} {
+          redir https://{host}{uri} permanent
+      }
+
+      https://api.${domain_name} {
+          reverse_proxy backend:8080
+      }
+
+      https://app.${domain_name} {
+          reverse_proxy dashboard:3000
+      }
+
+  - path: /opt/tickonomics/docker-compose.yaml
+    permissions: "0644"
+    content: |
+      services:
+        backend:
+          image: ${backend_image}
+          restart: unless-stopped
+          environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/tickonomics
+            SPRING_DATASOURCE_USERNAME: tickonomics
+            SPRING_DATASOURCE_PASSWORD: ${postgres_password}
+            ANALYTICS_WORKER_URL: http://analytics-worker:8001
+            MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4317
+            MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus,metrics
+            FINNHUB_API_KEY: ${finnhub_api_key}
+            ALPHAVANTAGE_API_KEY: ${alphavantage_api_key}
+            FRED_API_KEY: ${fred_api_key}
+          depends_on:
+            timescaledb:
+              condition: service_healthy
+          volumes:
+            - ingestion_overflow:/data/overflow
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 120s
+
+        analytics-worker:
+          image: ${analytics_image}
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+
+        dashboard:
+          image: ${dashboard_image}
+          restart: unless-stopped
+          depends_on:
+            - backend
+
+        timescaledb:
+          image: timescale/timescaledb:latest-pg16
+          restart: unless-stopped
+          environment:
+            POSTGRES_DB: tickonomics
+            POSTGRES_USER: tickonomics
+            POSTGRES_PASSWORD: ${postgres_password}
+          command: >
+            postgres
+            -c shared_buffers=512MB
+            -c effective_cache_size=1536MB
+            -c work_mem=16MB
+            -c maintenance_work_mem=128MB
+            -c checkpoint_completion_target=0.9
+            -c wal_buffers=16MB
+            -c default_statistics_target=100
+            -c random_page_cost=1.1
+            -c effective_io_concurrency=200
+            -c max_connections=50
+          volumes:
+            - /mnt/timescaledb:/var/lib/postgresql/data
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U tickonomics"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+        jaeger:
+          image: jaegertracing/all-in-one:1.64
+          restart: unless-stopped
+          environment:
+            COLLECTOR_OTLP_ENABLED: "true"
+
+        caddy:
+          image: caddy:2-alpine
+          restart: unless-stopped
+          ports:
+            - "80:80"
+            - "443:443"
+          volumes:
+            - /opt/tickonomics/Caddyfile:/etc/caddy/Caddyfile:ro
+            - caddy_data:/data
+            - caddy_config:/config
+
+        prometheus:
+          image: prom/prometheus:v2.54.1
+          restart: unless-stopped
+          volumes:
+            - /opt/tickonomics/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - prometheus_data:/prometheus
+          command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.retention.time=30d"
+
+        grafana:
+          image: grafana/grafana:11.3.0
+          restart: unless-stopped
+          volumes:
+            - grafana_data:/var/lib/grafana
+            - /opt/tickonomics/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+            - /opt/tickonomics/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+          environment:
+            GF_SECURITY_ADMIN_PASSWORD: ${grafana_password}
+
+        loki:
+          image: grafana/loki:3.2.0
+          restart: unless-stopped
+          volumes:
+            - /opt/tickonomics/monitoring/loki.yml:/etc/loki/config.yml:ro
+            - loki_data:/loki
+
+        promtail:
+          image: grafana/promtail:3.2.0
+          restart: unless-stopped
+          volumes:
+            - /var/log:/var/log:ro
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+            - /opt/tickonomics/monitoring/promtail.yml:/etc/promtail/config.yml:ro
+          command: -config.file=/etc/promtail/config.yml
+
+      volumes:
+        timescaledb_data:
+        ingestion_overflow:
+        prometheus_data:
+        grafana_data:
+        loki_data:
+        caddy_data:
+        caddy_config:
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - docker.io
+  - docker-compose-v2
+  - unzip
+  - curl
+
+runcmd:
+  - systemctl enable docker --now
+  - usermod -aG docker ubuntu
+
+  # Mount persistent EBS volume for TimescaleDB
+  - DEVICE=$(lsblk -o NAME,SIZE,TYPE,MOUNTPOINT -J | python3 -c "import sys,json; devs=[d['name'] for d in json.load(sys.stdin)['blockdevices'] if not d.get('mountpoint') and d['type']=='disk' and d['name']!='xvda']; print('/dev/'+sorted(devs,key=lambda x: x.rstrip('0123456789'),reverse=True)[0])")
+  - mkfs.ext4 -F $DEVICE
+  - mkdir -p /mnt/timescaledb
+  - mount $DEVICE /mnt/timescaledb
+  - echo "$DEVICE /mnt/timescaledb ext4 defaults,nofail 0 2" >> /etc/fstab
+
+  # Pull Docker images
+  - aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry_url}
+  - docker compose -f /opt/tickonomics/docker-compose.yaml pull
+
+  # Start services
+  - docker compose -f /opt/tickonomics/docker-compose.yaml up -d --remove-orphans

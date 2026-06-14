@@ -1,9 +1,15 @@
-# Tickonomics local forecast schedule. Installed by setup-forecast-cron.sh to /etc/cron.d/tickonomics-forecast.
+# Tickonomics local maintenance schedule. Installed by setup-local-cron.sh.
 # Format: minute hour day-of-month month day-of-week user command
 # Adjust PATH/USER to match the account that runs Docker on this host.
 
 # Run the forecast pipeline weekdays at 06:00.
 0 6 * * 1-5 root PATH=/usr/local/bin:/usr/bin:/bin /opt/tickonomics/infra/local/scripts/forecast-local.sh >> /var/log/tickonomics-forecast.log 2>&1
 
+# Daily database backup at 03:00
+0 3 * * * root /opt/tickonomics/infra/local/scripts/backup-local.sh >> /var/log/tickonomics-backup.log 2>&1
+
 # Prune archived results older than 30 days, daily at 05:00.
 0 5 * * * root /opt/tickonomics/infra/local/scripts/backup-forecast-results.sh >> /var/log/tickonomics-forecast.log 2>&1
+
+# Health check every 5 minutes
+*/5 * * * * root curl -sf http://localhost:8080/actuator/health || echo "[$(date)] BACKEND DOWN" >> /var/log/tickonomics-health.log

@@ -1,0 +1,72 @@
+{
+  "title": "Computation",
+  "tags": ["tickonomics", "computation"],
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "title": "ILI Value Over Time",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "ili_value{job=\"analytics-worker\"}", "legendFormat": "ILI" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 0.8, "color": "red" }] }
+      }
+    },
+    {
+      "title": "Signal Generation Rate",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(signals_generated_total{job=\"backend\"}[5m])", "legendFormat": "{{strategy}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Regime State",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 6, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "regime_state{job=\"analytics-worker\"}", "legendFormat": "{{state}}" }
+      ]
+    },
+    {
+      "title": "KPI Computation Latency",
+      "type": "graph",
+      "gridPos": { "x": 6, "y": 6, "w": 9, "h": 4 },
+      "targets": [
+        { "expr": "rate(kpi_computation_duration_seconds_sum{job=\"backend\"}[5m]) / rate(kpi_computation_duration_seconds_count{job=\"backend\"}[5m])", "legendFormat": "avg latency" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "title": "Active Strategies",
+      "type": "stat",
+      "gridPos": { "x": 15, "y": 6, "w": 9, "h": 4 },
+      "targets": [
+        { "expr": "strategies_active_total{job=\"backend\"}", "legendFormat": "Active" }
+      ]
+    },
+    {
+      "title": "Model Training Duration",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "model_training_duration_seconds{job=\"analytics-worker\"}", "legendFormat": "{{model}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "title": "Anomaly Score Distribution",
+      "type": "heatmap",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(anomaly_score_bucket{job=\"analytics-worker\"}[5m])", "legendFormat": "{{le}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    }
+  ]
+}

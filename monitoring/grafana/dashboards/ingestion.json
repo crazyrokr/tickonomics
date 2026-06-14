@@ -1,0 +1,78 @@
+{
+  "title": "Ingestion",
+  "tags": ["tickonomics", "ingestion"],
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "title": "WebSocket Connection Status",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 3 },
+      "targets": [
+        { "expr": "finnhub_ws_connected{job=\"backend\"}", "legendFormat": "Finnhub WS" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] },
+          "mappings": [{ "type": "value", "value": "1", "text": "Connected" }, { "type": "value", "value": "0", "text": "Disconnected" }]
+        }
+      }
+    },
+    {
+      "title": "Ticks / Second",
+      "type": "graph",
+      "gridPos": { "x": 6, "y": 0, "w": 9, "h": 3 },
+      "targets": [
+        { "expr": "rate(ingestion_ticks_total{job=\"backend\"}[30s])", "legendFormat": "Ticks/sec" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Circuit Breaker State",
+      "type": "stat",
+      "gridPos": { "x": 15, "y": 0, "w": 9, "h": 3 },
+      "targets": [
+        { "expr": "resilience4j_circuitbreaker_state{job=\"backend\"}", "legendFormat": "{{name}}" }
+      ]
+    },
+    {
+      "title": "Overflow Queue Depth",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 3, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "ingestion_overflow_queue_depth{job=\"backend\"}", "legendFormat": "Queue depth" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 5000, "color": "yellow" }, { "value": 8000, "color": "red" }] }
+      }
+    },
+    {
+      "title": "LKG Cache Hit Rate",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 3, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(ingestion_lkg_cache_hit_total{job=\"backend\"}[1m]) / rate(ingestion_lkg_cache_access_total{job=\"backend\"}[1m])", "legendFormat": "Hit rate" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } }
+    },
+    {
+      "title": "Ingestion Latency by Source",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 9, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(ingestion_ticks_total{job=\"backend\"}[1m]) by (source)", "legendFormat": "{{source}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Data Quality Failures",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 9, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(ingestion_quality_failures_total{job=\"backend\"}[1m])", "legendFormat": "{{check}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    }
+  ]
+}

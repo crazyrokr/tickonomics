@@ -87,6 +87,49 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # --- Track 14: GCP/Azure multi-cloud image push ---
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Login to GCP Artifact Registry
+        if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.GCP_REGISTRY || 'us-central1-docker.pkg.dev' }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Tag and push backend to GCP Artifact Registry
+        if: (inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp') && github.ref == 'refs/heads/main'
+        run: |
+          GCP_REGISTRY="${{ vars.GCP_REGISTRY || 'us-central1-docker.pkg.dev' }}/${{ vars.GCP_PROJECT_ID }}/tickonomics"
+          docker tag tickonomics/backend:${{ inputs.image_tag || 'latest' }} ${GCP_REGISTRY}/backend:${{ github.sha }}
+          docker push ${GCP_REGISTRY}/backend:${{ github.sha }}
+          docker tag tickonomics/analytics:${{ inputs.image_tag || 'latest' }} ${GCP_REGISTRY}/analytics:${{ github.sha }}
+          docker push ${GCP_REGISTRY}/analytics:${{ github.sha }}
+
+      - name: Login to Azure Container Registry
+        if: inputs.provider == 'azure' || vars.CLOUD_PROVIDER == 'azure'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_NAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Tag and push backend to Azure ACR
+        if: (inputs.provider == 'azure' || vars.CLOUD_PROVIDER == 'azure') && github.ref == 'refs/heads/main'
+        run: |
+          ACR="${{ secrets.ACR_NAME }}.azurecr.io/tickonomics"
+          docker tag tickonomics/backend:${{ inputs.image_tag || 'latest' }} ${ACR}/backend:${{ github.sha }}
+          docker push ${ACR}/backend:${{ github.sha }}
+          docker tag tickonomics/analytics:${{ inputs.image_tag || 'latest' }} ${ACR}/analytics:${{ github.sha }}
+          docker push ${ACR}/analytics:${{ github.sha }}
+
   terraform-validate:
     name: Terraform Validate
     runs-on: ubuntu-latest

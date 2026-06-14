@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Tickonomics database backup
+Requires=tickonomics-backup.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

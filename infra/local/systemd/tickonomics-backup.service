@@ -1,0 +1,11 @@
+[Unit]
+Description=Tickonomics database backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/tickonomics/infra/local/scripts/backup-local.sh
+StandardOutput=journal
+StandardError=journal
