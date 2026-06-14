@@ -182,6 +182,15 @@ monitor:
     startup-full-load: true
     incremental-check-cron: "0 0 2 1 * *"
 
+  fred:
+    api-key: ${FRED_API_KEY:}
+    base-url: https://api.stlouisfed.org/fred
+    poll-interval-ms: 300000
+
+  nyfed:
+    base-url: https://markets.newyorkfed.org/api
+    poll-interval-ms: 300000
+
 resilience4j:
   retry:
     instances:
