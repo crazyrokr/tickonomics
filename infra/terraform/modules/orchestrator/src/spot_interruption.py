@@ -25,16 +25,17 @@ def handler(event, context):
 
     marker_key = f"_interruption/{instance_id}"
     try:
-        s3.put_object(
-            Bucket=BUCKET,
-            Key=marker_key,
-            Body=json.dumps({
-                "instance_id": instance_id,
-                "action": instance_action,
-                "event": detail,
-            }),
-            ContentType="application/json",
-        )
+        if BUCKET:
+            s3.put_object(
+                Bucket=BUCKET,
+                Key=marker_key,
+                Body=json.dumps({
+                    "instance_id": instance_id,
+                    "action": instance_action,
+                    "event": detail,
+                }),
+                ContentType="application/json",
+            )
     except Exception as e:
         logger.error("Failed to log interruption marker: %s", str(e))
 

@@ -45,8 +45,15 @@ variable "postgres_password" {
   sensitive   = true
 }
 
-variable "polygon_api_key" {
-  description = "Polygon API key"
+variable "finnhub_api_key" {
+  description = "Finnhub REST/WebSocket API key (v6 free data source)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "alphavantage_api_key" {
+  description = "Alpha Vantage API key (v6 free data source)"
   type        = string
   sensitive   = true
   default     = ""

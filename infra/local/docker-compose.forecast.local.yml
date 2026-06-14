@@ -1,18 +1,18 @@
 services:
   backend:
-    image: "${BACKEND_IMAGE}"
+    image: tickonomics-backend:latest
     ports:
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/tickonomics
       SPRING_DATASOURCE_USERNAME: tickonomics
-      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD}"
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       ANALYTICS_WORKER_URL: http://analytics-worker:8001
       MANAGEMENT_OTLP_TRACING_ENDPOINT: ""
       MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "0"
-      FINNHUB_API_KEY: "${FINNHUB_API_KEY}"
-      ALPHAVANTAGE_API_KEY: "${ALPHAVANTAGE_API_KEY}"
-      FRED_API_KEY: "${FRED_API_KEY}"
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
+      FRED_API_KEY: ${FRED_API_KEY:-}
       AUTH_DISABLED: "true"
       SERVER_SHUTDOWN: graceful
       SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 60s
@@ -33,13 +33,13 @@ services:
       start_period: 60s
 
   analytics-worker:
-    image: "${ANALYTICS_IMAGE}"
+    image: tickonomics-analytics:latest
     ports:
       - "8001:8001"
     networks:
       - tickonomics-net
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -50,9 +50,9 @@ services:
     environment:
       POSTGRES_DB: tickonomics
       POSTGRES_USER: tickonomics
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - /mnt/timescaledb:/var/lib/postgresql/data
+      - timescaledb_forecast_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tickonomics"]
       interval: 5s
@@ -63,6 +63,7 @@ services:
 
 volumes:
   ingestion_overflow:
+  timescaledb_forecast_data:
 
 networks:
   tickonomics-net:

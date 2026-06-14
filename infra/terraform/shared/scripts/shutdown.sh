@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[shutdown] Initiating graceful shutdown..."
+COMPOSE_FILE="${COMPOSE_FILE:-/opt/tickonomics/docker-compose.forecast.yml}"
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-forecast}"
+export COMPOSE_PROJECT_NAME="$PROJECT_NAME"
 
-COMPOSE_FILE="/opt/tickonomics/docker-compose.forecast.yml"
+echo "[shutdown] Initiating graceful shutdown..."
 
 if [ -f "$COMPOSE_FILE" ]; then
   echo "[shutdown] Stopping Docker Compose services..."

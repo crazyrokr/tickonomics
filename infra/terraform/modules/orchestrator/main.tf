@@ -52,21 +52,18 @@ resource "aws_lambda_function" "forecast_trigger" {
   timeout       = 120
   memory_size   = 256
 
-  vpc_config {
-    subnet_ids         = var.subnet_ids
-    security_group_ids = var.security_group_ids
-  }
-
   environment {
     variables = {
-      RESULTS_BUCKET = var.results_bucket_name
+      RESULTS_BUCKET     = var.results_bucket_name
+      LAUNCH_TEMPLATE_ID = var.launch_template_id
+      SUBNET_ID          = var.subnet_id
+      SECURITY_GROUP_IDS = join(",", var.security_group_ids)
+      SPOT_PRICE_MAX     = var.spot_price_max
+      INSTANCE_NAME      = "${var.name_prefix}-spot-forecast"
     }
   }
 
-  depends_on = [
-    aws_cloudwatch_log_group.forecast_trigger,
-    aws_iam_role_policy_attachment.lambda_trigger_vpc,
-  ]
+  depends_on = [aws_cloudwatch_log_group.forecast_trigger]
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-forecast-trigger"

@@ -9,12 +9,6 @@ variable "alert_email" {
   default     = ""
 }
 
-variable "spot_instance_id" {
-  description = "Spot instance ID to monitor (dynamic, may be empty)"
-  type        = string
-  default     = ""
-}
-
 variable "log_group_names" {
   description = "CloudWatch log group names to monitor"
   type        = list(string)

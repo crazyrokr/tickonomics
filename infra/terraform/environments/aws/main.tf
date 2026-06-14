@@ -39,7 +39,8 @@ module "compute_spot" {
   backend_image         = "${module.container_registry.backend_repository_url}:${var.image_tag}"
   analytics_image       = "${module.container_registry.analytics_repository_url}:${var.image_tag}"
   postgres_password     = var.postgres_password
-  polygon_api_key       = var.polygon_api_key
+  finnhub_api_key       = var.finnhub_api_key
+  alphavantage_api_key  = var.alphavantage_api_key
   fred_api_key          = var.fred_api_key
   results_bucket        = module.storage.results_bucket_name
   auto_terminate        = var.auto_terminate
@@ -55,21 +56,24 @@ module "orchestrator" {
   source = "../../modules/orchestrator"
 
   region              = var.region
-  subnet_ids          = [module.networking.public_subnet_id]
-  security_group_ids  = [module.networking.lambda_security_group_id]
+  subnet_id           = module.networking.public_subnet_id
+  security_group_ids  = [module.networking.spot_security_group_id]
+  launch_template_id  = module.compute_spot.launch_template_id
+  spot_price_max      = var.spot_price_max
   results_bucket_name = module.storage.results_bucket_name
   results_bucket_arn  = module.storage.results_bucket_arn
   schedule_expression = var.schedule_expression
   name_prefix         = var.name_prefix
   tags                = var.tags
+
+  depends_on = [module.compute_spot]
 }
 
 module "monitoring" {
   source = "../../modules/monitoring"
 
-  region           = var.region
-  alert_email      = var.alert_email
-  spot_instance_id = module.compute_spot.instance_id
+  region      = var.region
+  alert_email = var.alert_email
   log_group_names = [
     "/aws/lambda/${var.name_prefix}-forecast-trigger",
     "/aws/lambda/${var.name_prefix}-forecast-status",
