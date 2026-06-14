@@ -1,11 +1,16 @@
 package com.tickonomics.ingestion.writer;
 
+import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import com.tickonomics.persistence.entity.TickData;
 import com.tickonomics.persistence.repository.RateSnapshotRepository;
 import com.tickonomics.persistence.repository.TickDataRepository;
+import com.tickonomics.ingestion.tracing.IngestionTracer;
+import com.tickonomics.ingestion.tracing.IngestionTracingConfig;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +26,10 @@ public class TimescaleDbWriter {
   private final TickDataRepository tickDataRepository;
   private final RateSnapshotRepository rateSnapshotRepository;
   private final IdempotencyGuard idempotencyGuard;
+  private final IngestionTracer tracer;
 
-  private final ConcurrentLinkedQueue<TickData> tickBuffer = new ConcurrentLinkedQueue<>();
-  private final ConcurrentLinkedQueue<RateSnapshot> rateBuffer = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<IdempotentRow<TickData>> tickBuffer = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<IdempotentRow<RateSnapshot>> rateBuffer = new ConcurrentLinkedQueue<>();
 
   @Value("${writer.batch-size:500}")
   int batchSize;
@@ -34,10 +40,12 @@ public class TimescaleDbWriter {
   public TimescaleDbWriter(
       TickDataRepository tickDataRepository,
       RateSnapshotRepository rateSnapshotRepository,
-      IdempotencyGuard idempotencyGuard) {
+      IdempotencyGuard idempotencyGuard,
+      IngestionTracer tracer) {
     this.tickDataRepository = tickDataRepository;
     this.rateSnapshotRepository = rateSnapshotRepository;
     this.idempotencyGuard = idempotencyGuard;
+    this.tracer = tracer;
   }
 
   public void writeTick(TickData tick) {
@@ -46,7 +54,7 @@ public class TimescaleDbWriter {
       log.debug("Skipping duplicate tick: {}", key);
       return;
     }
-    tickBuffer.add(tick);
+    tickBuffer.add(new IdempotentRow<>(deterministicUuid(key), tick));
     if (tickBuffer.size() >= batchSize) {
       flushTicks();
     }
@@ -58,7 +66,7 @@ public class TimescaleDbWriter {
       log.debug("Skipping duplicate rate: {}", key);
       return;
     }
-    rateBuffer.add(snapshot);
+    rateBuffer.add(new IdempotentRow<>(deterministicUuid(key), snapshot));
     if (rateBuffer.size() >= batchSize) {
       flushRates();
     }
@@ -66,19 +74,21 @@ public class TimescaleDbWriter {
 
   @Scheduled(fixedDelayString = "${writer.flush-interval-ms:500}")
   public void flushAll() {
-    flushTicks();
-    flushRates();
+    try (var scope = tracer.span(IngestionTracingConfig.SPAN_TIMESCALEDB_WRITE)) {
+      flushTicks();
+      flushRates();
+    }
   }
 
   void flushTicks() {
-    List<TickData> batch = drainBuffer(tickBuffer);
+    List<IdempotentRow<TickData>> batch = drainBuffer(tickBuffer);
     if (batch.isEmpty()) {
       return;
     }
 
     try {
-      tickDataRepository.saveAll(batch);
-      log.debug("Flushed {} tick records", batch.size());
+      int[] affected = tickDataRepository.saveAllIdempotent(batch);
+      log.debug("Flushed {} tick records ({} new)", batch.size(), countNew(affected));
     } catch (Exception e) {
       log.error("Failed to flush {} tick records: {}", batch.size(), e.getMessage());
       tickBuffer.addAll(batch);
@@ -86,14 +96,14 @@ public class TimescaleDbWriter {
   }
 
   void flushRates() {
-    List<RateSnapshot> batch = drainBuffer(rateBuffer);
+    List<IdempotentRow<RateSnapshot>> batch = drainBuffer(rateBuffer);
     if (batch.isEmpty()) {
       return;
     }
 
     try {
-      rateSnapshotRepository.saveAll(batch);
-      log.debug("Flushed {} rate records", batch.size());
+      int[] affected = rateSnapshotRepository.saveAllIdempotent(batch);
+      log.debug("Flushed {} rate records ({} new)", batch.size(), countNew(affected));
     } catch (Exception e) {
       log.error("Failed to flush {} rate records: {}", batch.size(), e.getMessage());
       rateBuffer.addAll(batch);
@@ -106,6 +116,28 @@ public class TimescaleDbWriter {
 
   public int pendingRateCount() {
     return rateBuffer.size();
+  }
+
+  /**
+   * Derives a deterministic type-3 (name-based) UUID from the natural idempotency key so that a
+   * retried write of the same logical event produces the identical UUID and is suppressed by the
+   * database {@code ON CONFLICT} constraint, even across process restarts.
+   */
+  static UUID deterministicUuid(String key) {
+    return UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static int countNew(int[] affected) {
+    if (affected == null) {
+      return 0;
+    }
+    int sum = 0;
+    for (int rows : affected) {
+      if (rows > 0) {
+        sum += rows;
+      }
+    }
+    return sum;
   }
 
   private <T> List<T> drainBuffer(ConcurrentLinkedQueue<T> buffer) {

@@ -3,6 +3,8 @@ package com.tickonomics.ingestion.fred;
 import com.tickonomics.cdm.adapter.FredCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.FredObservation;
 import com.tickonomics.cdm.model.CdmRateSnapshot;
+import com.tickonomics.ingestion.tracing.IngestionTracer;
+import com.tickonomics.ingestion.tracing.IngestionTracingConfig;
 import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
@@ -22,11 +24,14 @@ public class FredClient {
 
   private static final Logger log = LoggerFactory.getLogger(FredClient.class);
   private static final DateTimeFormatter FRED_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  private static final List<String> SERIES_IDS = List.of("EFFR", "RRPONTSYD", "WTREGEN", "WALCL", "IORB");
+  private static final List<String> SERIES_IDS = List.of(
+      "EFFR", "RRPONTSYD", "WTREGEN", "WALCL", "IORB",
+      "DGS1MO", "DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS5", "DGS10", "DGS30");
 
   private final RestClient restClient;
   private final TimescaleDbWriter writer;
   private final FredCdmAdapter cdmAdapter;
+  private final IngestionTracer tracer;
 
   @Value("${fred.api-key:}")
   private String apiKey;
@@ -37,10 +42,12 @@ public class FredClient {
   public FredClient(
       RestClient.Builder restClientBuilder,
       TimescaleDbWriter writer,
-      FredCdmAdapter cdmAdapter) {
+      FredCdmAdapter cdmAdapter,
+      IngestionTracer tracer) {
     this.restClient = restClientBuilder.build();
     this.writer = writer;
     this.cdmAdapter = cdmAdapter;
+    this.tracer = tracer;
   }
 
   @Scheduled(fixedDelayString = "${fred.poll-interval-ms:300000}")
@@ -62,13 +69,16 @@ public class FredClient {
 
   @Retry(name = "fredApi")
   public List<FredObservation> fetchSeries(String seriesId) {
-    String url =
-        baseUrl + "/series/observations?series_id={seriesId}&api_key={apiKey}&file_type=json&sort_order=desc&limit=10";
-    var response = restClient
-        .get()
-        .uri(url, seriesId, apiKey)
-        .retrieve()
-        .body(FredSeriesResponse.class);
+    FredSeriesResponse response;
+    try (var scope = tracer.span(IngestionTracingConfig.SPAN_FRED_FETCH)) {
+      String url =
+          baseUrl + "/series/observations?series_id={seriesId}&api_key={apiKey}&file_type=json&sort_order=desc&limit=10";
+      response = restClient
+          .get()
+          .uri(url, seriesId, apiKey)
+          .retrieve()
+          .body(FredSeriesResponse.class);
+    }
 
     if (response == null || response.observations() == null) {
       return List.of();

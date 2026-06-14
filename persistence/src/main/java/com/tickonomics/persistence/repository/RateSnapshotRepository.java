@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import java.time.Instant;
 import java.util.List;
@@ -17,24 +18,45 @@ public class RateSnapshotRepository {
   private static final String SELECT_COLUMNS =
       "time, rate_type, value, source, anomaly_score, is_suspect_anomaly";
 
+  private static final String INSERT_SQL =
+      "INSERT INTO rate_snapshots (time, rate_type, value, source, anomaly_score, is_suspect_anomaly) "
+          + "VALUES (:time, :rateType, :value, :source, :anomalyScore, :isSuspectAnomaly)";
+
+  private static final String IDEMPOTENT_INSERT_SQL =
+      "INSERT INTO rate_snapshots (time, rate_type, value, source, anomaly_score, is_suspect_anomaly, idempotency_key) "
+          + "VALUES (:time, :rateType, :value, :source, :anomalyScore, :isSuspectAnomaly, :idempotencyKey) "
+          + "ON CONFLICT (time, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING";
+
   public RateSnapshotRepository(NamedParameterJdbcTemplate jdbc) {
     this.jdbc = jdbc;
   }
 
   public void save(RateSnapshot snapshot) {
-    jdbc.update(
-        "INSERT INTO rate_snapshots (time, rate_type, value, source, anomaly_score, is_suspect_anomaly) "
-            + "VALUES (:time, :rateType, :value, :source, :anomalyScore, :isSuspectAnomaly)",
-        toParams(snapshot));
+    jdbc.update(INSERT_SQL, toParams(snapshot));
   }
 
   public void saveAll(List<RateSnapshot> snapshots) {
     jdbc.batchUpdate(
-        "INSERT INTO rate_snapshots (time, rate_type, value, source, anomaly_score, is_suspect_anomaly) "
-            + "VALUES (:time, :rateType, :value, :source, :anomalyScore, :isSuspectAnomaly)",
+        INSERT_SQL,
         SqlParameterSourceUtils.createBatch(snapshots
             .stream()
             .map(this::toParams)
+            .toList()));
+  }
+
+  /**
+   * Batch insert with durable idempotency-key deduplication. Returns the per-row JDBC affected-row
+   * counts ({@code 0} where a duplicate key was suppressed by {@code ON CONFLICT DO NOTHING}).
+   */
+  public int[] saveAllIdempotent(List<IdempotentRow<RateSnapshot>> rows) {
+    if (rows == null || rows.isEmpty()) {
+      return new int[0];
+    }
+    return jdbc.batchUpdate(
+        IDEMPOTENT_INSERT_SQL,
+        SqlParameterSourceUtils.createBatch(rows
+            .stream()
+            .map(this::toIdempotentParams)
             .toList()));
   }
 
@@ -87,5 +109,9 @@ public class RateSnapshotRepository {
         .addValue("source", snapshot.source())
         .addValue("anomalyScore", snapshot.anomalyScore())
         .addValue("isSuspectAnomaly", snapshot.isSuspectAnomaly());
+  }
+
+  private MapSqlParameterSource toIdempotentParams(IdempotentRow<RateSnapshot> row) {
+    return toParams(row.row()).addValue("idempotencyKey", row.idempotencyKey());
   }
 }

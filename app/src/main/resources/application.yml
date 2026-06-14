@@ -60,6 +60,12 @@ monitor:
   ingestion:
     lkg-cache:
       max-staleness-seconds: 3600
+    bulkhead:
+      pressure-check-ms: 30000
+  anomaly:
+    enabled: true
+    async-timeout-seconds: 5
+    fallback-to-threshold: true
   demo:
     enabled: false
     virtual-balance: 100000
@@ -70,6 +76,63 @@ monitor:
     execute-degraded-signals: true
     skip-dislocated-signals: true
     default-addv: 10000000
+
+  equity-price:
+    enabled: true
+    poll-interval-ms: 21600000
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+
+  yahoo-finance:
+    enabled: true
+    base-url: https://query1.finance.yahoo.com
+    connect-timeout: 5s
+    read-timeout: 30s
+
+  finnhub:
+    api-key: ${FINNHUB_API_KEY:}
+    rest-enabled: true
+    rest-url: https://finnhub.io/api/v1
+    ws-enabled: true
+    ws-url: wss://ws.finnhub.io
+    ws-reconnect-backoff-max: 60000
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+    news-enabled: true
+    connect-timeout: 5s
+    read-timeout: 30s
+
+  news:
+    enabled: true
+    poll-interval-ms: 21600000
+
+  fed-rss:
+    enabled: true
+    speeches-url: https://www.federalreserve.gov/feeds/speeches.xml
+    fomc-url: https://www.federalreserve.gov/feeds/press_monetary.xml
+    poll-interval-ms: 3600000
+
+  ken-french:
+    enabled: true
+    base-url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp
+    poll-interval-ms: 86400000
+
+  yield-curve:
+    enabled: true
+
+  alpha-vantage:
+    enabled: true
+    api-key: ${ALPHAVANTAGE_API_KEY:}
+    base-url: https://www.alphavantage.co/query
+    poll-interval-ms: 86400000
+    symbols: SPY,QQQ,IWM,TLT,HYG,GLD
+    commodities: GOLD,OIL,NATURAL_GAS,COPPER
+    rate-limit-delay-ms: 12100
+    initial-full-load: true
+
+  datahub:
+    enabled: true
+    base-url: https://datahub.io
+    startup-full-load: true
+    incremental-check-cron: "0 0 2 1 * *"
 
 resilience4j:
   retry:
@@ -84,6 +147,34 @@ resilience4j:
       nyfedApi:
         max-attempts: 3
         wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      yahooFinanceApi:
+        max-attempts: 3
+        wait-duration: 2s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      finnhubApi:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      fedRssApi:
+        max-attempts: 3
+        wait-duration: 2s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+      alphaVantageApi:
+        max-attempts: 3
+        wait-duration: 12s
         enable-exponential-backoff: true
         exponential-backoff-multiplier: 2
         retry-exceptions:

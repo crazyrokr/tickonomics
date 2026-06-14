@@ -27,6 +27,14 @@ public final class CdmInstrumentMapper {
       case "WTREGEN" -> new CdmInstrumentRef("TGA", InstrumentType.REPO, "FRED");
       case "WALCL" -> new CdmInstrumentRef("WALCL", InstrumentType.REPO, "FRED");
       case "IORB" -> new CdmInstrumentRef("IORB", InstrumentType.IORB, "FRED");
+      case "DGS1MO" -> new CdmInstrumentRef("TBILL_1M", InstrumentType.BILL_3M, "FRED");
+      case "DGS3MO" -> new CdmInstrumentRef("TBILL_3M", InstrumentType.BILL_3M, "FRED");
+      case "DGS6MO" -> new CdmInstrumentRef("TBILL_6M", InstrumentType.BILL_3M, "FRED");
+      case "DGS1" -> new CdmInstrumentRef("TBILL_1Y", InstrumentType.BILL_3M, "FRED");
+      case "DGS2" -> new CdmInstrumentRef("TBILL_2Y", InstrumentType.BILL_3M, "FRED");
+      case "DGS5" -> new CdmInstrumentRef("TBILL_5Y", InstrumentType.BILL_3M, "FRED");
+      case "DGS10" -> new CdmInstrumentRef("TBILL_10Y", InstrumentType.BILL_3M, "FRED");
+      case "DGS30" -> new CdmInstrumentRef("TBILL_30Y", InstrumentType.BILL_3M, "FRED");
       default -> throw new IllegalArgumentException("Unknown FRED series: " + fredSeriesId);
     };
   }
@@ -45,13 +53,6 @@ public final class CdmInstrumentMapper {
       case "bgcr" -> new CdmInstrumentRef("BGCR", InstrumentType.BGCR, "NY_FED");
       default -> throw new IllegalArgumentException("Unknown NY Fed rate type: " + nyFedRateType);
     };
-  }
-
-  /**
-   * Maps a Polygon equity symbol to a CDM instrument reference.
-   */
-  public static CdmInstrumentRef fromPolygonSymbol(String symbol) {
-    return new CdmInstrumentRef(symbol, InstrumentType.EQUITY, "POLYGON");
   }
 
   /**

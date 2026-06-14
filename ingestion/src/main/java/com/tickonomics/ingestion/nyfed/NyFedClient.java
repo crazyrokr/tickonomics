@@ -3,6 +3,8 @@ package com.tickonomics.ingestion.nyfed;
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.NyFedRateResponse;
 import com.tickonomics.cdm.model.CdmRateSnapshot;
+import com.tickonomics.ingestion.tracing.IngestionTracer;
+import com.tickonomics.ingestion.tracing.IngestionTracingConfig;
 import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
@@ -27,6 +29,7 @@ public class NyFedClient {
   private final RestClient restClient;
   private final TimescaleDbWriter writer;
   private final NyFedCdmAdapter cdmAdapter;
+  private final IngestionTracer tracer;
 
   @Value("${nyfed.base-url:https://markets.newyorkfed.org/api}")
   private String baseUrl;
@@ -34,10 +37,12 @@ public class NyFedClient {
   public NyFedClient(
       RestClient.Builder restClientBuilder,
       TimescaleDbWriter writer,
-      NyFedCdmAdapter cdmAdapter) {
+      NyFedCdmAdapter cdmAdapter,
+      IngestionTracer tracer) {
     this.restClient = restClientBuilder.build();
     this.writer = writer;
     this.cdmAdapter = cdmAdapter;
+    this.tracer = tracer;
   }
 
   @Scheduled(fixedDelayString = "${nyfed.poll-interval-ms:300000}")
@@ -59,12 +64,15 @@ public class NyFedClient {
 
   @Retry(name = "nyfedApi")
   public List<NyFedRateResponse> fetchRates(String rateType) {
-    String url = baseUrl + "/rates/all/" + rateType + "/latest.json";
-    var response = restClient
-        .get()
-        .uri(url)
-        .retrieve()
-        .body(NyFedRatesApiResponse.class);
+    NyFedRatesApiResponse response;
+    try (var scope = tracer.span(IngestionTracingConfig.SPAN_NYFED_FETCH)) {
+      String url = baseUrl + "/rates/all/" + rateType + "/latest.json";
+      response = restClient
+          .get()
+          .uri(url)
+          .retrieve()
+          .body(NyFedRatesApiResponse.class);
+    }
 
     if (response == null || response.refRates() == null) {
       return List.of();
