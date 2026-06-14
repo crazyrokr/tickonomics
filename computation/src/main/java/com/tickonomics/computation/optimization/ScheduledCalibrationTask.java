@@ -35,7 +35,22 @@ public class ScheduledCalibrationTask {
             return new CalibrationResult(false, 0.0, 0.0, 0.0, "SKIPPED_IN_PROGRESS");
         }
         try {
-            return doCalibration();
+            log.warn("Scheduled calibration has no price history wired; a return-based Sharpe "
+                    + "cannot be computed. Invoke runCalibration(priceHistory) or "
+                    + "runCalibrationWithHistory(priceHistory) to run a meaningful optimization.");
+            return new CalibrationResult(false, 0.0, 0.0, 0.0, "NO_PRICE_DATA");
+        } finally {
+            calibrationLock.unlock();
+        }
+    }
+
+    CalibrationResult runCalibration(double[][] priceHistory) {
+        if (!calibrationLock.tryLock()) {
+            log.info("Calibration already in progress, skipping");
+            return new CalibrationResult(false, 0.0, 0.0, 0.0, "SKIPPED_IN_PROGRESS");
+        }
+        try {
+            return doCalibration(priceHistory);
         } finally {
             calibrationLock.unlock();
         }
@@ -78,12 +93,15 @@ public class ScheduledCalibrationTask {
         return new CalibrationResult(improved, sharpeBefore, sharpeAfterInSample, oosSharpe, status);
     }
 
-    private CalibrationResult doCalibration() {
+    private CalibrationResult doCalibration(double[][] priceHistory) {
+        if (priceHistory == null || priceHistory.length < 2) {
+            return new CalibrationResult(false, 0.0, 0.0, 0.0, "INSUFFICIENT_DATA");
+        }
         double[] currentWeights = weightStore.getCalibratedWeights();
-        double sharpeBefore = computeSharpeFromWeights(currentWeights);
+        double sharpeBefore = computeSharpeRatio(priceHistory, currentWeights);
 
-        double[] optimizedWeights = perturbOptimize(currentWeights);
-        double sharpeAfter = computeSharpeFromWeights(optimizedWeights);
+        double[] optimizedWeights = perturbOptimize(priceHistory, currentWeights);
+        double sharpeAfter = computeSharpeRatio(priceHistory, optimizedWeights);
 
         double improvement = sharpeAfter - sharpeBefore;
         boolean improved = improvement >= MIN_SHARPE_IMPROVEMENT;
@@ -99,7 +117,7 @@ public class ScheduledCalibrationTask {
         String status = improved ? "IMPROVED" : "NO_IMPROVEMENT";
         lastCalibrationTime = Instant.now();
 
-        log.info("Calibration completed: status={}, sharpeBefore={:.4f}, sharpeAfter={:.4f}, improvement={:.4f}",
+        log.info("Calibration completed: status={}, sharpeBefore={}, sharpeAfter={}, improvement={}",
                 status, sharpeBefore, sharpeAfter, improvement);
 
         return new CalibrationResult(improved, sharpeBefore, sharpeAfter, sharpeAfter, status);
@@ -140,9 +158,9 @@ public class ScheduledCalibrationTask {
         return bestWeights;
     }
 
-    double[] perturbOptimize(double[] currentWeights) {
+    double[] perturbOptimize(double[][] priceData, double[] currentWeights) {
         double[] bestWeights = Arrays.copyOf(currentWeights, currentWeights.length);
-        double bestSharpe = computeSharpeFromWeights(currentWeights);
+        double bestSharpe = computeSharpeRatio(priceData, currentWeights);
 
         for (int trial = 0; trial < 50; trial++) {
             double[] candidate = new double[currentWeights.length];
@@ -156,7 +174,7 @@ public class ScheduledCalibrationTask {
                 candidate[i] /= sum;
             }
 
-            double sharpe = computeSharpeFromWeights(candidate);
+            double sharpe = computeSharpeRatio(priceData, candidate);
             if (sharpe > bestSharpe) {
                 bestSharpe = sharpe;
                 bestWeights = candidate;
@@ -191,19 +209,6 @@ public class ScheduledCalibrationTask {
         }
 
         return sharpeFromReturns(portfolioReturns);
-    }
-
-    double computeSharpeFromWeights(double[] weights) {
-        double sum = 0;
-        double sumSq = 0;
-        for (double w : weights) {
-            sum += w;
-            sumSq += w * w;
-        }
-        double mean = sum / weights.length;
-        double variance = sumSq / weights.length - mean * mean;
-        double std = Math.sqrt(Math.max(0, variance));
-        return std > 0 ? mean / std : 0.0;
     }
 
     private double sharpeFromReturns(double[] returns) {
