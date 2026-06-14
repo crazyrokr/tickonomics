@@ -81,6 +81,11 @@ services:
 volumes:
   timescaledb_data:
   ingestion_overflow:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   tickonomics-net:

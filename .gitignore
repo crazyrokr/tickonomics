@@ -29,6 +29,13 @@ ssrn-*.pdf
 **/__pycache__/*
 native-libs/
 
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
 # Landing page (Next.js)
 landing/node_modules/
 landing/.next/

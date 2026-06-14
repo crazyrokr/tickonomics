@@ -1,0 +1,12 @@
+# Caddyfile for local/homelab deployment (Option A — LAN access)
+# Access via http://<server-ip>. No TLS, no DNS required.
+
+:80 {
+    handle /api/* {
+        reverse_proxy backend:8080
+    }
+    handle /actuator/* {
+        reverse_proxy backend:8080
+    }
+    reverse_proxy dashboard:3000
+}

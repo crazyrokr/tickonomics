@@ -1,0 +1,74 @@
+groups:
+  - name: tickonomics
+    rules:
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend service is down"
+          description: "Backend has not been reachable for more than 2 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{job="backend",status=~"5.."}[5m]) / rate(http_server_requests_seconds_count{job="backend"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 5xx error rate on backend"
+          description: "5xx error rate is above 5% for 5 minutes."
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job="backend"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High P95 latency on backend"
+          description: "P95 latency is above 2 seconds for 5 minutes."
+
+      - alert: DatabaseDiskFull
+        expr: (timescaledb_disk_used_bytes / timescaledb_disk_total_bytes) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "TimescaleDB disk usage above 85%"
+          description: "Database disk is filling up. Consider increasing volume size."
+
+      - alert: DatabaseDiskCritical
+        expr: (timescaledb_disk_used_bytes / timescaledb_disk_total_bytes) > 0.95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "TimescaleDB disk usage above 95%"
+          description: "Database disk is critically full. Immediate action required."
+
+      - alert: IngestionStale
+        expr: rate(ingestion_ticks_total{job="backend"}[10m]) == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Ingestion is stale"
+          description: "No new ticks received for 10 minutes. Check Finnhub WebSocket connection."
+
+      - alert: CircuitBreakerOpen
+        expr: resilience4j_circuitbreaker_state{job="backend",state="open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker is open"
+          description: "Circuit breaker {{ $labels.name }} has been open for more than 1 minute."
+
+      - alert: ForecastOverBudget
+        expr: forecast_cost_this_month > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Forecast pipeline over monthly budget"
+          description: "Monthly forecast cost has exceeded $20."
