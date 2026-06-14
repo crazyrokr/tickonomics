@@ -12,6 +12,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -279,11 +280,12 @@ class ScheduledCalibrationTaskTest {
 
         @Test
         void givenUniformWeights_whenPerturb_thenReturnsNormalizedWeights() {
-            // Given: uniform starting weights
+            // Given: uniform starting weights and a price history matrix
             double[] current = {0.33, 0.34, 0.33};
+            double[][] prices = buildTrendingPriceHistory(60, 3, 100.0, 1);
 
             // When: perturbation optimization runs
-            double[] result = task.perturbOptimize(current);
+            double[] result = task.perturbOptimize(prices, current);
 
             // Then: result weights are normalized
             double sum = 0;
@@ -292,6 +294,24 @@ class ScheduledCalibrationTaskTest {
                 sum += w;
             }
             assertEquals(1.0, sum, 0.01);
+        }
+
+        @Test
+        void givenIdenticalWeightStatsButDifferentReturns_whenSharpe_thenDiffers() {
+            // Given: identical weight vectors applied to a flat vs trending
+            // price history. A weight-only Sharpe would return the same value
+            // for both; a return-based Sharpe must diverge.
+            double[] weights = {0.5, 0.5};
+            double[][] flat = buildFlatPriceHistory(60, 2, 100.0);
+            double[][] trending = buildTrendingPriceHistory(60, 2, 100.0, 1);
+
+            // When
+            double sharpeFlat = task.computeSharpeRatio(flat, weights);
+            double sharpeTrending = task.computeSharpeRatio(trending, weights);
+
+            // Then
+            assertNotEquals(sharpeFlat, sharpeTrending, 1e-6,
+                    "Sharpe must depend on returns, not weight statistics");
         }
     }
 
