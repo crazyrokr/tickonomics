@@ -17,6 +17,8 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +82,7 @@ public class FinnhubWsClient implements EquityWsClient {
   private void doConnect(String apiKey) {
     try {
       var handler = new FinnhubWsHandler(apiKey);
-      wsClient.execute(handler, wsUrl)
+      wsClient.execute(handler, buildConnectUrl(wsUrl, apiKey))
           .whenComplete((webSocketSession, throwable) -> {
             if (throwable != null) {
               log.error("Finnhub WebSocket connection failed: {}", throwable.getMessage());
@@ -91,6 +93,16 @@ public class FinnhubWsClient implements EquityWsClient {
       log.error("Failed to initiate Finnhub WebSocket connection: {}", e.getMessage());
       scheduleReconnect(apiKey);
     }
+  }
+
+  /**
+   * Builds the Finnhub WebSocket connect URL with the API token appended as a query parameter.
+   * Finnhub requires {@code wss://ws.finnhub.io?token=API_KEY}; without it the server rejects the
+   * handshake. Extracted as a static pure function for unit testing.
+   */
+  static String buildConnectUrl(String wsUrl, String apiKey) {
+    String separator = wsUrl.contains("?") ? "&" : "?";
+    return wsUrl + separator + "token=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
   }
 
   @Override
