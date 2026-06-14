@@ -3,7 +3,7 @@
 import type { RepoEquityBeta } from "@/types/api";
 
 interface RepoEquityBetaTableProps {
-  data: RepoEquityBeta[] | undefined;
+  data?: RepoEquityBeta[];
   isLoading?: boolean;
 }
 
