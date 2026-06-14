@@ -47,7 +47,9 @@ Two changes in `benchmark.yml`:
      | tail -n 1)
 
    if [ -n "$comment_id" ]; then
-     gh pr comment "$PR_NUMBER" --edit "$comment_id" --body-file benchmark-report.md
+     jq -n --rawfile body benchmark-report.md '{body: $body}' > "$RUNNER_TEMP/benchmark-comment.json"
+     gh api -X PATCH "repos/${{ github.repository }}/issues/comments/${comment_id}" \
+       --input "$RUNNER_TEMP/benchmark-comment.json"
    else
      gh pr comment "$PR_NUMBER" --body-file benchmark-report.md
    fi
@@ -55,7 +57,12 @@ Two changes in `benchmark.yml`:
 
    `tail -n 1` selects the newest matching comment (the API returns comments
    oldest-first), and `--paginate` covers PRs with more than one page of
-   comments.
+   comments. The update uses `gh api` against the `issues/comments/{id}` endpoint
+   rather than `gh pr comment`: the runner-shipped `gh` supports `--edit-last` /
+   `--delete-last` on `gh pr comment` but **not** `--edit <id>`, so an in-place
+   edit by comment ID must go through the REST API. `jq --rawfile` builds the
+   `{"body": "<report>"}` JSON payload with full escaping, and `--input` sends
+   it verbatim, sidestepping the `-f`/`-F` field-flag file syntax.
 
 The implementation uses the already-available `gh` CLI (no third-party Action),
 matching the step's existing approach.
@@ -68,18 +75,21 @@ matching the step's existing approach.
   Any future change to the report body that removes the marker would silently
   revert to creating new comments; the marker is kept on its own line to make
   that dependency visible.
-- `gh pr comment --edit <id>` requires `gh` 2.40.0+ (Nov 2023); current
-  `ubuntu-latest` runners ship a much newer release, so this is a no-op
-  constraint.
+- The runner-shipped `gh` exposes `--edit-last`/`--delete-last` on `gh pr comment`
+  but not `--edit <id>`, so the in-place update goes through `gh api` PATCH on
+  `issues/comments/{id}`. This depends only on the stable GitHub REST API, not on
+  a `gh` subcommand flag.
 - Behavioral change is scoped to the `Comment on PR` CI step; the benchmark
   tests, regression gate, and report contents are unchanged.
 
 ## Alternatives considered
 
-- **`gh pr comment --edit-last --create-if-none`.** Concise, but edits the bot's
-  last comment regardless of content, so any other `github-actions[bot]` comment
-  posted after the report would be overwritten. The marker-based lookup is
-  precise and robust to future bot comments.
+- **`gh pr comment --edit-last --create-if-none`.** Concise and built into the
+  runner's `gh`, but edits the bot's last comment regardless of content, so any
+  other `github-actions[bot]` PR comment posted after the report would be
+  overwritten. Today only `benchmark.yml` posts a bot PR comment (`demo-report.yml`
+  opens issues, not comments), but the marker-based lookup is precise and stays
+  correct if that changes.
 - **`peter-evans/find-comment` + `create-or-update-comment` Actions.** Popular
   and well-tested, but adds third-party Action dependencies the workflow does not
   otherwise use; the `gh`-native lookup achieves the same result with no new
