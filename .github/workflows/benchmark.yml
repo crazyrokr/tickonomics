@@ -23,17 +23,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: analytics/requirements.txt
+
+      - name: Cache Python venv
+        uses: actions/cache@v4
+        id: venv-cache
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('analytics/requirements.txt') }}
 
       - name: Install dependencies and benchmark tooling
+        if: steps.venv-cache.outputs.cache-hit != 'true'
         run: |
-          pip install --upgrade pip
-          pip install -r analytics/requirements.txt
-          pip install pytest-benchmark
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/pip install -r analytics/requirements.txt
+
+      - name: Put venv on PATH
+        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Restore benchmark baseline
         uses: actions/cache@v4
@@ -46,12 +57,17 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          # --benchmark-compare-fail raises a hard error when no saved baseline exists,
+          # so only enable comparison once a baseline is present (first run bootstraps it).
+          compare_args=""
+          if [ "$(find .benchmarks -name '*.json' 2>/dev/null | wc -l)" -gt 0 ]; then
+            compare_args="--benchmark-compare --benchmark-compare-fail=mean:10%"
+          fi
           python -m pytest tests \
             --benchmark-only \
-            --benchmark-compare \
-            --benchmark-compare-fail=mean:10% \
             --benchmark-storage=.benchmarks \
             --benchmark-autosave \
+            $compare_args \
             2>&1 | tee benchmark-output.txt || true
 
       - name: Publish benchmark report
