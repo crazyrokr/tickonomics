@@ -2,112 +2,957 @@ openapi: 3.1.0
 info:
   title: Tickonomics API
   version: 1.0.0
-  description: API for the Tickonomics Quantitative Engine.
+  description: >
+    REST contract for the Tickonomics Quantitative Engine. Covers the KPI, signal,
+    configuration, demo, anomaly/drift, regime, disaster, governance/stress,
+    optimization, sentiment, stops, leverage, pairs, diagnostics, and quantitative
+    engine surfaces. Instrument and rate enumerations are aligned with the FINOS CDM
+    projection in the `cdm/` module. This is the Phase 0 contract that subsequent
+    tracks implement; endpoints without a controller yet are part of the planned
+    surface and are tagged accordingly.
+  contact:
+    name: Tickonomics
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: kpi
+    description: Key performance indicators (ILI, stress, beta, regime, EVT risk).
+  - name: signals
+    description: Alpha signal catalog and detail.
+  - name: config
+    description: Hot-reloadable configuration and change log.
+  - name: health
+    description: Aggregated system health.
+  - name: demo
+    description: Virtual portfolio and paper-trading endpoints.
+  - name: quality
+    description: Anomaly detection and drift simulation.
+  - name: regime
+    description: Regime detection (GARCH, CNN-LSTM hybrid, QED).
+  - name: disaster
+    description: Disaster alert ingestion (USGS/GDACS).
+  - name: operations
+    description: Participation governance and liquidity stress testing.
+  - name: optimization
+    description: Weight optimization status and execution.
+  - name: sentiment
+    description: News sentiment (model and lexicon).
+  - name: stops
+    description: Dynamic Markov stop calibration.
+  - name: leverage
+    description: Leverage rotation signaling.
+  - name: pairs
+    description: Pairs trading engine.
+  - name: diagnostics
+    description: Statistical diagnostics (QQ, ACF, convergence).
+  - name: volatility
+    description: Volatility forecasting.
+  - name: tournament
+    description: Multi-model tournament evaluation.
+  - name: explainability
+    description: Feature-importance attribution.
+  - name: fixed-income
+    description: Fixed-income fair value and analytical Greeks.
+  - name: quant
+    description: v5.2 quantitative engine (strategies, EVT, IRF, audit).
 
 paths:
+  # ---------------------------------------------------------------------------
+  # KPI
+  # ---------------------------------------------------------------------------
+  /api/v1/kpi/ili:
+    get:
+      tags: [kpi]
+      operationId: getIli
+      summary: Current Institutional Liquidity Index (ILI) value with components.
+      responses:
+        '200':
+          description: Current ILI snapshot.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IliSnapshot' }
+
+  /api/v1/kpi/ili/history:
+    get:
+      tags: [kpi]
+      operationId: getIliHistory
+      summary: ILI time-series history.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Paginated ILI history.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IliHistory' }
+
+  /api/v1/kpi/liquidity-stress:
+    get:
+      tags: [kpi]
+      operationId: getLiquidityStress
+      summary: Liquidity Stress Index.
+      responses:
+        '200':
+          description: Liquidity stress snapshot.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LiquidityStress' }
+
+  /api/v1/kpi/repo-equity-beta:
+    get:
+      tags: [kpi]
+      operationId: getRepoEquityBeta
+      summary: Repo/Equity Beta per symbol.
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Repo/equity beta readings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RepoEquityBeta' }
+
+  /api/v1/kpi/rrp-drain:
+    get:
+      tags: [kpi]
+      operationId: getRrpDrain
+      summary: Reverse Repo Facility (RRP) drain velocity.
+      responses:
+        '200':
+          description: RRP drain velocity.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RrpDrain' }
+
+  /api/v1/kpi/systemic-risk-heatmap:
+    get:
+      tags: [kpi]
+      operationId: getSystemicRiskHeatmap
+      summary: Systemic risk heatmap data.
+      responses:
+        '200':
+          description: Systemic risk heatmap.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SystemicRiskHeatmap' }
+
+  /api/v1/kpi/volatility-regime:
+    get:
+      tags: [kpi]
+      operationId: getVolatilityRegime
+      summary: Volatility regime status.
+      responses:
+        '200':
+          description: Volatility regime.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VolatilityRegime' }
+
+  /api/v1/kpi/evt-risk:
+    get:
+      tags: [kpi]
+      operationId: getEvtRisk
+      summary: Extreme Value Theory (EVT) risk metrics (v5.2).
+      responses:
+        '200':
+          description: EVT risk metrics.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvtRiskMetrics' }
+
+  /api/v1/kpi/efficiency-gap:
+    get:
+      tags: [kpi]
+      operationId: getEfficiencyGap
+      summary: Market efficiency gap KPI (v5.1).
+      responses:
+        '200':
+          description: Efficiency gap.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EfficiencyGap' }
+
+  /api/v1/kpi/monetary-policy:
+    get:
+      tags: [kpi]
+      operationId: getMonetaryPolicy
+      summary: Monetary policy KPI (v5.1).
+      responses:
+        '200':
+          description: Monetary policy summary.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MonetaryPolicy' }
+
+  # ---------------------------------------------------------------------------
+  # Signals
+  # ---------------------------------------------------------------------------
+  /api/v1/signals:
+    get:
+      tags: [signals]
+      operationId: listSignals
+      summary: Recent signals with filters.
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema: { type: string }
+        - name: direction
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/SignalDirection' }
+        - name: status
+          in: query
+          required: false
+          schema: { type: string }
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Filtered signal list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Signal' }
+
+  /api/v1/signals/{id}:
+    get:
+      tags: [signals]
+      operationId: getSignal
+      summary: Single signal detail.
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Signal detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SignalDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------------------
+  # Config
+  # ---------------------------------------------------------------------------
+  /api/v1/config:
+    get:
+      tags: [config]
+      operationId: getConfig
+      summary: Current configuration snapshot.
+      responses:
+        '200':
+          description: Current configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConfigSnapshot' }
+    put:
+      tags: [config]
+      operationId: updateConfig
+      summary: Update hot-reloadable configuration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfigUpdate' }
+      responses:
+        '200':
+          description: Updated configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConfigSnapshot' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/v1/config/history:
+    get:
+      tags: [config]
+      operationId: getConfigHistory
+      summary: Configuration change log.
+      responses:
+        '200':
+          description: Configuration change history.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ConfigHistoryEntry' }
+
+  # ---------------------------------------------------------------------------
+  # Health
+  # ---------------------------------------------------------------------------
+  /api/v1/health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      summary: Aggregated system health.
+      responses:
+        '200':
+          description: System health.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+
+  # ---------------------------------------------------------------------------
+  # Demo / Virtual portfolio
+  # ---------------------------------------------------------------------------
+  /api/v1/demo/portfolio:
+    get:
+      tags: [demo]
+      operationId: getDemoPortfolio
+      summary: Virtual portfolio summary.
+      responses:
+        '200':
+          description: Portfolio summary.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DemoPortfolio' }
+
+  /api/v1/demo/positions:
+    get:
+      tags: [demo]
+      operationId: getDemoPositions
+      summary: Open virtual positions.
+      responses:
+        '200':
+          description: Open positions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DemoPosition' }
+
+  /api/v1/demo/trades:
+    get:
+      tags: [demo]
+      operationId: getDemoTrades
+      summary: Paper trade history.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Paper trades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DemoTrade' }
+
+  /api/v1/demo/signal-quality:
+    get:
+      tags: [demo]
+      operationId: getDemoSignalQuality
+      summary: Signal quality report.
+      responses:
+        '200':
+          description: Signal quality report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SignalQuality' }
+
+  /api/v1/demo/execution-comparison:
+    get:
+      tags: [demo]
+      operationId: getDemoExecutionComparison
+      summary: Dual portfolio P&L execution comparison (v5).
+      responses:
+        '200':
+          description: Execution comparison.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExecutionComparison' }
+
+  /api/v1/demo/close-position/{positionId}:
+    post:
+      tags: [demo]
+      operationId: closeDemoPosition
+      summary: Close a virtual position at the given price.
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: price
+          in: query
+          required: true
+          schema: { type: number, format: double }
+      responses:
+        '200':
+          description: Resulting close trade.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DemoCloseResult' }
+
+  # ---------------------------------------------------------------------------
+  # Quality: anomaly + drift
+  # ---------------------------------------------------------------------------
+  /api/v1/anomaly/detect:
+    post:
+      tags: [quality]
+      operationId: detectAnomaly
+      summary: Autoencoder anomaly detection on a submitted data window (v4).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnomalyDetectionRequest' }
+      responses:
+        '200':
+          description: Anomaly scores with MSE threshold classification.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnomalyDetectionResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/v1/drift/simulate:
+    post:
+      tags: [quality]
+      operationId: simulateDrift
+      summary: Drift-diffusion simulation for parameter trajectories (v4).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DriftSimulationRequest' }
+      responses:
+        '200':
+          description: Drift-diffusion trajectory with Ito process parameters.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DriftSimulationResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Regime
+  # ---------------------------------------------------------------------------
+  /api/v1/regime/garch:
+    get:
+      tags: [regime]
+      operationId: getRegimeGarch
+      summary: GARCH regime status and conditional variance classification (v4).
+      responses:
+        '200':
+          description: GARCH regime status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegimeStatus' }
+
+  /api/v1/regime/hybrid:
+    get:
+      tags: [regime]
+      operationId: getRegimeHybrid
+      summary: CNN-LSTM hybrid regime status and ensemble classification (v4).
+      responses:
+        '200':
+          description: Hybrid regime status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegimeStatus' }
+
+  /api/v1/regime/qed:
+    get:
+      tags: [regime]
+      operationId: getRegimeQed
+      summary: QED market dynamics status and crash probability (v4).
+      responses:
+        '200':
+          description: QED regime status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegimeStatus' }
+
+  /api/v1/regime/compare:
+    get:
+      tags: [regime]
+      operationId: compareRegimes
+      summary: A/B comparison of all regime detectors (v4).
+      responses:
+        '200':
+          description: Side-by-side regime comparison.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegimeComparison' }
+
+  # ---------------------------------------------------------------------------
+  # Disaster
+  # ---------------------------------------------------------------------------
+  /api/v1/disaster/alerts:
+    post:
+      tags: [disaster]
+      operationId: submitDisasterAlerts
+      summary: Disaster alert status from USGS/GDACS feeds (v4).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DisasterAlertBatch' }
+      responses:
+        '200':
+          description: Acknowledged disaster alerts.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DisasterAlertBatch' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Governance & stress
+  # ---------------------------------------------------------------------------
+  /api/v1/participation/status:
+    get:
+      tags: [operations]
+      operationId: getParticipationStatus
+      summary: Participation governance admissibility decomposition (v4).
+      responses:
+        '200':
+          description: Participation governance status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ParticipationStatus' }
+
+  /api/v1/stress/liquidity:
+    post:
+      tags: [operations]
+      operationId: runLiquidityStress
+      summary: Liquidity stress test execution (Swiss franc model) (v4).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LiquidityStressRequest' }
+      responses:
+        '200':
+          description: Liquidity stress test results.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LiquidityStressResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Optimization
+  # ---------------------------------------------------------------------------
+  /api/v1/optimization/status:
+    get:
+      tags: [optimization]
+      operationId: getOptimizationStatus
+      summary: Bayesian/Firefly optimizer status and last result (v4).
+      responses:
+        '200':
+          description: Optimizer status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OptimizationStatus' }
+
+  /api/v1/optimization/run:
+    post:
+      tags: [optimization]
+      operationId: runOptimization
+      summary: Trigger a weight optimization run (v4).
+      responses:
+        '200':
+          description: New weight proposal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OptimizationProposal' }
+
+  # ---------------------------------------------------------------------------
+  # Sentiment
+  # ---------------------------------------------------------------------------
+  /api/v1/sentiment/analyze:
+    post:
+      tags: [sentiment]
+      operationId: analyzeSentiment
+      summary: Model-based (FinBERT) sentiment scores with certainty (v5).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SentimentRequest' }
+      responses:
+        '200':
+          description: Model sentiment scores.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SentimentResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/v1/sentiment/lexicon:
+    post:
+      tags: [sentiment]
+      operationId: lexiconSentiment
+      summary: Lexicon (SALI/AFINN) sentiment scores (v5).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SentimentRequest' }
+      responses:
+        '200':
+          description: Lexicon sentiment scores.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SentimentResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Stops
+  # ---------------------------------------------------------------------------
+  /api/v1/stops/calibrate:
+    post:
+      tags: [stops]
+      operationId: calibrateStops
+      summary: Markov optimal stop levels (v5).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StopCalibrationRequest' }
+      responses:
+        '200':
+          description: Optimal stop levels.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StopCalibrationResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Leverage
+  # ---------------------------------------------------------------------------
+  /api/v1/leverage/status:
+    get:
+      tags: [leverage]
+      operationId: getLeverageStatus
+      summary: Current leverage rotation signal (v5).
+      responses:
+        '200':
+          description: Leverage status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LeverageStatus' }
+
+  # ---------------------------------------------------------------------------
+  # Pairs
+  # ---------------------------------------------------------------------------
+  /api/v1/pairs/active:
+    get:
+      tags: [pairs]
+      operationId: getActivePairs
+      summary: Active pairs with divergence status (v5).
+      responses:
+        '200':
+          description: Active pairs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Pair' }
+
+  # ---------------------------------------------------------------------------
+  # Diagnostics
+  # ---------------------------------------------------------------------------
+  /api/v1/diagnostics/stats:
+    post:
+      tags: [diagnostics]
+      operationId: computeDiagnostics
+      summary: Statistical diagnostics (QQ-plot, ACF, convergence) (v5.1).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiagnosticsRequest' }
+      responses:
+        '200':
+          description: Diagnostic statistics.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DiagnosticsResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Volatility forecast
+  # ---------------------------------------------------------------------------
+  /api/v1/volatility/forecast:
+    get:
+      tags: [volatility]
+      operationId: getVolatilityForecast
+      summary: Volatility forecast (v5.1).
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Volatility forecast.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VolatilityForecast' }
+
+  # ---------------------------------------------------------------------------
+  # Tournament
+  # ---------------------------------------------------------------------------
+  /api/v1/tournament/evaluate:
+    post:
+      tags: [tournament]
+      operationId: evaluateTournament
+      summary: Multi-model tournament benchmark (v5.1).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TournamentRequest' }
+      responses:
+        '200':
+          description: Tournament results.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TournamentResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Explainability
+  # ---------------------------------------------------------------------------
+  /api/v1/explainability/feature-importance:
+    post:
+      tags: [explainability]
+      operationId: explainFeatureImportance
+      summary: Feature-importance attribution (v5.1).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExplainabilityRequest' }
+      responses:
+        '200':
+          description: Feature importance.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FeatureImportance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ---------------------------------------------------------------------------
+  # Fixed income
+  # ---------------------------------------------------------------------------
+  /api/v1/fixed-income/q-world-fair-value:
+    get:
+      tags: [fixed-income]
+      operationId: getQWorldFairValue
+      summary: Fixed-income Q-world fair value via CIR model (v5.1).
+      parameters:
+        - name: rateType
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/RateType' }
+      responses:
+        '200':
+          description: Q-world fair value.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QWorldFairValue' }
+
+  /api/v1/fixed-income/tbill-greeks:
+    get:
+      tags: [fixed-income]
+      operationId: getTbillGreeks
+      summary: Analytical T-Bill Greeks (v5.1).
+      parameters:
+        - name: maturity
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/RateType' }
+      responses:
+        '200':
+          description: T-Bill Greeks.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TbillGreeks' }
+
+  # ---------------------------------------------------------------------------
+  # Quantitative engine (v5.2)
+  # ---------------------------------------------------------------------------
   /api/v1/quant/strategies/active:
     get:
+      tags: [quant]
+      operationId: getActiveQuantStrategies
       summary: List all active strategies and their current status.
       responses:
-        200:
+        '200':
           description: List of active strategies with formula references.
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/StrategyStatus'
+                items: { $ref: '#/components/schemas/StrategyStatus' }
 
   /api/v1/quant/strategies/options/butterfly:
     post:
+      tags: [quant]
+      operationId: computeButterflySignal
       summary: Calculate butterfly spread signal (Eq. 79-100).
       parameters:
         - name: underlying
           in: query
           required: true
-          schema:
-            type: string
+          schema: { type: string }
       responses:
-        200:
+        '200':
+          description: Butterfly spread signal.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AlphaSignal'
-
-  /api/v1/quant/risk/tail-parameters:
-    get:
-      summary: Retrieve Generalized Pareto Distribution (GPD) parameters for tail-risk assessment.
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvtMetric'
+              schema: { $ref: '#/components/schemas/AlphaSignal' }
 
   /api/v1/quant/signals/active:
     get:
+      tags: [quant]
+      operationId: getActiveQuantSignals
       summary: Retrieve currently active alpha signals.
       parameters:
         - name: category
           in: query
           required: false
-          schema:
-            type: string
+          schema: { type: string }
       responses:
-        200:
+        '200':
           description: List of active alpha signals.
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/AlphaSignal'
+                items: { $ref: '#/components/schemas/AlphaSignal' }
+
+  /api/v1/quant/risk/tail-parameters:
+    get:
+      tags: [quant]
+      operationId: getTailParameters
+      summary: Retrieve Generalized Pareto Distribution (GPD) parameters for tail-risk assessment.
+      responses:
+        '200':
+          description: GPD tail parameters.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvtMetric' }
 
   /api/v1/quant/risk/evt-tail:
     get:
+      tags: [quant]
+      operationId: getEvtTail
       summary: Retrieve EVT tail model output including IRF vectors.
       responses:
-        200:
+        '200':
+          description: EVT tail model output.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  irfVector:
-                    $ref: '#/components/schemas/IrfVector'
+                  irfVector: { $ref: '#/components/schemas/IrfVector' }
 
   /api/v1/quant/macro/shock-response:
     get:
+      tags: [quant]
+      operationId: getShockResponse
       summary: Retrieve structural VAR impulse response for macro shock analysis.
       responses:
-        200:
+        '200':
+          description: Structural VAR impulse response.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  irfVector:
-                    $ref: '#/components/schemas/IrfVector'
+                  irfVector: { $ref: '#/components/schemas/IrfVector' }
 
   /api/v1/quant/audit/intersubjective-reproducibility/{id}:
     get:
+      tags: [quant]
+      operationId: getAuditPath
       summary: Forensic reconstruction path (Coding Rules) for a specific data point.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/UuidPath'
       responses:
-        200:
+        '200':
+          description: Intersubjective reproducibility path.
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/IntersubjectivePath'
+              schema: { $ref: '#/components/schemas/IntersubjectivePath' }
 
 components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 1000, default: 100 }
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema: { type: integer, minimum: 0, default: 0 }
+    UuidPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: Invalid request payload or parameters.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
   schemas:
+    # ---- CDM-aligned enumerations -----------------------------------------
+    RateType:
+      type: string
+      description: CDM-aligned rate/instrument identifier (mirrors cdm RateType enum).
+      enum: [SOFR, EFFR, TGCR, BGCR, IORB, OBFR, RRP, TGA, WALCL, TBILL_3M, TBILL_1M, TBILL_6M, TBILL_1Y, TBILL_2Y, TBILL_5Y, TBILL_10Y, TBILL_30Y, VIX, OIL_WTI, OIL_BRENT, GOLD]
+    InstrumentType:
+      type: string
+      description: CDM product taxonomy (mirrors cdm InstrumentType enum).
+      enum: [SOFR, EFFR, TGCR, BGCR, IORB, OBFR, REPO, BILL_3M, EQUITY, COMMODITY_OIL, COMMODITY_GOLD]
+    OptionType:
+      type: string
+      enum: [CALL, PUT]
+    SignalDirection:
+      type: string
+      enum: [LONG, SHORT, NEUTRAL]
+
+    # ---- Shared ------------------------------------------------------------
+    Error:
+      type: object
+      required: [timestamp, status, message]
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        message: { type: string }
+        path: { type: string }
+
+    AlphaSignal:
+      type: object
+      required: [timestamp, strategyId, symbol, direction]
+      properties:
+        timestamp: { type: string, format: date-time }
+        strategyId: { type: string, format: uuid }
+        symbol: { type: string }
+        direction: { $ref: '#/components/schemas/SignalDirection' }
+        strength: { type: number, format: double }
+        confidence: { type: number, format: double }
+        expected_move: { type: number, format: double }
+        metrics:
+          type: object
+          additionalProperties: { type: number }
+
     StrategyStatus:
       type: object
       properties:
@@ -117,21 +962,6 @@ components:
         formula_refs: { type: array, items: { type: string } }
         active: { type: boolean }
 
-    AlphaSignal:
-      type: object
-      required: [ timestamp, strategyId, symbol, direction ]
-      properties:
-        timestamp: { type: string, format: date-time }
-        strategyId: { type: string, format: uuid }
-        symbol: { type: string }
-        direction: { type: string, enum: [ LONG, SHORT, NEUTRAL ] }
-        strength: { type: number, format: double }
-        confidence: { type: number, format: double }
-        expected_move: { type: number, format: double }
-        metrics:
-          type: object
-          additionalProperties: { type: number }
-
     EvtMetric:
       type: object
       properties:
@@ -139,6 +969,14 @@ components:
         scale_beta: { type: number, format: double }
         threshold_u: { type: number, format: double }
         tail_var_999: { type: number, format: double }
+
+    IrfVector:
+      type: object
+      properties:
+        horizon: { type: array, items: { type: integer } }
+        response_path: { type: array, items: { type: number, format: double } }
+        confidence_high: { type: array, items: { type: number, format: double } }
+        confidence_low: { type: array, items: { type: number, format: double } }
 
     IntersubjectivePath:
       type: object
@@ -155,18 +993,451 @@ components:
               outputValue: { type: number, format: double }
               irScore: { type: number, format: double }
 
-    IrfVector:
+    # ---- KPI ---------------------------------------------------------------
+    IliSnapshot:
       type: object
       properties:
-        horizon:
+        timestamp: { type: string, format: date-time }
+        value: { type: number, format: double }
+        regime: { type: string }
+        components:
           type: array
-          items: { type: integer }
-        response_path:
+          items:
+            type: object
+            properties:
+              rateType: { $ref: '#/components/schemas/RateType' }
+              weight: { type: number, format: double }
+              contribution: { type: number, format: double }
+
+    IliHistory:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp: { type: string, format: date-time }
+              value: { type: number, format: double }
+
+    LiquidityStress:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        index: { type: number, format: double }
+        classification: { type: string }
+
+    RepoEquityBeta:
+      type: object
+      properties:
+        symbol: { type: string }
+        beta: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+
+    RrpDrain:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        facilityBalance: { type: number, format: double }
+        drainVelocity: { type: number, format: double }
+
+    SystemicRiskHeatmap:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        dimensions:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              score: { type: number, format: double }
+
+    VolatilityRegime:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        regime: { type: string }
+        conditionalVariance: { type: number, format: double }
+
+    EvtRiskMetrics:
+      allOf:
+        - $ref: '#/components/schemas/EvtMetric'
+        - type: object
+          properties:
+            timestamp: { type: string, format: date-time }
+            exceedanceCount: { type: integer }
+
+    EfficiencyGap:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        gap: { type: number, format: double }
+
+    MonetaryPolicy:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        stance: { type: string }
+        surprise: { type: number, format: double }
+
+    # ---- Signals -----------------------------------------------------------
+    Signal:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        timestamp: { type: string, format: date-time }
+        symbol: { type: string }
+        direction: { $ref: '#/components/schemas/SignalDirection' }
+        strategyId: { type: string, format: uuid }
+        status: { type: string }
+
+    SignalDetail:
+      allOf:
+        - $ref: '#/components/schemas/Signal'
+        - type: object
+          properties:
+            strength: { type: number, format: double }
+            confidence: { type: number, format: double }
+            metrics:
+              type: object
+              additionalProperties: { type: number }
+
+    # ---- Config ------------------------------------------------------------
+    ConfigSnapshot:
+      type: object
+      additionalProperties: true
+      description: Key/value snapshot of the active configuration.
+
+    ConfigUpdate:
+      type: object
+      additionalProperties: true
+      description: Partial configuration update to apply.
+
+    ConfigHistoryEntry:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        author: { type: string }
+        changes:
+          type: object
+          additionalProperties: true
+
+    HealthStatus:
+      type: object
+      properties:
+        status: { type: string, enum: [UP, DOWN, DEGRADED] }
+        components:
+          type: object
+          additionalProperties: { type: string }
+
+    # ---- Demo --------------------------------------------------------------
+    DemoPortfolio:
+      type: object
+      properties:
+        balance: { type: number, format: double }
+        initialBalance: { type: number, format: double }
+        realizedPnl: { type: number, format: double }
+        unrealizedPnl: { type: number, format: double }
+        totalPnl: { type: number, format: double }
+        openPositions: { type: integer }
+        totalTrades: { type: integer }
+        winRate: { type: number, format: double }
+        enabled: { type: boolean }
+
+    DemoPosition:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        symbol: { type: string }
+        direction: { $ref: '#/components/schemas/SignalDirection' }
+        quantity: { type: number, format: double }
+        entryPrice: { type: number, format: double }
+        currentPrice: { type: number, format: double }
+        unrealizedPnl: { type: number, format: double }
+        stopLossPrice: { type: number, format: double }
+        takeProfitPrice: { type: number, format: double }
+        openedAt: { type: string, format: date-time }
+
+    DemoTrade:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        symbol: { type: string }
+        direction: { $ref: '#/components/schemas/SignalDirection' }
+        quantity: { type: number, format: double }
+        fillPrice: { type: number, format: double }
+        commission: { type: number, format: double }
+        slippage: { type: number, format: double }
+        realizedPnl: { type: number, format: double }
+        executedAt: { type: string, format: date-time }
+        tradeType: { type: string }
+
+    SignalQuality:
+      type: object
+      additionalProperties: true
+      description: Signal quality report (hit rate, false-positive rate, breakdowns).
+
+    ExecutionComparison:
+      type: object
+      properties:
+        benchmarkPnl: { type: number, format: double }
+        managedPnl: { type: number, format: double }
+        delta: { type: number, format: double }
+
+    DemoCloseResult:
+      type: object
+      properties:
+        tradeId: { type: integer, format: int64 }
+        positionId: { type: integer, format: int64 }
+        realizedPnl: { type: number, format: double }
+        fillPrice: { type: number, format: double }
+
+    # ---- Quality -----------------------------------------------------------
+    AnomalyDetectionRequest:
+      type: object
+      required: [series]
+      properties:
+        series:
           type: array
           items: { type: number, format: double }
-        confidence_high:
+        mseThresholdMultiplier: { type: number, format: double }
+
+    AnomalyDetectionResult:
+      type: object
+      properties:
+        scores:
           type: array
           items: { type: number, format: double }
-        confidence_low:
+        reconstructionError: { type: number, format: double }
+        threshold: { type: number, format: double }
+        isAnomalous: { type: boolean }
+
+    DriftSimulationRequest:
+      type: object
+      required: [steps]
+      properties:
+        steps: { type: integer, minimum: 1 }
+        drift: { type: number, format: double }
+        volatility: { type: number, format: double }
+
+    DriftSimulationResult:
+      type: object
+      properties:
+        trajectory:
           type: array
           items: { type: number, format: double }
+        drift: { type: number, format: double }
+        volatility: { type: number, format: double }
+
+    # ---- Regime ------------------------------------------------------------
+    RegimeStatus:
+      type: object
+      properties:
+        detector: { type: string }
+        regime: { type: string }
+        crashProbability: { type: number, format: double }
+        conditionalVariance: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+
+    RegimeComparison:
+      type: object
+      properties:
+        detectors:
+          type: array
+          items: { $ref: '#/components/schemas/RegimeStatus' }
+
+    # ---- Disaster ----------------------------------------------------------
+    DisasterAlert:
+      type: object
+      properties:
+        source: { type: string, enum: [USGS, GDACS] }
+        eventId: { type: string }
+        severity: { type: string }
+        title: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    DisasterAlertBatch:
+      type: object
+      properties:
+        alerts:
+          type: array
+          items: { $ref: '#/components/schemas/DisasterAlert' }
+
+    # ---- Operations --------------------------------------------------------
+    ParticipationStatus:
+      type: object
+      properties:
+        admissible: { type: boolean }
+        decomposition:
+          type: object
+          additionalProperties: { type: number, format: double }
+
+    LiquidityStressRequest:
+      type: object
+      required: [shockBps]
+      properties:
+        shockBps: { type: number, format: double }
+        symbol: { type: string }
+
+    LiquidityStressResult:
+      type: object
+      properties:
+        symbol: { type: string }
+        shockBps: { type: number, format: double }
+        priceImpactBps: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+
+    # ---- Optimization ------------------------------------------------------
+    OptimizationStatus:
+      type: object
+      properties:
+        method: { type: string, enum: [bayesian, firefly] }
+        lastRunAt: { type: string, format: date-time }
+        sharpeImprovement: { type: number, format: double }
+
+    OptimizationProposal:
+      type: object
+      properties:
+        weights:
+          type: array
+          items:
+            type: object
+            properties:
+              rateType: { $ref: '#/components/schemas/RateType' }
+              weight: { type: number, format: double }
+        expectedSharpe: { type: number, format: double }
+
+    # ---- Sentiment ---------------------------------------------------------
+    SentimentRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+
+    SentimentResult:
+      type: object
+      properties:
+        score: { type: number, format: double }
+        label: { type: string, enum: [POSITIVE, NEGATIVE, NEUTRAL] }
+        certainty: { type: number, format: double }
+
+    # ---- Stops -------------------------------------------------------------
+    StopCalibrationRequest:
+      type: object
+      required: [symbol]
+      properties:
+        symbol: { type: string }
+        horizonBars: { type: integer, minimum: 1 }
+
+    StopCalibrationResult:
+      type: object
+      properties:
+        symbol: { type: string }
+        optimalStopPct: { type: number, format: double }
+        takeProfitPct: { type: number, format: double }
+
+    # ---- Leverage ----------------------------------------------------------
+    LeverageStatus:
+      type: object
+      properties:
+        signal: { type: string, enum: [LEVERAGE_ON, LEVERAGE_OFF] }
+        targetExposure: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+
+    # ---- Pairs -------------------------------------------------------------
+    Pair:
+      type: object
+      properties:
+        legs:
+          type: array
+          items: { type: string }
+        divergenceStatus: { type: string }
+        zScore: { type: number, format: double }
+
+    # ---- Diagnostics -------------------------------------------------------
+    DiagnosticsRequest:
+      type: object
+      required: [series]
+      properties:
+        series:
+          type: array
+          items: { type: number, format: double }
+        lags: { type: integer, minimum: 1 }
+
+    DiagnosticsResult:
+      type: object
+      properties:
+        qqPoints:
+          type: array
+          items:
+            type: object
+            additionalProperties: { type: number, format: double }
+        acf:
+          type: array
+          items: { type: number, format: double }
+        converged: { type: boolean }
+
+    # ---- Volatility --------------------------------------------------------
+    VolatilityForecast:
+      type: object
+      properties:
+        symbol: { type: string }
+        horizon: { type: integer }
+        forecast: { type: number, format: double }
+        confidenceHigh: { type: number, format: double }
+        confidenceLow: { type: number, format: double }
+
+    # ---- Tournament --------------------------------------------------------
+    TournamentRequest:
+      type: object
+      required: [symbols]
+      properties:
+        symbols:
+          type: array
+          items: { type: string }
+
+    TournamentResult:
+      type: object
+      properties:
+        rankings:
+          type: array
+          items:
+            type: object
+            properties:
+              model: { type: string }
+              score: { type: number, format: double }
+
+    # ---- Explainability ----------------------------------------------------
+    ExplainabilityRequest:
+      type: object
+      required: [target]
+      properties:
+        target: { type: string }
+        features:
+          type: array
+          items: { type: string }
+
+    FeatureImportance:
+      type: object
+      properties:
+        attributions:
+          type: object
+          additionalProperties: { type: number, format: double }
+
+    # ---- Fixed income ------------------------------------------------------
+    QWorldFairValue:
+      type: object
+      properties:
+        rateType: { $ref: '#/components/schemas/RateType' }
+        fairValue: { type: number, format: double }
+        timestamp: { type: string, format: date-time }
+
+    TbillGreeks:
+      type: object
+      properties:
+        rateType: { $ref: '#/components/schemas/RateType' }
+        delta: { type: number, format: double }
+        gamma: { type: number, format: double }
+        vega: { type: number, format: double }
+        theta: { type: number, format: double }
