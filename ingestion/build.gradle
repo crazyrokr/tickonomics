@@ -8,9 +8,9 @@ dependencies {
   implementation project(':persistence')
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-websocket'
-  implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.3.0'
-  implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
-  implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.3.0'
+  implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.4.0'
+  implementation 'io.github.resilience4j:resilience4j-retry:2.4.0'
+  implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.4.0'
   implementation 'io.micrometer:micrometer-observation'
   implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 
