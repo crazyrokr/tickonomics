@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.tickonomics.cdm.adapter.raw.YahooOptionContract;
 import com.tickonomics.cdm.enums.OptionType;
-import com.tickonomics.cdm.model.CdmOptionSnapshot;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
