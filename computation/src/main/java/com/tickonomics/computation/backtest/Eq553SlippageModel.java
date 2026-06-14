@@ -7,9 +7,11 @@ public class Eq553SlippageModel {
 
   private static final double ZETA = 0.15;
 
+  static final double MAX_SLIPPAGE_BPS = 10_000.0;
+
   public double calculateSlippageBps(double volatility, double addvDollarVolume, double sharesTraded) {
     if (addvDollarVolume <= 0) {
-      return Double.MAX_VALUE;
+      return MAX_SLIPPAGE_BPS;
     }
     return ZETA * (volatility / addvDollarVolume) * Math.abs(sharesTraded);
   }
