@@ -39,14 +39,37 @@ class FixedIncomePortfolioBuilderSpec extends Specification {
         portfolio.convexity() > 0
   }
 
-  def "Given three tenors, when buildDurationNeutral, then net duration is near zero"() {
+  def "Given three tenors, when buildDurationNeutral, then net duration is exactly zero"() {
     when:
         FixedIncomePortfolio portfolio = builder.buildDurationNeutral(2.0d, 5.0d, 20.0d, bonds)
 
     then:
         portfolio.type() == FixedIncomeStrategyType.DURATION_NEUTRAL
         portfolio.positions().size() == 3
-        Math.abs(portfolio.portfolioDuration()) < 3.0d
+        Math.abs(portfolio.portfolioDuration()) < 1e-9
+  }
+
+  def "Given arbitrary dS<dM<dL, when buildDurationNeutral, then net duration is zero"() {
+    given:
+        def custom = [
+            new BondPosition("1Y", 0.9d, 4.0d, 0.0d),
+            new BondPosition("7Y", 6.3d, 4.4d, 0.0d),
+            new BondPosition("30Y", 19.0d, 4.8d, 0.0d)
+        ]
+
+    when:
+        FixedIncomePortfolio portfolio = builder.buildDurationNeutral(1.0d, 6.0d, 20.0d, custom)
+
+    then:
+        Math.abs(portfolio.portfolioDuration()) < 1e-9
+  }
+
+  def "Given long duration not greater than short, when buildDurationNeutral, then throws"() {
+    when:
+        builder.buildDurationNeutral(10.0d, 5.0d, 5.0d, bonds)
+
+    then:
+        thrown(IllegalArgumentException)
   }
 
   def "Given empty bond list, when buildBullet, then throws IllegalArgumentException"() {
