@@ -3,7 +3,7 @@
 import type { VolatilityRegimeData } from "@/types/api";
 
 interface VolatilityRegimeIndicatorProps {
-  data: VolatilityRegimeData | undefined;
+  data?: VolatilityRegimeData;
   isLoading?: boolean;
 }
 

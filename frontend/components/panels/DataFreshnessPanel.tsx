@@ -3,7 +3,7 @@
 import type { HealthResponse, DataSourceHealth, ProxyDivergence } from "@/types/api";
 
 interface DataFreshnessPanelProps {
-  data: HealthResponse | undefined;
+  data?: HealthResponse;
   isLoading?: boolean;
 }
 

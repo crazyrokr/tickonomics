@@ -3,7 +3,7 @@
 import type { LiquidityStressIndex } from "@/types/api";
 
 interface LiquidityStressGaugeProps {
-  data: LiquidityStressIndex | undefined;
+  data?: LiquidityStressIndex;
   isLoading?: boolean;
 }
 

@@ -10,7 +10,7 @@ const STATUS_BADGE: Record<string, { label: string; className: string }> = {
 };
 
 interface IliCardProps {
-  data: IliValue | undefined;
+  data?: IliValue;
   history?: number[];
   isLoading?: boolean;
 }
