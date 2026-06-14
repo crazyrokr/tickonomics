@@ -79,7 +79,9 @@ jobs:
             echo ""
             echo "Engine: pytest-benchmark (cached-baseline, >10% mean regression gate)."
             echo ""
+            echo "```"
             cat analytics/benchmark-output.txt 2>/dev/null || echo "_No benchmark output captured._"
+            echo "```"
           } > benchmark-report.md
 
       - name: Comment on PR
