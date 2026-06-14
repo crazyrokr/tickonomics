@@ -27,7 +27,7 @@ The repository reflects a **substantially implemented platform** whose core anal
 | 10 | Demo / Virtual Portfolio | ✅ Finalized (ADR-017) | ~90% | HIGH |
 | 11 | Deployment & Operations | ✅ Finalized (ADR-018) | ~95% | HIGH |
 | 12 | Architecture Diagrams | ✅ Implemented (Mermaid only) | ~90% | HIGH |
-| 13 | Terraform Spot/Forecast | ⚠️ IaC present, runtime broken | ~50% | HIGH |
+| 13 | Terraform Spot/Forecast | ✅ Finalized (ADR-019) | ~90% | HIGH |
 | 14 | Production Infrastructure | ❌ Not implemented | ~0% | HIGH |
 
 ### Aggregate counts observed in the repo
@@ -254,18 +254,23 @@ All 8 planned sections render on `landing/app/page.tsx`. v4 status badges (`regi
 
 ---
 
-### Track 13 — Terraform Spot/Forecast ⚠️ ~50% (IaC present, runtime broken)
+### Track 13 — Terraform Spot/Forecast ✅ ~90% (finalized — see [ADR-019](adr/ADR-019-track13-spot-forecast-finalization.md))
 
-**IaC substantially present:** 6 modules (`networking`, `storage`, `container-registry`, `compute-spot`, `orchestrator`, `monitoring`) × 3 environments (AWS/GCP/Azure). `forecast_trigger.py`, `forecast_status.py`, `spot_interruption.py`, shared compose/scripts, `run-forecast.sh`, `forecast-deploy.yml`.
+**Finalized 2026-06-14 (ADR-019).** The five open runtime blockers and the coherence defects in the same files are closed, so the spot pipeline now launches → bootstraps → computes (via backend `@Scheduled` jobs) → collects real endpoints → uploads a terminal `COMPLETED`/`FAILED` status → self-terminates.
 
-**Graceful shutdown (Plan Phase 2): ✅ fully implemented** — `GracefulShutdown.java`, SIGTERM handler, `server.shutdown: graceful`.
+**Trigger launches real instances (C1).** A new `aws_launch_template.forecast` holds the AMI/type/key/IAM-profile/user-data/`Name`-tag; both `aws_spot_instance_request` (the `terraform apply` / `run-forecast.sh` path) and `forecast_trigger.py` (`ec2.run_instances` with spot market options) reference it. The trigger writes a `RUNNING` STATUS marker carrying the instance id; on launch failure it writes `FAILED`. `vpc_config` is removed from the trigger Lambda (it only calls public AWS APIs — the public-subnet ENI without NAT was blocking every outbound call, H5).
 
-**Unresolved runtime blockers (from the plan's own review findings):**
-- **C1:** `forecast_trigger.py` is a **no-op** — no `request_spot`/`run_instances`; spot instances never launch.
-- **C2:** Healthcheck uses `curl` which is **not installed** in `eclipse-temurin:25-jre` (actuator now on classpath, but curl missing).
-- **C4/C5:** cloud-config + user-data templates reference `forecast-task.sh` and the broken healthcheck — double-exec / missing-script issues persist.
-- **M3:** `user-data.tftpl` is dead code (unreferenced).
-- **Phase 5 local path** (`infra/local/`): absent.
+**Cloud-init runs once and deploys all scripts (C4/C5/M3).** `user-data.tftpl` (dead code) is deleted; `cloudinit_config` collapses to a single `text/cloud-config` part; the four scripts are delivered via `write_files` with `encoding: b64` (preserves bash `${…}`); `runcmd` runs `forecast-task.sh` exactly once. `COMPOSE_PROJECT_NAME=forecast` plus `docker compose exec -T <service>` replace the hard-coded `forecast-*-1` container names (H3).
+
+**Healthcheck works (C2).** `curl` is installed in the backend `Dockerfile` runtime stage; `/actuator/health` (actuator already on classpath) is the probe.
+
+**Scripts are coherent (H2/H3/H4/M4/C3-script).** `forecast-task.sh` adds a `trap cleanup EXIT` that uploads `FAILED` (+ partial results) and enforces a `MIN_ROWS` floor; mounts the data disk via the largest non-root device (NVMe-safe); triggers only the real `POST :8001/api/v1/analytics/volatility-forecast`; `collect-results.sh` collects only real endpoints (`quant/signals/active`, `quant/strategies/active`, `quant/risk/tail-parameters`, `quant/risk/evt-tail`, `quant/macro/shock-response`).
+
+**Monitoring tracks the live instance (H6).** The `spot_instance_id`-pinned CPU alarm (perpetually `INSUFFICIENT_DATA` for a terminated instance) is removed; the dashboard CPU widget becomes a CloudWatch `SEARCH`. Spot-interruption and Lambda-error alarms remain.
+
+**v6 + Phase 5 + CI + tests.** `POLYGON_API_KEY` → `FINNHUB_API_KEY`/`ALPHAVANTAGE_API_KEY` across the forecast stack (no live Polygon reference remains under `infra/`). `infra/local/` (local-server path: 6 files) is added. `tflint` + `tfsec` join `terraform validate` in `forecast-deploy.yml` (M5). The three Lambda handlers gain 13 Given-When-Then unit tests via a stdlib fake `boto3` (boto3/moto not installed locally).
+
+**Still deferred (documented in ADR-019):** GCP/Azure provider-specific trigger functions and Azure script delivery (M9/M10 — the orchestrator module is AWS-only; GCP/Azure validate-clean but run stubbed triggers); new POST compute-trigger endpoints `kpis/compute`/`signals/generate` (Track 1 / C3); secrets-in-state migration to SSM (M6); persistent-volume reattach and model warm-start for Lambda-launched instances (L3); tag-based per-instance CPU *alarm* (needs a launch-emitted custom metric).
 
 ---
 
@@ -279,7 +284,7 @@ All 8 planned sections render on `landing/app/page.tsx`. v4 status badges (`regi
 
 These patterns recur across multiple tracks and represent the highest-leverage items to address:
 
-1. **v6 free-data-source migration is mostly complete.** Source clients are migrated (Track 4 ✅), the base `docker-compose.yml` now uses `FINNHUB_API_KEY`/`ALPHAVANTAGE_API_KEY` (Track 11 ✅ ADR-018), and the v6 Finnhub/free-source runbooks now exist (`finnhub-yahoo-setup.md`, `finnhub-websocket-outage.md`). **Remaining edges:** legacy Polygon artifacts still linger in `cdm/adapter/` (Track 1), and the chaos workflow still references "Polygon WebSocket" (Track 9).
+1. **v6 free-data-source migration is mostly complete.** Source clients are migrated (Track 4 ✅), the base `docker-compose.yml` now uses `FINNHUB_API_KEY`/`ALPHAVANTAGE_API_KEY` (Track 11 ✅ ADR-018), the v6 Finnhub/free-source runbooks exist (`finnhub-yahoo-setup.md`, `finnhub-websocket-outage.md`), and the forecast Terraform stack is migrated too (Track 13 ✅ ADR-019 — no live Polygon reference remains under `infra/`). **Remaining edges:** legacy Polygon artifacts still linger in `cdm/adapter/` (Track 1), and the chaos workflow still references "Polygon WebSocket" (Track 9).
 
 2. **The ML/sentiment layer is "shape-correct but substance-substituted."** Every ML service except the autoencoder is a numpy/scipy proxy: no `transformers`/FinBERT, no `xgboost`, no `shap`, no `arch`, LSTM ignored, CNN-LSTM untrained. Arrow IPC (the headline transport) is a 4-line stub. Functionally present for demo purposes; diverges materially from the planned dependency model.
 
@@ -293,7 +298,7 @@ These patterns recur across multiple tracks and represent the highest-leverage i
 
 7. **Safety/operability controls are now implemented for the demo path.** Big Red Button kill-switch (ADR-017) and Systemic Resilience Monitor / Global Safe Mode (ADR-018) are now live Java services gated into `PaperTradingEngine`, with REST endpoints. **Still absent:** regulatory behavioral testing (MiFID II SMC/OTR/circuit breaker) — see Track 8.
 
-8. **Production deployment path is not real.** Track 14 is 0% implemented; deploy workflows are `echo` placeholders; the spot pipeline's trigger is a no-op and its healthcheck is broken. The platform runs locally; it does not yet deploy to production.
+8. **Production deployment path is partially real.** Track 13's spot pipeline now works end-to-end (trigger launches instances, healthcheck passes, status terminates; ADR-019) and a local-server path exists. **Still not real:** Track 14 (0% — no `hosting`/`database`/`dns-tls`/`secrets`/`observability`/`backup`/`budget` modules) and the `deploy-staging.yml`/`deploy-production.yml` jobs remain `echo` placeholders. The platform runs locally and on spot instances; it does not yet have a managed production deployment.
 
 ---
 
@@ -317,4 +322,4 @@ Based on the gaps above (impact × the plan's own dependency ordering):
 - Each pass read its plan document(s), enumerated the relevant source trees (`find`), checked each named class/feature (`grep`, case-insensitive), and read representative sources to confirm behavior (not just presence).
 - Status legend: ✅ IMPLEMENTED · ⚠️ PARTIAL/DEVIATES · ❌ MISSING/DEFERRED.
 - Confidence is HIGH across all tracks: findings rest on direct file inspection, not inference.
-- This report is a point-in-time snapshot against branch `feature/dataset-sources` @ `834546b` (2026-06-13).
+- This report is a point-in-time snapshot against branch `feature/dataset-sources` @ `834546b` (2026-06-13). Tracks 10, 11, and 13 were subsequently finalized (ADR-017 / ADR-018 / ADR-019) on branch `feature/devops` (2026-06-14); their finalized status is reflected above and supersedes the original snapshot for those tracks.

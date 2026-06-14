@@ -1,0 +1,70 @@
+services:
+  backend:
+    image: tickonomics-backend:latest
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescaledb:5432/tickonomics
+      SPRING_DATASOURCE_USERNAME: tickonomics
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      ANALYTICS_WORKER_URL: http://analytics-worker:8001
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: ""
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "0"
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
+      FRED_API_KEY: ${FRED_API_KEY:-}
+      AUTH_DISABLED: "true"
+      SERVER_SHUTDOWN: graceful
+      SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 60s
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      analytics-worker:
+        condition: service_healthy
+    networks:
+      - tickonomics-net
+    volumes:
+      - ingestion_overflow:/data/overflow
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  analytics-worker:
+    image: tickonomics-analytics:latest
+    ports:
+      - "8001:8001"
+    networks:
+      - tickonomics-net
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: tickonomics
+      POSTGRES_USER: tickonomics
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - timescaledb_forecast_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tickonomics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - tickonomics-net
+
+volumes:
+  ingestion_overflow:
+  timescaledb_forecast_data:
+
+networks:
+  tickonomics-net:
+    driver: bridge

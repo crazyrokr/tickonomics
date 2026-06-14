@@ -126,6 +126,18 @@ jobs:
         working-directory: infra/terraform/environments/azure
         run: terraform validate
 
+      - name: Setup tflint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run tflint
+        working-directory: infra/terraform
+        run: tflint --recursive --format compact
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: infra/terraform
+
   terraform-plan:
     name: Terraform Plan (${{ inputs.provider || 'aws' }})
     runs-on: ubuntu-latest

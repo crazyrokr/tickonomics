@@ -16,6 +16,10 @@ RUN ./gradlew :computation:cloneTalibNative --no-daemon && \
 
 FROM eclipse-temurin:25-jre
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN addgroup --system tickonomics && \
     adduser --system --ingroup tickonomics tickonomics
 
