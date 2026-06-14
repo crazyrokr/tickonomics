@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-commit gate (Tier 1): run actionlint on staged GitHub Actions workflow
+# files only. Fast, no Docker. Non-workflow YAML is never linted here.
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM \
+	| grep -E '^\.github/workflows/.*\.ya?ml$' || true)
+
+if [ -z "$staged" ]; then
+	exit 0
+fi
+
+if ! command -v actionlint >/dev/null 2>&1; then
+	echo "pre-commit: actionlint not found; skipping workflow lint." >&2
+	echo "  install: brew install actionlint" >&2
+	exit 0
+fi
+
+echo "pre-commit: actionlint $(echo "$staged" | tr '\n' ' ')"
+# Ignore shellcheck (SC*) advisories: inline-shell style findings are surfaced by
+# `make workflow-lint` but not blocked here, so pre-existing style debt does not
+# stall commits. Native actionlint errors (expression, syntax, schema, ...) still
+# block, which is what catches actually-broken workflows.
+# shellcheck disable=SC2086 # word-splitting is intentional; workflow paths have no spaces.
+actionlint -ignore 'SC[0-9]+' $staged

@@ -84,3 +84,129 @@ tasks.register('lint') {
   description = 'Aggregates advisory static analysis across all modules.'
   dependsOn subprojects.collect { it.tasks.named('lint') }
 }
+
+// --- Local GitHub Actions workflow verification (act + actionlint) ---
+// See docs/adr/ADR-026-local-github-actions-verification.md
+// and docs/runbooks/local-workflow-verification.md.
+
+// Captured at configuration time so the doLast closures stay configuration-cache
+// safe (no Task.project / rootProject access at execution time).
+def rootDir = rootProject.projectDir
+def workflowsDir = rootProject.file('.github/workflows')
+def gateWorkflows = ['.github/workflows/pr-checks.yml', '.github/workflows/benchmark.yml']
+    .collect { rootProject.file(it) }.findAll { it.exists() }
+def workflowJob = providers.gradleProperty('workflowJob')
+def workflowFile = providers.gradleProperty('workflowFile')
+
+// Helpers as closures (script methods are not resolvable from doLast).
+def hasTool = { String name ->
+  new ProcessBuilder(['sh', '-c', "command -v ${name} >/dev/null 2>&1".toString()])
+      .directory(rootDir).start().waitFor() == 0
+}
+def requireTool = { String name, String installHint ->
+  if (!hasTool(name)) {
+    throw new GradleException("Required tool '${name}' not found on PATH. ${installHint}")
+  }
+}
+def runWorkflowCommand = { List<String> cmd, String failMessage, def log ->
+  // Drain child stdout/stderr through Gradle's logger (inheritIO is swallowed by
+  // the forked daemon JVM); concurrent drain avoids pipe-buffer deadlocks.
+  def process = new ProcessBuilder(cmd.collect { it.toString() }).directory(rootDir).start()
+  def tOut = Thread.start { process.inputStream.eachLine { log.lifecycle(it) } }
+  def tErr = Thread.start { process.errorStream.eachLine { log.lifecycle(it) } }
+  def exit = process.waitFor()
+  tOut.join()
+  tErr.join()
+  if (exit != 0) {
+    throw new GradleException("${failMessage} (exit ${exit})")
+  }
+}
+
+tasks.register('workflowLint') {
+  group = 'verification'
+  description = 'Lint all GitHub Actions workflows with actionlint (strict; fails on any finding).'
+  doLast {
+    requireTool('actionlint', 'Install: brew install actionlint')
+    def files = workflowsDir.listFiles()?.findAll { it.isFile() && (it.name.endsWith('.yml') || it.name.endsWith('.yaml')) } ?: []
+    if (files.isEmpty()) {
+      logger.lifecycle('workflowLint: no workflow files found')
+      return
+    }
+    logger.lifecycle("workflowLint: actionlint ${files.size()} workflow file(s)")
+    runWorkflowCommand(['actionlint', *files.collect { it.path }], 'actionlint found errors', logger)
+  }
+}
+
+tasks.register('workflowList') {
+  group = 'verification'
+  description = 'List the resolved GitHub Actions job graph via act -l (no Docker pull).'
+  doLast {
+    requireTool('act', 'Install: brew install act')
+    runWorkflowCommand(['act', '-l'], 'act -l failed', logger)
+  }
+}
+
+tasks.register('workflowDryRun') {
+  group = 'verification'
+  description = 'Dry-run (resolve, no execution) the PR-gate workflows for pull_request. Pulls the runner image on first run.'
+  doLast {
+    requireTool('act', 'Install: brew install act')
+    if (gateWorkflows.isEmpty()) {
+      logger.lifecycle('workflowDryRun: no gate workflow files found')
+      return
+    }
+    gateWorkflows.each { wf ->
+      logger.lifecycle("workflowDryRun: act -n pull_request -W ${wf.path}")
+      runWorkflowCommand(['act', '-n', 'pull_request', '-W', wf.path], "act dry-run failed for ${wf.name}", logger)
+    }
+  }
+}
+
+tasks.register('workflowRun') {
+  group = 'verification'
+  description = 'Run a single workflow job locally. Usage: ./gradlew workflowRun -PworkflowJob=<id> [-PworkflowFile=path]'
+  doLast {
+    def job = workflowJob.orNull
+    if (!job) {
+      throw new GradleException('workflowRun requires -PworkflowJob=<job-id> (optional -PworkflowFile=path)')
+    }
+    requireTool('act', 'Install: brew install act')
+    def wf = workflowFile.orNull ?: '.github/workflows/pr-checks.yml'
+    runWorkflowCommand(['act', 'pull_request', '-W', wf, '-j', job], "act job '${job}' failed", logger)
+  }
+}
+
+tasks.register('installGitHooks') {
+  group = 'verification'
+  description = 'Install the local workflow-verification git hooks (pre-commit, pre-push).'
+  doLast {
+    runWorkflowCommand(['sh', 'scripts/install-git-hooks.sh'], 'git hook installation failed', logger)
+  }
+}
+
+tasks.register('testGitHooks') {
+  group = 'verification'
+  description = 'Run the Given-When-Then tests for the pre-commit workflow-lint hook.'
+  doLast {
+    runWorkflowCommand(['sh', 'scripts/test-pre-commit-hook.sh'], 'git hook tests failed', logger)
+  }
+}
+
+tasks.register('actPull') {
+  group = 'verification'
+  description = 'Pre-pull the act runner image so the first dry-run is not dominated by a download.'
+  doLast {
+    requireTool('docker', 'Install: Docker (https://docker.com)')
+    runWorkflowCommand(['docker', 'pull', 'catthehacker/ubuntu:act-22.04'], 'docker pull failed', logger)
+  }
+}
+
+tasks.register('verifyWorkflows') {
+  group = 'verification'
+  description = 'Run the full local workflow-verification pipeline: lint, list, hook tests, gate-workflow dry-run.'
+  dependsOn 'workflowLint', 'workflowList', 'testGitHooks', 'workflowDryRun'
+}
+
+tasks.named('workflowDryRun').configure {
+  mustRunAfter 'workflowLint', 'workflowList', 'testGitHooks'
+}
