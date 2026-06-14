@@ -1,13 +1,15 @@
 package com.tickonomics.web.controller;
 
+import com.tickonomics.computation.demo.KillSwitch;
+import com.tickonomics.computation.demo.MarketPriceLookup;
 import com.tickonomics.computation.demo.PaperTradingEngine;
 import com.tickonomics.computation.demo.SignalQualityAnalyzer;
 import com.tickonomics.computation.demo.VirtualPortfolio;
+import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.SignalLogRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
-import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,18 +31,27 @@ public class DemoController {
   private final SignalQualityAnalyzer qualityAnalyzer;
   private final VirtualPortfolioTradeRepository tradeRepository;
   private final SignalLogRepository signalLogRepository;
+  private final KillSwitch killSwitch;
+  private final MarketPriceLookup priceLookup;
+  private final LeverageSignaler leverageSignaler;
 
   public DemoController(
       VirtualPortfolio portfolio,
       PaperTradingEngine tradingEngine,
       SignalQualityAnalyzer qualityAnalyzer,
       VirtualPortfolioTradeRepository tradeRepository,
-      SignalLogRepository signalLogRepository) {
+      SignalLogRepository signalLogRepository,
+      KillSwitch killSwitch,
+      MarketPriceLookup priceLookup,
+      LeverageSignaler leverageSignaler) {
     this.portfolio = portfolio;
     this.tradingEngine = tradingEngine;
     this.qualityAnalyzer = qualityAnalyzer;
     this.tradeRepository = tradeRepository;
     this.signalLogRepository = signalLogRepository;
+    this.killSwitch = killSwitch;
+    this.priceLookup = priceLookup;
+    this.leverageSignaler = leverageSignaler;
   }
 
   @GetMapping("/portfolio")
@@ -117,6 +129,44 @@ public class DemoController {
     body.put("positionId", positionId);
     body.put("realizedPnl", trade.realizedPnl());
     body.put("fillPrice", trade.fillPrice());
+    return ResponseEntity.ok(body);
+  }
+
+  @PostMapping("/kill-switch/activate")
+  public ResponseEntity<Map<String, Object>> activateKillSwitch(
+      @RequestBody(required = false) Map<String, Double> prices) {
+    killSwitch.activate();
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("active", true);
+    if (prices != null && !prices.isEmpty()) {
+      List<VirtualPortfolioTrade> liquidated = killSwitch.liquidateAll(portfolio, prices);
+      body.put("liquidatedTrades", liquidated.size());
+    }
+    return ResponseEntity.ok(body);
+  }
+
+  @PostMapping("/kill-switch/deactivate")
+  public ResponseEntity<Map<String, Object>> deactivateKillSwitch() {
+    killSwitch.deactivate();
+    return ResponseEntity.ok(Map.of("active", false));
+  }
+
+  @GetMapping("/kill-switch/status")
+  public ResponseEntity<Map<String, Object>> killSwitchStatus() {
+    return ResponseEntity.ok(Map.of("active", killSwitch.isActive()));
+  }
+
+  @PostMapping("/leverage-rotation/evaluate")
+  public ResponseEntity<Map<String, Object>> evaluateLeverageRotation(
+      @RequestBody(required = false) Map<String, Double> prices) {
+    VirtualPortfolio.LeverageRotationOutcome outcome = portfolio.applyLeverageRotation(
+        priceLookup, leverageSignaler, prices);
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("signal", outcome.signal().signal().name());
+    body.put("benchmarkPrice", outcome.signal().currentPrice());
+    body.put("sma200", outcome.signal().sma200());
+    body.put("deviation", outcome.signal().deviation());
+    body.put("closedTrades", outcome.closedTrades().size());
     return ResponseEntity.ok(body);
   }
 }

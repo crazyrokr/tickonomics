@@ -1,11 +1,14 @@
 package com.tickonomics.computation.demo;
 
 import com.tickonomics.computation.kpi.SignalResult;
+import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.VirtualPortfolioPositionRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +41,15 @@ public class VirtualPortfolio {
   }
 
   public VirtualPortfolioPosition openPosition(SignalResult signal, double fillPrice) {
+    return openPosition(signal, fillPrice, config.stopLossPct(), config.takeProfitPct(), 0.0);
+  }
+
+  public VirtualPortfolioPosition openPosition(SignalResult signal, double fillPrice,
+      double stopLossPct, double takeProfitPct, double commission) {
     double positionSize = config.virtualBalance() * config.positionSizePct() / 100.0;
     double quantity = positionSize / fillPrice;
-    double stopLossPrice = fillPrice * (1 - config.stopLossPct() / 100.0);
-    double takeProfitPrice = fillPrice * (1 + config.takeProfitPct() / 100.0);
+    double stopLossPrice = fillPrice * (1 - stopLossPct / 100.0);
+    double takeProfitPrice = fillPrice * (1 + takeProfitPct / 100.0);
 
     VirtualPortfolioPosition position = new VirtualPortfolioPosition(
         null, Instant.now(), signal.symbol(), signal.direction(), quantity, fillPrice,
@@ -50,7 +58,7 @@ public class VirtualPortfolio {
 
     VirtualPortfolioTrade openTrade = new VirtualPortfolioTrade(
         null, Instant.now(), signal.symbol(), signal.direction(), quantity, fillPrice,
-        0.0, 0.0, null, positionId, null, "PAPER");
+        commission, 0.0, null, positionId, null, "PAPER");
     tradeRepository.save(openTrade);
 
     return new VirtualPortfolioPosition(
@@ -112,6 +120,33 @@ public class VirtualPortfolio {
     return breached;
   }
 
+  /**
+   * Apply {@link LeverageSignaler} rotation for the configured benchmark symbol: on
+   * {@code LEVERAGE_OFF} flatten every open position at its current price (rotate into cash /
+   * Treasuries), truncating tail risk; on {@code LEVERAGE_ON} take no action.
+   */
+  public LeverageRotationOutcome applyLeverageRotation(MarketPriceLookup priceLookup,
+      LeverageSignaler leverageSignaler, Map<String, Double> currentPrices) {
+    DemoConfig.LeverageRotation rotation = config.leverageRotation();
+    LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    List<Double> history = priceLookup.closingPrices(
+        rotation.benchmarkSymbol(), today.minusDays(rotation.maWindowDays()), today);
+
+    Double live = currentPrices != null ? currentPrices.get(rotation.benchmarkSymbol()) : null;
+    double currentPrice = live != null ? live : (history.isEmpty() ? 0.0 : history.getLast());
+
+    LeverageSignaler.LeverageSignal signal = leverageSignaler.evaluate(history, currentPrice);
+
+    if (signal.signal() != LeverageSignaler.Signal.LEVERAGE_OFF || currentPrices == null) {
+      return new LeverageRotationOutcome(signal, List.of());
+    }
+    List<VirtualPortfolioTrade> closed = positionRepository.findOpenPositions().stream()
+        .filter(pos -> currentPrices.containsKey(pos.symbol()))
+        .map(pos -> closePosition(pos.id(), currentPrices.get(pos.symbol())))
+        .toList();
+    return new LeverageRotationOutcome(signal, closed);
+  }
+
   public PortfolioSummary getPortfolioSummary() {
     List<VirtualPortfolioPosition> openPositions = positionRepository.findOpenPositions();
     int totalTrades = tradeRepository.countByTradeType("PAPER");
@@ -164,4 +199,8 @@ public class VirtualPortfolio {
       int totalTrades,
       double winRate,
       boolean enabled) {}
+
+  public record LeverageRotationOutcome(
+      LeverageSignaler.LeverageSignal signal,
+      List<VirtualPortfolioTrade> closedTrades) {}
 }

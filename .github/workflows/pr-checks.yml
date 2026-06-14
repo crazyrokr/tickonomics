@@ -46,7 +46,15 @@ jobs:
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon
 
+      - name: Download OpenTelemetry agent
+        run: |
+          curl -fsSL -o opentelemetry-javaagent.jar \
+            https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/2.28.1/opentelemetry-javaagent-2.28.1.jar
+
       - name: Build & Test (except integration-tests)
+        env:
+          JAVA_TOOL_OPTIONS: "-javaagent:opentelemetry-javaagent.jar"
+          OTEL_EXPORTER: "none"
         run: ./gradlew build -x :integration-tests:test --no-daemon
 
       - uses: actions/upload-artifact@v4
@@ -71,6 +79,12 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r analytics/requirements.txt
+
+      - name: Lint (ruff, advisory)
+        continue-on-error: true
+        run: |
+          pip install ruff
+          ruff check analytics/
 
       - name: Run pytest
         working-directory: analytics
@@ -122,6 +136,46 @@ jobs:
       - name: Test
         working-directory: ${{ matrix.app }}
         run: npm test
+
+      - name: Run Lighthouse CI
+        if: matrix.app == 'landing'
+        working-directory: landing
+        continue-on-error: true
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun --config=${{ github.workspace }}/.github/lighthouse/lighthouserc.js || true
+
+  code-quality:
+    name: Static Analysis (Advisory)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-cq-${{ hashFiles('**/*.gradle') }}
+          restore-keys: gradle-cq-
+
+      - name: Run Checkstyle + SpotBugs
+        continue-on-error: true
+        run: ./gradlew lint --no-daemon
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            **/build/reports/checkstyle/**
+            **/build/reports/spotbugs/**
 
   integration-test:
     name: Integration Tests

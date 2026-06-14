@@ -1,16 +1,32 @@
 name: Deploy Production
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to promote (staging SHA or latest)'
+        required: true
+        default: 'latest'
+      skip_migrate:
+        description: 'Skip Flyway migrations'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Artifacts
+  build-gate:
+    name: Pre-Promote Build Gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,34 +62,110 @@ jobs:
           ./gradlew :computation:cloneTalibNative --no-daemon
           ./gradlew :computation:buildTalibNative --no-daemon
 
-      - name: Build & Test
+      - name: Build & Test (promotion gate)
         run: ./gradlew build -x :integration-tests:test --no-daemon
 
-      - name: Build Spring Boot JAR
+      - name: Repackage Spring Boot JAR
         run: ./gradlew :app:bootJar --no-daemon
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-jar
-          path: app/build/libs/*.jar
-
-  deploy:
-    name: Deploy to Production
-    needs: build
+  promote:
+    name: Promote to Production
+    needs: build-gate
     runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy production environment
-        run: echo "Production deployment placeholder — requires Track 11 Docker infrastructure"
-        env:
-          DEPLOY_ENV: production
+      - name: Resolve image namespace
+        run: echo "IMAGE_PREFIX=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-  verify:
-    name: Verify Deployment
-    needs: deploy
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Re-tag promoted images as latest
+        run: |
+          TAG="${{ inputs.image_tag }}"
+          for svc in backend analytics dashboard landing; do
+            docker pull "${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${svc}:${TAG}"
+            docker tag  "${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${svc}:${TAG}" \
+                        "${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${svc}:latest"
+            docker push "${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${svc}:latest"
+          done
+
+      - name: Apply Flyway migrations
+        if: ${{ inputs.skip_migrate != true }}
+        run: |
+          docker run --rm \
+            -v "$PWD/persistence/src/main/resources/db/migration:/flyway/sql:ro" \
+            flyway/flyway:10-alpine \
+            -url="${{ secrets.PROD_DB_URL }}" \
+            -user="${{ secrets.PROD_DB_USER }}" \
+            -password="${{ secrets.PROD_DB_PASS }}" \
+            -connectRetries=60 \
+            -locations=filesystem:/flyway/sql \
+            migrate
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          IMAGE_PREFIX: ${{ env.IMAGE_PREFIX }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.DEPLOY_USER || 'deploy' }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          envs: REGISTRY,IMAGE_PREFIX,IMAGE_TAG
+          script: |
+            cd /opt/tickonomics
+            export TAG=$IMAGE_TAG
+            export REGISTRY
+            export IMAGE_PREFIX
+            export BACKEND_IMAGE="$REGISTRY/$IMAGE_PREFIX-backend:$TAG"
+            export ANALYTICS_IMAGE="$REGISTRY/$IMAGE_PREFIX-analytics:$TAG"
+            export DASHBOARD_IMAGE="$REGISTRY/$IMAGE_PREFIX-dashboard:$TAG"
+            export LANDING_IMAGE="$REGISTRY/$IMAGE_PREFIX-landing:$TAG"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --force-recreate \
+              backend analytics-worker dashboard landing
+            docker image prune -f
+
+      - name: Verify health (60s window)
+        run: |
+          BASE="${{ vars.PROD_API_URL || 'http://localhost:8080' }}"
+          for i in $(seq 1 30); do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/actuator/health" || echo "000")
+            if [ "$CODE" = "200" ]; then echo "Production healthy"; exit 0; fi
+            echo "  [$i/30] health=$CODE, retrying..."
+            sleep 2
+          done
+          echo "::error::Production health check failed after 60s"
+          exit 1
+
+      - name: Smoke tests
+        run: |
+          BASE="${{ vars.PROD_API_URL || 'http://localhost:8080' }}"
+          curl -fs "$BASE/actuator/health/liveness" >/dev/null && echo "Liveness OK"
+          curl -fs "$BASE/actuator/health/readiness" >/dev/null && echo "Readiness OK"
+
+  release:
+    name: Create GitHub Release
+    needs: promote
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Health check
-        run: echo "Production verification placeholder — check health endpoints"
+      - uses: actions/checkout@v4
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "prod-${{ github.run_number }}" \
+            --title "Production deploy #${{ github.run_number }}" \
+            --notes "Promoted tag \`${{ inputs.image_tag }}\` (commit ${{ github.sha }})." \
+            --target ${{ github.sha }}
