@@ -1,8 +1,10 @@
 # Infrastructure and DevOps Code Review
 
-**Date:** 2026-06-14
-**Branch:** feature/devops
+**Date:** 2026-06-14 (updated 2026-06-14 — Track 14 review)
+**Branch:** feature/production-infrastructure (base: feature/devops)
 **Reviewer:** Automated Infrastructure Audit
+
+> **Track 14 update:** 89 files changed (+7283/-409). Seven new Terraform modules, monitoring stack (Prometheus + Grafana + Loki), local server deployment, Caddy reverse proxy, CI/CD multi-cloud push, and application config changes. Resolved findings marked ✅; new Track 14 findings in Section 10.
 
 ---
 
@@ -20,7 +22,7 @@
 
 ### 1.2 Layer Caching
 
-**Finding (Medium):** The main Dockerfile copies the entire project with `COPY . .` before running Gradle. Any source code change invalidates all downstream layers, including native TA-Lib compilation and dependency resolution. This wastes significant build time.
+**Finding (Medium — RESOLVED in Track 13 ADR-019):** The main Dockerfile copies the entire project with `COPY . .` before running Gradle. Any source code change invalidates all downstream layers, including native TA-Lib compilation and dependency resolution. This wastes significant build time.
 
 **Recommendation:** Restructure the main Dockerfile to copy Gradle wrapper, `settings.gradle`, `build.gradle`, and `gradle.properties` first, run `./gradlew dependencies` for dependency resolution, then copy source code and build. Example pattern:
 
@@ -43,7 +45,7 @@ The analytics and frontend Dockerfiles already follow this pattern (copy `requir
 | Frontend | `dashboard` user created with `adduser -S` | PASS |
 | **Landing** | **None** | **FAIL** |
 
-**Finding (High):** The landing Dockerfile uses `nginx:1.27-alpine` which runs as root by default. There is no `USER nginx` directive. The `nginx` user (uid 101) exists in the Alpine image but is not activated. A compromised landing page container would run with root privileges.
+**Finding (High — RESOLVED Track 14):** The landing Dockerfile uses `nginx:1.27-alpine` which runs as root by default. There is no `USER nginx` directive. The `nginx` user (uid 101) exists in the Alpine image but is not activated. A compromised landing page container would run with root privileges.
 
 **Recommendation:** Add `USER nginx` before the CMD/ENTRYPOINT in the landing Dockerfile. Verify that nginx can bind to port 80 as non-root, or use an unprivileged port mapping (e.g., listen on 8080 internally, map to 80 externally).
 
@@ -527,3 +529,292 @@ The following aspects are well-implemented and should be maintained:
 12. **Lighthouse CI integration:** Performance, accessibility, best-practices, and SEO budgets enforced for the landing page.
 13. **Graceful shutdown on forecast completion:** Proper container stop timeout (60s), filesystem sync, persistent disk unmount, and self-termination sequencing.
 14. **CodeQL with security-events permission:** Properly configured with multi-language matrix and dedicated job-level permissions.
+
+---
+
+## 10. Track 14 — Production Infrastructure Review
+
+> Reviewed: 89 files changed (+7,283 / −409) on `feature/production-infrastructure` relative to `feature/devops`.
+
+### 10.1 Resolved Findings (from Sections 1–9)
+
+The Track 14 implementation directly addresses several findings from the original review:
+
+| Original Finding | Severity | Resolution | Notes |
+|:-----------------|:---------|:-----------|:------|
+| SSH open to 0.0.0.0/0 (Finding 3) | High | ✅ RESOLVED | Hosting SG has no SSH ingress — only 80/443. SSM Session Manager only. `metadata_options.http_tokens = "required"` (IMDSv2). |
+| Secrets in cloud-init (Finding 4) | High | ✅ PARTIALLY RESOLVED | Secrets module provisions SSM Parameter Store (SecureString + KMS). Cloud-init pulls secrets at boot. However, the hosting module's `cloud-config.yaml.tftpl` still renders secrets inline as a fallback path. Full migration requires updating cloud-init to call `aws ssm get-parameter`. |
+| No database backup schedule (Finding 14) | High | ✅ RESOLVED | Backup module: daily EBS snapshots + pg_dump via Lambda (03:00 UTC), S3 lifecycle, encrypted bucket. |
+| Insufficient audit trail (Finding 7) | High | ✅ PARTIALLY RESOLVED | Backups encrypted, S3 public access blocked. Still missing: S3 versioning, S3 access logging, CloudTrail. |
+| Missing health checks (Finding 12) | Medium | ✅ RESOLVED | All three forecast compose services have health checks with proper intervals, timeouts, retries, and start periods. Local compose adds comprehensive health checks. |
+| No centralized logging (Finding 13) | Medium | ✅ RESOLVED | Loki + Promtail added for log aggregation. All services use JSON file logging with rotation. Promtail ships to Loki; Grafana queries Loki. |
+| GCP no monitoring (Finding 5) | High | ⚠️ DEFERRED | AWS now has Prometheus + Grafana + Loki. GCP/Azure still lack equivalent stacks (Track 14 modules are AWS-only). |
+| Azure no modules (Finding 2) | High | ⚠️ DEFERRED | Seven new modules created but all AWS-only. GCP/Azure remain monolithic. |
+| ECR read wildcard (Finding 10) | Medium | ⚠️ UNCHANGED | ECR read policy is `AmazonEC2ContainerRegistryReadOnly` (AWS managed). Still grants read on all repos. |
+| `iam:PassRole` wildcard (Finding 10) | Medium | ⚠️ UNCHANGED | Hosting instance uses AWS managed policies (SSM Core, ECR ReadOnly). No custom PassRole policy — the original orchestrator Lambda finding is in the orchestrator module, not hosting. |
+| `timestamp()` plan drift (Finding 16) | Medium | ✅ RESOLVED | The `valid_until = timeadd(timestamp(), "4h")` in the compute-spot module was replaced by a launch-template-based approach (ADR-019). |
+| `forecast_trigger.py` no-op (Finding 1) | Critical | ✅ RESOLVED | Now calls `ec2.run_instances()` with a launch template (ADR-019). Writes RUNNING/FAILED STATUS markers. |
+| Polygon references (Finding 19) | Medium | ✅ RESOLVED | `polygon_api_key` replaced with `finnhub_api_key` + `alphavantage_api_key` in all env vars, compose files, and cloud-init templates. |
+
+### 10.2 New Findings — Terraform Modules
+
+#### Finding TM1 (Medium): Duplicate hosting security group
+
+**File:** `infra/terraform/modules/hosting/main.tf:140-168` and `infra/terraform/environments/aws/main.tf:96-127`
+
+The hosting module declares `aws_security_group.hosting` (lines 140-168) but never uses it — its `aws_instance.hosting` references `var.security_group_ids` which is set by the caller. The root environment creates a separate `aws_security_group.hosting_sg` and passes its ID into the module. The module-level SG is dead code.
+
+**Recommendation:** Remove the `aws_security_group.hosting` resource and its `data.aws_subnet.selected` from the hosting module. The SG belongs in the environment root where network topology decisions are made.
+
+#### Finding TM2 (Medium): Alertmanager has no receivers
+
+**File:** `monitoring/prometheus.yml:7-9`
+
+```yaml
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+```
+
+Prometheus alert rules are defined (`alerts/alerts.yaml`, 8 rules), but Alertmanager has zero targets. Alert evaluations will fire but have nowhere to go. Alerts are invisible unless someone is watching the Prometheus UI.
+
+**Recommendation:** Either add an Alertmanager service to `docker-compose.prod.yml` with email/Slack receiver configuration, or document that alert delivery relies on Grafana's built-in alerting (which is not configured either). At minimum, add a commented-out Alertmanager config block with example receivers.
+
+#### Finding TM3 (Low): Backup Lambda snapshot permission uses wildcard resource
+
+**File:** `infra/terraform/modules/backup/main.tf:77-88`
+
+```hcl
+Action = [
+  "ec2:CreateSnapshot",
+  "ec2:DescribeSnapshots",
+  "ec2:DeleteSnapshot",
+  "ec2:CreateTags"
+]
+Resource = ["*"]
+```
+
+The snapshot actions are scoped to `"*"`. While the Lambda filters by tag (`tag:AutoBackup = true`) in Python code, the IAM policy allows snapshot operations on any volume in the account.
+
+**Recommendation:** Scope `CreateSnapshot` to the specific volume ARN (`arn:aws:ec2:*:*:volume/${var.db_volume_id}`) and `DeleteSnapshot` to `arn:aws:ec2:*:*:snapshot/*` with a condition on the `AutoBackup` tag.
+
+#### Finding TM4 (Low): Budget hardcoded start date
+
+**File:** `infra/terraform/modules/budget/main.tf:6`
+
+```hcl
+time_period_start = "2026-06-01_00:00"
+```
+
+This date is frozen in code. Deployments after June 2026 will have a stale start period. While this doesn't break budget alerting (AWS uses the configured start as the first day of the budget period), it is semantically misleading for deployments later in the year.
+
+**Recommendation:** Accept `time_period_start` as a variable with a default, or use a `data` source to compute the start of the current month dynamically.
+
+#### Finding TM5 (Low): Secrets module ECR token is a permanent placeholder
+
+**File:** `infra/terraform/modules/secrets/main.tf`
+
+```hcl
+resource "aws_ssm_parameter" "ecr_token" {
+  value = "placeholder"
+  lifecycle { ignore_changes = [value] }
+}
+```
+
+The `/tickonomics/registry/token` parameter is created with value `"placeholder"` and all changes are ignored. The actual token is meant to be set by the instance at boot. This is architecturally sound (the instance refreshes its own ECR login), but the placeholder value is confusing for operators inspecting SSM.
+
+**Recommendation:** Either omit the ECR token parameter (the instance uses `aws ecr get-login-password` at boot, which doesn't need a stored token), or document clearly that this parameter is populated externally by the instance bootstrap.
+
+#### Finding TM6 (Medium): Dashboard image name derivation is fragile
+
+**File:** `infra/terraform/environments/aws/main.tf:173`
+
+```hcl
+dashboard_image = "${module.container_registry.backend_repository_url}-dashboard:${var.image_tag}"
+```
+
+ECR repository URLs follow the pattern `<account>.dkr.ecr.<region>.amazonaws.com/<repo-name>`. Concatenating `-dashboard` to the URL produces `<account>.dkr.ecr.<region>.amazonaws.com/tickonomics-backend-dashboard:<tag>`. This depends on the ECR repo naming convention exactly matching this pattern. If the backend repo is renamed or if a different registry (GCP Artifact Registry, Azure ACR) uses a different URL structure, this breaks silently.
+
+**Recommendation:** Accept a separate `dashboard_repository_url` variable from the container-registry module output, or add a dedicated ECR repository for the dashboard image in the container-registry module.
+
+### 10.3 New Findings — Docker Compose & Monitoring
+
+#### Finding DC1 (High): Grafana admin password defaults to "admin"
+
+**Files:** `docker-compose.prod.yml`, `infra/local/docker-compose.local.yml`
+
+```yaml
+GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+```
+
+If `GRAFANA_PASSWORD` is not set, Grafana uses the default password `admin`. For a production monitoring stack exposed via Caddy on the public internet (via `monitoring.tickonomics.io`), this is a high-risk default.
+
+**Recommendation:** Remove the default. If `GRAFANA_PASSWORD` is empty, fail the container startup or generate a random password on first boot. For the local compose, keep the `:-admin` default but add a prominent warning in `deploy-local.sh` output.
+
+#### Finding DC2 (Medium): Prometheus storage location has no persistent volume
+
+**Files:** `docker-compose.prod.yml`, `docker-compose.yml`
+
+```yaml
+volumes:
+  - prometheus_data:/prometheus
+```
+
+The `prometheus_data` volume is a named Docker volume (ephemeral, tied to the host). If the EC2 instance is replaced, all historical metrics are lost. The 30-day retention is only achievable if the instance survives that long.
+
+**Recommendation:** For production, bind-mount Prometheus data to the persistent EBS volume (e.g., `/mnt/monitoring/prometheus:/prometheus`). Similar for Grafana (`grafana_data`) and Loki (`loki_data`).
+
+#### Finding DC3 (Medium): Grafana dashboards reference non-existent metrics
+
+**Files:** `monitoring/grafana/dashboards/*.json`
+
+All four dashboards reference metric names that are not instrumented in the application code:
+- `finnhub_ws_connected` — not exported
+- `ingestion_ticks_total` — not exported
+- `ili_value` — not exported
+- `signals_generated_total` — not exported
+- `regime_state` — not exported
+- `kpi_computation_duration_seconds` — not exported
+- `strategies_active_total` — not exported
+- `model_training_duration_seconds` — not exported
+- `forecast_runs_total`, `forecast_cost_total`, `forecast_mape`, etc. — not exported
+- `resilience4j_circuitbreaker_state` — depends on Micrometer binding, not yet confirmed
+
+Only the JVM metrics (heap, threads) and HTTP server metrics (request rate, latency, error rate) will appear — those come from Spring Boot Actuator's built-in Micrometer instrumentation, now enabled via the `application.yml` change. The dashboards will render mostly empty panels until custom metrics are instrumented.
+
+**Recommendation:** Add a `@Timed` / `Counter` / `Gauge` instrumentation task to the computation and ingestion modules. Until then, document that the dashboards are provisioned but most panels will be empty. Consider splitting the Overview dashboard (which will work) from the domain-specific dashboards (which need instrumentation).
+
+#### Finding DC4 (Low): Local compose alert volume path is convoluted
+
+**File:** `infra/local/docker-compose.local.yml`
+
+```yaml
+volumes:
+  - ../../monitoring/grafana/../../infra/terraform/modules/observability/alerts:/etc/prometheus/alerts:ro
+```
+
+The path `../../monitoring/grafana/../../infra/terraform/modules/observability/alerts` resolves to the same location as `../../infra/terraform/modules/observability/alerts` (the intermediate `monitoring/grafana/..` cancels out). This is harmless but confusing.
+
+**Recommendation:** Simplify to `../../infra/terraform/modules/observability/alerts:/etc/prometheus/alerts:ro`.
+
+#### Finding DC5 (Low): TimescaleDB floating tag persists
+
+**File:** `infra/local/docker-compose.local.yml`, `infra/local/docker-compose.forecast.local.yml`
+
+```yaml
+image: timescale/timescaledb:latest-pg16
+```
+
+The original review (Finding 21) flagged this. The new compose files still use the floating `latest` tag. The `docker-compose.yml` at root also uses `latest-pg16`.
+
+**Recommendation:** Pin to a specific version, e.g., `timescale/timescaledb:2.16.1-pg16`.
+
+### 10.4 New Findings — CI/CD
+
+#### Finding CI1 (Medium): GCP auth step missing `id` attribute
+
+**File:** `.github/workflows/forecast-deploy.yml`
+
+```yaml
+- name: Authenticate to Google Cloud
+  if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
+  uses: google-github-actions/auth@v2
+  with:
+    credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+- name: Login to GCP Artifact Registry
+  ...
+  with:
+    password: ${{ steps.auth.outputs.access_token }}
+```
+
+The `google-github-actions/auth@v2` step has no `id:` field. The subsequent `Login to GCP Artifact Registry` step references `steps.auth.outputs.access_token`, which will resolve to an empty string because `steps.auth` refers to a step with `id: auth` — which doesn't exist.
+
+**Recommendation:** Add `id: auth` to the `Authenticate to Google Cloud` step:
+
+```yaml
+- name: Authenticate to Google Cloud
+  id: auth
+  uses: google-github-actions/auth@v2
+```
+
+#### Finding CI2 (Low): Azure ACR push uses `secrets.ACR_NAME` as both registry URL and username
+
+**File:** `.github/workflows/forecast-deploy.yml`
+
+```yaml
+- name: Login to Azure Container Registry
+  with:
+    registry: ${{ secrets.ACR_NAME }}.azurecr.io
+    username: ${{ secrets.ACR_NAME }}
+```
+
+ACR admin usernames typically match the registry name. However, if a service principal is used, the username would be the service principal client ID, not the registry name. This coupling may cause confusion.
+
+**Recommendation:** Use separate secrets for `ACR_REGISTRY` and `ACR_USERNAME`. Document the expected credential type (admin account vs. service principal).
+
+#### Finding CI3 (Low): Backup Lambda has no DLQ
+
+**File:** `infra/terraform/modules/backup/main.tf:154-168`
+
+The `aws_cloudwatch_event_target.daily_backup` does not specify a `dead_letter_config`. If the Lambda invocation fails (e.g., concurrent execution limit, throttling, permission error), the failure is silently dropped.
+
+**Recommendation:** Add a dead-letter queue (SQS or SNS) to the EventBridge target:
+
+```hcl
+dead_letter_config {
+  arn = aws_sqs_queue.backup_dlq.arn
+}
+```
+
+### 10.5 New Findings — Application Config
+
+#### Finding AC1 (Low): Prometheus endpoint exposes all metrics without authentication
+
+**File:** `app/src/main/resources/application.yml`
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+```
+
+The `/actuator/prometheus` endpoint is now exposed. With `security.auth-disabled: true` (the default), this endpoint is available to anyone who can reach port 8080. While Prometheus metrics are typically not highly sensitive, they can reveal internal architecture details (class names, method timings, dependency names).
+
+**Recommendation:** For production, configure Spring Security to require authentication on actuator endpoints, or restrict the Prometheus scrape to the container network only (which is the case when scraped by the Prometheus container over the internal Docker network).
+
+### 10.6 Positive Track 14 Findings
+
+1. **Secrets migration to SSM Parameter Store** — The `secrets` module with KMS encryption and least-privilege IAM policy (`ssm:GetParameter` on `/tickonomics/*`) is a significant security improvement over baking secrets into Terraform state and cloud-init.
+2. **No SSH ingress** — The hosting security group allows only 80/443. Combined with `metadata_options.http_tokens = "required"` (IMDSv2), this is a substantial hardening from the original `0.0.0.0/0` SSH default.
+3. **Automated backup pipeline** — Daily EBS snapshots + pg_dump via Lambda + S3 lifecycle provides defense-in-depth (block-level + logical backup) at near-zero cost (Lambda free tier, S3 ~$0.32/mo).
+4. **Self-hosted observability at near-zero marginal cost** — Prometheus + Grafana + Loki add rich dashboards, log aggregation, and alerting without any additional cloud spend (they run on the same EC2 instance).
+5. **Local server parity** — The `docker-compose.local.yml` provides a complete drop-in alternative to cloud hosting with tuned TimescaleDB config for high-end hardware. Estimated savings: ~$140/mo.
+6. **Workspace-based environment separation** — The `locals` block with `terraform.workspace` switching provides clean staging/production differentiation without code duplication.
+7. **Caddy auto-TLS** — Eliminates manual certificate management. Caddy + Let's Encrypt integration is simpler and more secure than managing ACM certificates in Terraform.
+8. **Backup Lambda uses SSM Run Command** — The `pg_dump` approach via SSM (rather than direct database connection from Lambda) keeps the database on the private container network and avoids exposing TimescaleDB to the internet.
+9. **Cost management with multi-threshold alerts** — Three notification levels (50%/80%/100%) provide early warning before costs escalate.
+10. **v6 migration completion** — All `polygon_api_key` references are replaced with `finnhub_api_key` + `alphavantage_api_key` across the entire infrastructure stack. No live Polygon references remain.
+
+### 10.7 Track 14 Finding Summary
+
+| # | Finding | Severity | Status |
+|:--|:--------|:---------|:-------|
+| TM1 | Duplicate hosting SG (module-level SG unused) | Medium | Open |
+| TM2 | Alertmanager has no receivers | Medium | Open |
+| TM3 | Backup Lambda IAM snapshot wildcard | Low | Open |
+| TM4 | Budget hardcoded start date | Low | Open |
+| TM5 | ECR token placeholder in SSM | Low | Open |
+| TM6 | Dashboard image name derivation fragile | Medium | Open |
+| DC1 | Grafana default password "admin" | High | Open |
+| DC2 | Prometheus/Grafana/Loki volumes not persistent | Medium | Open |
+| DC3 | Dashboards reference non-existent metrics | Medium | Open |
+| DC4 | Convoluted alert volume path | Low | ✅ RESOLVED (fixed during review) |
+| DC5 | TimescaleDB floating tag in new composes | Low | Open |
+| CI1 | GCP auth step missing `id: auth` | Medium | ✅ RESOLVED (fixed during review) |
+| CI2 | ACR secrets naming confusion | Low | Open |
+| CI3 | Backup EventBridge target no DLQ | Low | Open |
+| AC1 | Prometheus metrics endpoint unauthenticated | Low | Open |

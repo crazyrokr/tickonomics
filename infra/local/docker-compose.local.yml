@@ -81,7 +81,7 @@ services:
     image: prom/prometheus:v2.54.1
     volumes:
       - ../../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ../../monitoring/grafana/../../infra/terraform/modules/observability/alerts:/etc/prometheus/alerts:ro
+      - ../../infra/terraform/modules/observability/alerts:/etc/prometheus/alerts:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"

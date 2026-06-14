@@ -90,6 +90,7 @@ jobs:
       # --- Track 14: GCP/Azure multi-cloud image push ---
 
       - name: Authenticate to Google Cloud
+        id: auth
         if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
         uses: google-github-actions/auth@v2
         with:
