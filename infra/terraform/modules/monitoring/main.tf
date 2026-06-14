@@ -33,29 +33,6 @@ resource "aws_cloudwatch_metric_alarm" "spot_interruption" {
   })
 }
 
-resource "aws_cloudwatch_metric_alarm" "high_cpu" {
-  alarm_name          = "${var.name_prefix}-high-cpu"
-  alarm_description   = "Alert when forecast instance CPU exceeds 90% for 10 minutes"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 2
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/EC2"
-  period              = 300
-  statistic           = "Average"
-  threshold           = 90
-  treat_missing_data  = "missing"
-
-  dimensions = {
-    InstanceId = var.spot_instance_id
-  }
-
-  alarm_actions = [aws_sns_topic.alerts.arn]
-
-  tags = merge(var.tags, {
-    Name = "${var.name_prefix}-high-cpu-alarm"
-  })
-}
-
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name          = "${var.name_prefix}-lambda-errors"
   alarm_description   = "Alert on Lambda function errors"
@@ -91,10 +68,10 @@ resource "aws_cloudwatch_dashboard" "forecast" {
         width  = 12
         height = 6
         properties = {
-          title  = "Spot Instance CPU"
+          title  = "Spot Instance CPU (tagged forecast instances)"
           region = var.region
           metrics = [
-            ["AWS/EC2", "CPUUtilization", "InstanceId", var.spot_instance_id, { stat = "Average", period = 60 }]
+            [{ expression = "SEARCH('{AWS/EC2,MetricName=CPUUtilization}', 'Average', 60)", id = "cpu", label = "CPUUtilization" }]
           ]
           view    = "timeSeries"
           stacked = false

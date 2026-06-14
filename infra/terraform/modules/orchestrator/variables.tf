@@ -3,14 +3,25 @@ variable "region" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "Subnet IDs for Lambda VPC config"
-  type        = list(string)
+variable "subnet_id" {
+  description = "Subnet ID in which the trigger Lambda launches spot instances"
+  type        = string
 }
 
 variable "security_group_ids" {
-  description = "Security group IDs for Lambda functions"
+  description = "Security group IDs applied to launched spot instances"
   type        = list(string)
+}
+
+variable "launch_template_id" {
+  description = "Launch template ID the trigger Lambda uses to launch spot instances"
+  type        = string
+}
+
+variable "spot_price_max" {
+  description = "Maximum spot bid price (USD/hr) the trigger Lambda bids"
+  type        = string
+  default     = "0.30"
 }
 
 variable "results_bucket_name" {

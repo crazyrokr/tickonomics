@@ -11,13 +11,58 @@ fi
 
 FORECAST_DIR="/opt/tickonomics"
 COMPOSE_FILE="${COMPOSE_FILE:-${FORECAST_DIR}/docker-compose.forecast.yml}"
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-forecast}"
 SCRIPTS_DIR="${FORECAST_DIR}/scripts"
+RESULTS_DIR="${RESULTS_DIR:-${FORECAST_DIR}/results}"
 TASK_ID="${TASK_ID:-$(date +%Y%m%d-%H%M%S)}"
 AUTO_TERMINATE="${AUTO_TERMINATE:-true}"
-INGESTION_TIMEOUT=600
+INGESTION_TIMEOUT="${INGESTION_TIMEOUT:-600}"
+MIN_ROWS="${MIN_ROWS:-50}"
+COMPUTE_SETTLE_SECONDS="${COMPUTE_SETTLE_SECONDS:-120}"
+RESULTS_BUCKET="${RESULTS_BUCKET:-}"
+AWS_REGION="${AWS_REGION:-us-east-1}"
+
+export COMPOSE_PROJECT_NAME="$PROJECT_NAME"
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 
+mkdir -p "$RESULTS_DIR" /mnt/timescaledb
+
+upload_status() {
+  local status="$1"
+  echo "$status" > "${RESULTS_DIR}/STATUS"
+  if [ -n "$RESULTS_BUCKET" ] && command -v aws >/dev/null 2>&1; then
+    echo "$status" | aws s3 cp - "s3://${RESULTS_BUCKET}/${TASK_ID}/STATUS" \
+      --region "$AWS_REGION" 2>/dev/null || log "WARNING: status upload failed"
+  fi
+}
+
+upload_partial_results() {
+  if [ ! -d "$RESULTS_DIR" ] || [ -z "$(ls -A "$RESULTS_DIR" 2>/dev/null)" ]; then
+    return 0
+  fi
+  if [ -z "$RESULTS_BUCKET" ] || ! command -v aws >/dev/null 2>&1; then
+    return 0
+  fi
+  tar -czf "/tmp/forecast-results-${TASK_ID}-partial.tar.gz" -C "$RESULTS_DIR" . 2>/dev/null || return 0
+  aws s3 cp "/tmp/forecast-results-${TASK_ID}-partial.tar.gz" \
+    "s3://${RESULTS_BUCKET}/${TASK_ID}/forecast-results-partial.tar.gz" \
+    --region "$AWS_REGION" 2>/dev/null || log "WARNING: partial results upload failed"
+}
+
+cleanup() {
+  local exit_code=$?
+  local current=""
+  [ -f "${RESULTS_DIR}/STATUS" ] && current=$(cat "${RESULTS_DIR}/STATUS" 2>/dev/null || echo "")
+  if [ "$exit_code" -ne 0 ] && [ "$current" != "COMPLETED" ]; then
+    log "Pipeline failed (exit ${exit_code}); marking FAILED"
+    upload_status "FAILED"
+    upload_partial_results
+  fi
+}
+trap cleanup EXIT
+
+upload_status "RUNNING"
 log "=== Tickonomics Forecast Task ${TASK_ID} ==="
 
 # --- Phase 1: Install prerequisites ---
@@ -40,23 +85,29 @@ fi
 # --- Phase 2: Mount persistent disk ---
 log "Phase 2: Mounting persistent disk at /mnt/timescaledb..."
 mkdir -p /mnt/timescaledb
-
-DEVICE=$(lsblk -dnpo NAME,SIZE | sort -k2 -h | tail -1 | awk '{print $1}')
-if [ -n "$DEVICE" ] && ! mountpoint -q /mnt/timescaledb; then
-  if ! blkid "$DEVICE" &>/dev/null; then
-    log "Formatting ${DEVICE} (first use)..."
-    mkfs.ext4 -F "$DEVICE"
+if ! mountpoint -q /mnt/timescaledb; then
+  DEVICE="${DATA_DEVICE:-}"
+  if [ -z "$DEVICE" ]; then
+    DEVICE=$(lsblk -dnpo NAME,MOUNTPOINT | awk '$2 == "" {print $1}' | head -1)
   fi
-  mount "$DEVICE" /mnt/timescaledb
-  log "Mounted ${DEVICE} at /mnt/timescaledb"
+  if [ -n "$DEVICE" ] && [ -b "$DEVICE" ]; then
+    if ! blkid "$DEVICE" >/dev/null 2>&1; then
+      log "Formatting ${DEVICE} (first use)..."
+      mkfs.ext4 -F "$DEVICE"
+    fi
+    mount "$DEVICE" /mnt/timescaledb
+    log "Mounted ${DEVICE} at /mnt/timescaledb"
+  else
+    log "WARNING: no data device found; using existing /mnt/timescaledb contents"
+  fi
 else
-  log "Disk already mounted or no device found"
+  log "Disk already mounted at /mnt/timescaledb"
 fi
 
 # --- Phase 3: Login and pull images ---
 log "Phase 3: Pulling container images..."
 if [ -n "${REGISTRY_URL:-}" ]; then
-  aws ecr get-login-password --region "${AWS_REGION:-us-east-1}" \
+  aws ecr get-login-password --region "$AWS_REGION" \
     | docker login --username AWS --password-stdin "$REGISTRY_URL"
   docker compose -f "$COMPOSE_FILE" pull
 else
@@ -72,48 +123,58 @@ log "Phase 5: Waiting for services to become healthy..."
 bash "${SCRIPTS_DIR}/health-check.sh" 600
 
 # --- Phase 6: Wait for data ingestion ---
-log "Phase 6: Waiting for data ingestion (timeout ${INGESTION_TIMEOUT}s)..."
+log "Phase 6: Waiting for data ingestion (min ${MIN_ROWS} rows, timeout ${INGESTION_TIMEOUT}s)..."
 ELAPSED=0
+ROW_COUNT=0
 while [ "$ELAPSED" -lt "$INGESTION_TIMEOUT" ]; do
-  ROW_COUNT=$(docker exec forecast-timescaledb-1 psql -U tickonomics -t -c \
-    "SELECT COUNT(*) FROM rate_snapshots" 2>/dev/null | xargs || echo "0")
+  ROW_COUNT=$(docker compose -f "$COMPOSE_FILE" exec -T timescaledb \
+    psql -U tickonomics -t -c "SELECT COUNT(*) FROM rate_snapshots" 2>/dev/null | xargs || echo "0")
   log "  rate_snapshots rows: ${ROW_COUNT} (${ELAPSED}s/${INGESTION_TIMEOUT}s)"
-  if [ "$ROW_COUNT" -ge 50 ] 2>/dev/null; then
-    log "Ingestion threshold reached: ${ROW_COUNT} rows"
+  if [ "${ROW_COUNT:-0}" -ge "$MIN_ROWS" ] 2>/dev/null; then
     break
   fi
   sleep 15
   ELAPSED=$((ELAPSED + 15))
 done
 
-if [ "$ELAPSED" -ge "$INGESTION_TIMEOUT" ]; then
-  log "WARNING: Ingestion timeout reached, proceeding with available data"
+if [ "${ROW_COUNT:-0}" -lt "$MIN_ROWS" ] 2>/dev/null; then
+  log "FATAL: only ${ROW_COUNT:-0} rows available (minimum: ${MIN_ROWS}). Aborting."
+  exit 1
 fi
+log "Ingestion threshold reached: ${ROW_COUNT} rows"
 
-# --- Phase 7: Trigger forecast pipeline ---
-log "Phase 7: Triggering KPI and signal computation..."
-curl -sf -X POST http://localhost:8080/api/v1/kpis/compute --max-time 300 || log "KPI compute failed or not available"
-curl -sf -X POST http://localhost:8080/api/v1/signals/generate --max-time 300 || log "Signal generation failed or not available"
+# --- Phase 7: Trigger forecast computation ---
+log "Phase 7: Triggering analytics forecast (backend @Scheduled jobs drive KPI/signal compute)..."
+curl -sf -X POST "http://localhost:8001/api/v1/analytics/volatility-forecast" \
+  --max-time 300 || log "WARNING: analytics volatility-forecast failed or unavailable"
 
-log "Triggering analytics forecast..."
-curl -sf -X POST http://localhost:8001/api/v1/analytics/forecast --max-time 300 || log "Analytics forecast failed or not available"
+log "Settling ${COMPUTE_SETTLE_SECONDS}s for scheduled KPI/signal computation..."
+sleep "$COMPUTE_SETTLE_SECONDS"
 
 # --- Phase 8: Collect results ---
 log "Phase 8: Collecting results..."
 bash "${SCRIPTS_DIR}/collect-results.sh" "$TASK_ID"
 
+# Mark COMPLETED before shutdown so a later shutdown/self-terminate failure cannot
+# flip a successful run to FAILED (the EXIT trap only writes FAILED if status != COMPLETED).
+upload_status "COMPLETED"
+log "=== Forecast Task ${TASK_ID} complete ==="
+
 # --- Phase 9: Shutdown ---
 log "Phase 9: Graceful shutdown..."
-bash "${SCRIPTS_DIR}/shutdown.sh"
+bash "${SCRIPTS_DIR}/shutdown.sh" || log "WARNING: graceful shutdown reported an error (results already uploaded)"
 
 # --- Phase 10: Self-terminate ---
 if [ "$AUTO_TERMINATE" = "true" ]; then
   log "Phase 10: Self-terminating spot instance..."
-  if command -v aws &>/dev/null; then
-    TOKEN=$(curl -sf http://169.254.169.254/latest/api/token -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
-    INSTANCE_ID=$(curl -sf -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
-    aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" --region "${AWS_REGION:-us-east-1}" || true
+  if command -v aws >/dev/null 2>&1; then
+    TOKEN=$(curl -sf http://169.254.169.254/latest/api/token \
+      -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 60" 2>/dev/null || echo "")
+    INSTANCE_ID=$(curl -sf -H "X-aws-ec2-metadata-token: ${TOKEN}" \
+      http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo "")
+    if [ -n "$INSTANCE_ID" ]; then
+      aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" \
+        --region "$AWS_REGION" || log "WARNING: self-terminate failed"
+    fi
   fi
 fi
-
-log "=== Forecast Task ${TASK_ID} complete ==="

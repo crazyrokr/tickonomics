@@ -4,7 +4,11 @@ set -euo pipefail
 TASK_ID="${1:-$(date +%Y%m%d-%H%M%S)}"
 BUCKET="${RESULTS_BUCKET:-}"
 REGION="${AWS_REGION:-us-east-1}"
-RESULTS_DIR="/opt/tickonomics/results"
+RESULTS_DIR="${RESULTS_DIR:-/opt/tickonomics/results}"
+COMPOSE_FILE="${COMPOSE_FILE:-/opt/tickonomics/docker-compose.forecast.yml}"
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-forecast}"
+export COMPOSE_PROJECT_NAME="$PROJECT_NAME"
+
 API_BASE="http://localhost:8080"
 ANALYTICS_BASE="http://localhost:8001"
 
@@ -26,21 +30,15 @@ collect_endpoint() {
   fi
 }
 
-collect_endpoint "kpis"              "${API_BASE}/api/v1/kpis"
-collect_endpoint "signals"           "${API_BASE}/api/v1/signals"
-collect_endpoint "strategies"        "${API_BASE}/api/v1/strategies"
-collect_endpoint "backtest-results"  "${API_BASE}/api/v1/backtest/results"
-collect_endpoint "risk-summary"      "${API_BASE}/api/v1/risk/summary"
-collect_endpoint "regime"            "${API_BASE}/api/v1/regime"
-collect_endpoint "liquidity"         "${API_BASE}/api/v1/liquidity"
-
-collect_endpoint "analytics-evt"     "${ANALYTICS_BASE}/api/v1/statistical/evt"
-collect_endpoint "analytics-risk"    "${ANALYTICS_BASE}/api/v1/risk"
-collect_endpoint "analytics-regime"  "${ANALYTICS_BASE}/api/v1/regime"
-collect_endpoint "analytics-diagnostics" "${ANALYTICS_BASE}/api/v1/diagnostics"
+collect_endpoint "signals"                "${API_BASE}/api/v1/quant/signals/active"
+collect_endpoint "strategies"             "${API_BASE}/api/v1/quant/strategies/active"
+collect_endpoint "risk-tail-parameters"   "${API_BASE}/api/v1/quant/risk/tail-parameters"
+collect_endpoint "risk-evt-tail"          "${API_BASE}/api/v1/quant/risk/evt-tail"
+collect_endpoint "macro-shock-response"   "${API_BASE}/api/v1/quant/macro/shock-response"
+collect_endpoint "volatility-forecast"    "${ANALYTICS_BASE}/api/v1/analytics/volatility-forecast"
 
 echo "[collect] Dumping PostgreSQL database..."
-docker exec forecast-timescaledb-1 pg_dump -U tickonomics tickonomics \
+docker compose -f "$COMPOSE_FILE" exec -T timescaledb pg_dump -U tickonomics tickonomics \
   --no-owner --no-privileges --compress=9 \
   > "${RESULTS_DIR}/tickonomics_dump.sql.gz" 2>/dev/null \
   || echo "[collect] pg_dump failed (non-fatal)"

@@ -28,7 +28,8 @@ resource "aws_iam_role_policy" "lambda_trigger" {
           "ec2:RequestSpotInstances",
           "ec2:RunInstances",
           "ec2:DescribeInstances",
-          "ec2:DescribeSpotInstanceRequests"
+          "ec2:DescribeSpotInstanceRequests",
+          "ec2:CreateTags"
         ]
         Resource = "*"
       },
@@ -55,11 +56,6 @@ resource "aws_iam_role_policy" "lambda_trigger" {
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_trigger_vpc" {
-  role       = aws_iam_role.lambda_trigger.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 resource "aws_iam_role" "lambda_status" {
@@ -139,7 +135,10 @@ resource "aws_iam_role_policy" "lambda_interruption" {
         Action = [
           "s3:PutObject"
         ]
-        Resource = "${var.results_bucket_arn}/*/STATUS"
+        Resource = [
+          "${var.results_bucket_arn}/*/STATUS",
+          "${var.results_bucket_arn}/_interruption/*",
+        ]
       },
       {
         Effect = "Allow"

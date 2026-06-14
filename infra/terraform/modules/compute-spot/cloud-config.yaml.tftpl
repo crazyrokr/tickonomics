@@ -8,13 +8,15 @@ write_files:
       BACKEND_IMAGE=${backend_image}
       ANALYTICS_IMAGE=${analytics_image}
       POSTGRES_PASSWORD=${postgres_password}
-      POLYGON_API_KEY=${polygon_api_key}
+      FINNHUB_API_KEY=${finnhub_api_key}
+      ALPHAVANTAGE_API_KEY=${alphavantage_api_key}
       FRED_API_KEY=${fred_api_key}
       RESULTS_BUCKET=${results_bucket}
       AWS_REGION=${aws_region}
       AUTO_TERMINATE=${auto_terminate}
       RESULTS_DIR=/opt/tickonomics/results
       COMPOSE_FILE=/opt/tickonomics/docker-compose.forecast.yml
+      COMPOSE_PROJECT_NAME=forecast
 
   - path: /opt/tickonomics/docker-compose.forecast.yml
     owner: root:root
@@ -32,7 +34,8 @@ write_files:
             ANALYTICS_WORKER_URL: http://analytics-worker:8001
             MANAGEMENT_OTLP_TRACING_ENDPOINT: ""
             MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "0"
-            POLYGON_API_KEY: "${polygon_api_key}"
+            FINNHUB_API_KEY: "${finnhub_api_key}"
+            ALPHAVANTAGE_API_KEY: "${alphavantage_api_key}"
             FRED_API_KEY: "${fred_api_key}"
             AUTH_DISABLED: "true"
             SERVER_SHUTDOWN: graceful
@@ -85,8 +88,30 @@ write_files:
         tickonomics-net:
           driver: bridge
 
+  - path: /opt/tickonomics/scripts/forecast-task.sh
+    owner: root:root
+    permissions: '0755'
+    encoding: b64
+    content: ${forecast_task_script_b64}
+
+  - path: /opt/tickonomics/scripts/health-check.sh
+    owner: root:root
+    permissions: '0755'
+    encoding: b64
+    content: ${health_check_script_b64}
+
+  - path: /opt/tickonomics/scripts/collect-results.sh
+    owner: root:root
+    permissions: '0755'
+    encoding: b64
+    content: ${collect_results_script_b64}
+
+  - path: /opt/tickonomics/scripts/shutdown.sh
+    owner: root:root
+    permissions: '0755'
+    encoding: b64
+    content: ${shutdown_script_b64}
+
 runcmd:
   - mkdir -p /opt/tickonomics/scripts /opt/tickonomics/results /mnt/timescaledb
-  - cp /opt/tickonomics/scripts/forecast-task.sh /opt/tickonomics/scripts/forecast-task.sh
-  - chmod +x /opt/tickonomics/scripts/*.sh
   - bash /opt/tickonomics/scripts/forecast-task.sh
