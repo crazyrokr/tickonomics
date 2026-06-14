@@ -1,6 +1,6 @@
 # ADR-012: Free Data Sources Integration
 
-**Status:** Implemented
+**Status:** Implemented; amended by [ADR-022](ADR-022-foundation-realignment.md) (2026-06-14) — free-only constraint relaxed to add a single paid point-in-time source (D5) so the platform can satisfy survivorship-free, point-in-time cross-sectional requirements. All other aspects of this ADR remain in effect.
 **Date:** 2026-06-04
 **Decision:** Replace all paid data dependencies (Polygon.io) with free alternatives, remove unimplemented OpenBB sidecar, and fill 12 identified data gaps using free APIs.
 
