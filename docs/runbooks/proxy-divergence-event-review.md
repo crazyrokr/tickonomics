@@ -44,7 +44,7 @@ For each unresolved event:
 | Cause | Diagnostic |
 |---|---|
 | Stale FRED data | Check `fred_update_log` for last successful fetch |
-| Polygon data gaps | Review ingestion logs for missing ticks |
+| Finnhub / Yahoo data gaps | Review ingestion logs for missing ticks |
 | Calculation errors | Verify engine logs for arithmetic exceptions |
 
 Check FRED update freshness:

@@ -13,6 +13,7 @@ import com.tickonomics.computation.demo.KillSwitch;
 import com.tickonomics.computation.demo.MarketPriceLookup;
 import com.tickonomics.computation.demo.PaperTradingEngine;
 import com.tickonomics.computation.demo.SignalQualityAnalyzer;
+import com.tickonomics.computation.demo.SystemicResilienceMonitor;
 import com.tickonomics.computation.demo.VirtualPortfolio;
 import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
@@ -47,6 +48,8 @@ class DemoControllerTest {
   private MarketPriceLookup priceLookup;
   @Mock
   private LeverageSignaler leverageSignaler;
+  @Mock
+  private SystemicResilienceMonitor resilienceMonitor;
 
   private KillSwitch killSwitch;
   private DemoController controller;
@@ -55,7 +58,8 @@ class DemoControllerTest {
   void setUp() {
     killSwitch = new KillSwitch();
     controller = new DemoController(portfolio, tradingEngine, qualityAnalyzer,
-        tradeRepository, signalLogRepository, killSwitch, priceLookup, leverageSignaler);
+        tradeRepository, signalLogRepository, killSwitch, priceLookup, leverageSignaler,
+        resilienceMonitor);
   }
 
   @Nested
@@ -187,6 +191,53 @@ class DemoControllerTest {
       ResponseEntity<Map<String, Object>> response = controller.killSwitchStatus();
 
       assertEquals(false, response.getBody().get("active"));
+    }
+  }
+
+  @Nested
+  class SafeModeEndpoints {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void givenStatusReport_whenSafeModeStatus_thenReportFieldsReturned() {
+      SystemicResilienceMonitor.StatusReport report = new SystemicResilienceMonitor.StatusReport(
+          true, true, false, true, "overflow_utilization_exceeded + analytics_worker_degraded",
+          Instant.parse("2026-06-13T10:00:00Z"),
+          List.of("overflow_utilization_exceeded", "analytics_worker_degraded"), false);
+      when(resilienceMonitor.status()).thenReturn(report);
+
+      ResponseEntity<Map<String, Object>> response = controller.safeModeStatus();
+
+      assertEquals(200, response.getStatusCode().value());
+      Map<String, Object> body = response.getBody();
+      assertEquals(true, body.get("active"));
+      assertEquals(true, body.get("autoActivated"));
+      assertEquals(false, body.get("manualOverride"));
+      assertEquals(true, body.get("enabled"));
+      assertEquals("overflow_utilization_exceeded + analytics_worker_degraded",
+          body.get("lastReason"));
+      assertEquals(2, ((List<?>) body.get("degradedIndicators")).size());
+      assertEquals(false, body.get("recoveryReady"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void givenActivateSafeMode_whenCalled_thenDelegatesAndReturnsActive() {
+      ResponseEntity<Map<String, Object>> response = controller.activateSafeMode();
+
+      verify(resilienceMonitor).activateManual();
+      assertEquals(true, response.getBody().get("active"));
+      assertEquals("manual_override", response.getBody().get("source"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void givenDeactivateSafeMode_whenCalled_thenDelegatesAndReturnsInactive() {
+      ResponseEntity<Map<String, Object>> response = controller.deactivateSafeMode();
+
+      verify(resilienceMonitor).deactivateManual();
+      assertEquals(false, response.getBody().get("active"));
+      assertEquals("manual_ack", response.getBody().get("source"));
     }
   }
 

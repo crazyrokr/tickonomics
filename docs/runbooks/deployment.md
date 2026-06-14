@@ -118,6 +118,7 @@ Expected: all return `UP` or `200`.
    cp .env.example .env
    ```
 
-2. Set `POLYGON_API_KEY` for live market data.
+2. Set `FINNHUB_API_KEY` (and `ALPHAVANTAGE_API_KEY`) for live market data. Yahoo Finance, FRED,
+   NY Fed, and Ken French require no key.
 
 3. Start services. Flyway migrations apply automatically on first backend startup.

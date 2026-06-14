@@ -11,7 +11,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-tickonomics}
       ANALYTICS_WORKER_URL: http://analytics-worker:8001
       MANAGEMENT_OTLP_TRACING_ENDPOINT: http://jaeger:4317
-      POLYGON_API_KEY: ${POLYGON_API_KEY:-}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
     depends_on:
       timescaledb:
         condition: service_healthy

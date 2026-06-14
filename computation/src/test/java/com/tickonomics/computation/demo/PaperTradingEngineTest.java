@@ -71,8 +71,14 @@ class PaperTradingEngineTest {
 
   private PaperTradingEngine buildEngine(DemoConfig config, KillSwitch killSwitch,
       MarkovStopHandler stopsHandler) {
+    return buildEngine(config, killSwitch, stopsHandler,
+        new SystemicResilienceMonitor(config, () -> ResilienceHealthSnapshot.unknown()));
+  }
+
+  private PaperTradingEngine buildEngine(DemoConfig config, KillSwitch killSwitch,
+      MarkovStopHandler stopsHandler, SystemicResilienceMonitor monitor) {
     return new PaperTradingEngine(portfolio, slippageModel, config, killSwitch,
-        new MarketStabilityGuard(), new OrderImpactPredictor(), stopsHandler,
+        monitor, new MarketStabilityGuard(), new OrderImpactPredictor(), stopsHandler,
         new PortfolioManagementAlgebra(), new MarketMakerExecutionModel(),
         new FillProbabilityEngine(), new PassiveExecutionHandler(), new SniperExecutionHandler(),
         new ComparativeExecutionAnalysis(), new RandomizedExecutionWindow());
@@ -92,7 +98,7 @@ class PaperTradingEngineTest {
         new DemoConfig.MarketMakerMode(marketMaker, true, 60.0),
         new DemoConfig.DynamicStops(dynamicStops, "7d"),
         DemoConfig.PortfolioAlgebra.defaults(), DemoConfig.LeverageRotation.defaults(),
-        DemoConfig.KillSwitchConfig.defaults());
+        DemoConfig.KillSwitchConfig.defaults(), DemoConfig.GlobalSafeMode.defaults());
   }
 
   private void stubOpen() {
@@ -224,6 +230,21 @@ class PaperTradingEngineTest {
 
       assertEquals("SKIPPED", result.action());
       assertEquals("kill_switch_active", result.reason());
+      verify(portfolio, never()).openPosition(any(), anyDouble(), anyDouble(), anyDouble(), anyDouble());
+    }
+
+    @Test
+    void givenGlobalSafeModeActive_whenProcessSignal_thenSkipped() {
+      SystemicResilienceMonitor monitor =
+          new SystemicResilienceMonitor(activeConfig(), () -> ResilienceHealthSnapshot.unknown());
+      monitor.activateManual();
+      PaperTradingEngine engine =
+          buildEngine(activeConfig(), new KillSwitch(), markovStopHandler, monitor);
+
+      PaperTradingEngine.TradeResult result = engine.processSignal(actionableBuy, validIli, 500.0);
+
+      assertEquals("SKIPPED", result.action());
+      assertEquals("global_safe_mode", result.reason());
       verify(portfolio, never()).openPosition(any(), anyDouble(), anyDouble(), anyDouble(), anyDouble());
     }
 

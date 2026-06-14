@@ -2,17 +2,23 @@
 
 ## Purpose
 
-Verify the end-to-end flow of options data from Polygon API through ingestion to storage, and confirm downstream consumers (GEX regime detection) receive valid data.
+Verify the end-to-end flow of options data from the free-tier **Yahoo Finance** options source
+through ingestion to storage, and confirm downstream consumers (GEX regime detection) receive valid
+data. (Replaces the v5 Polygon Options pipeline — options are fetched via `YahooOptionsClient` in
+v6; no API key required.)
+
+> **Opt-in:** the options client is gated behind `monitor.yahoo-finance.options-enabled` (default
+> `false`). This runbook applies only when that flag is `true`.
 
 ## Pipeline Architecture
 
 ```
-Polygon Options API (WebSocket)
-  -> OptionsDataClient
+Yahoo Finance Options REST (YahooOptionsClient)
+  -> YahooOptionsCdmAdapter
     -> IngestionBuffer
       -> TimescaleDbWriter
         -> option_chain_snapshots table
-          -> GexWeightedRegimeDetector
+          -> GEX-weighted regime detection
             -> market_gamma_history hypertable
 ```
 
@@ -30,19 +36,15 @@ Expected: a non-zero count that grows steadily during market hours.
 
 ## Step 2: Check Data Freshness
 
-Verify data is recent and not stale:
-
 ```sql
 SELECT MAX(time) AS latest_snapshot, NOW() AS current_time,
        EXTRACT(EPOCH FROM (NOW() - MAX(time))) AS seconds_behind
 FROM option_chain_snapshots;
 ```
 
-Expected: `seconds_behind` should be under 60 seconds during active market hours.
+Expected: `seconds_behind` under the configured poll interval during active market hours.
 
 ## Step 3: Validate Data Quality
-
-Check that key fields contain reasonable values:
 
 ```sql
 SELECT time, symbol, implied_volatility_atm, net_gamma, open_interest
@@ -62,47 +64,35 @@ Quality checks:
 
 ## Step 4: Verify GEX Calculation
 
-The `GexWeightedRegimeDetector` consumes options data and writes to `market_gamma_history`:
-
 ```sql
-SELECT time, symbol, weighted_gamma, regime_adjustment
+SELECT time, symbol, net_gamma, gamma_flip_price
 FROM market_gamma_history
 WHERE time > NOW() - INTERVAL '1 day'
 ORDER BY time DESC
 LIMIT 10;
 ```
 
-Confirm regime adjustments are being applied based on gamma exposure.
-
 ## Troubleshooting
 
 ### No data in option_chain_snapshots
 
-1. **Check API key**:
+1. **Confirm the options client is enabled** (it is off by default):
 
 ```bash
-docker compose exec backend env | grep POLYGON_API_KEY
-# Must be set and valid
+docker compose exec backend printenv | grep -i options
+docker compose logs backend --tail=200 | grep -i "YahooOptionsClient"
 ```
 
-2. **Check WebSocket connectivity**:
+If `monitor.yahoo-finance.options-enabled` is unset/false, no client bean is created. Set it to
+`true` and restart.
+
+2. **Check Yahoo REST connectivity** (no key — public endpoints):
 
 ```bash
-docker compose logs backend --tail=100 | grep -i "polygon\|websocket\|options"
+docker compose logs backend --tail=100 | grep -iE "yahoo.*option|options"
 ```
 
-Look for connection errors or authentication failures.
-
-3. **Check ingestion buffer**:
-
-```bash
-curl -s http://localhost:8080/actuator/metrics | jq '.names[]' | grep -i buffer
-curl -s http://localhost:8080/actuator/metrics/ingestion.buffer.size
-```
-
-A growing buffer with no drain indicates a writer issue.
-
-4. **Check TimescaleDB writer**:
+3. **Check ingestion buffer / writer**:
 
 ```bash
 docker compose logs backend --tail=200 | grep -i "TimescaleDbWriter\|option_chain"
@@ -110,9 +100,10 @@ docker compose logs backend --tail=200 | grep -i "TimescaleDbWriter\|option_chai
 
 ### Stale data (freshness check fails)
 
-1. Verify Polygon API status: `https://api.polygon.io/v1/open-close/crypto/BTC-USD/2026-06-03`
-2. Check if market is open (options trade during equity market hours only)
-3. Restart the WebSocket connection:
+1. Confirm market is open (options trade during equity market hours).
+2. Yahoo public endpoints throttle aggressive polling — check for `429`s and back off via
+   `monitor.yahoo-finance.read-timeout`.
+3. Restart the backend to refresh the polling schedule:
 
 ```bash
 docker compose restart backend
@@ -120,22 +111,24 @@ docker compose restart backend
 
 ### Invalid data quality
 
-1. Cross-reference with Polygon REST API for the same timestamp
-2. Check for schema changes in the upstream data feed
-3. Review ingestion buffer for partial or malformed messages
+1. Cross-reference with the Yahoo Finance options page for the same symbol/expiry.
+2. Check for schema changes in the upstream feed (Yahoo field names are unofficial and can shift).
+3. Review ingestion buffer for partial or malformed messages.
 
 ## Configuration
 
-| Property | Description |
-|---|---|
-| `polygon.api.key` | API key for Polygon.io |
-| `polygon.options.websocket.enabled` | Enable options WebSocket feed |
-| `polygon.options.symbols` | List of symbols to subscribe to |
+Under `monitor.yahoo-finance` in `application.yml`:
+
+| Property | Default | Description |
+|---|---|---|
+| `options-enabled` | `false` | Master switch for `YahooOptionsClient` |
+| `base-url` | `https://query1.finance.yahoo.com` | Yahoo Finance REST base URL |
+| `options-symbols` | `SPY,QQQ` | Symbols whose option chains are polled |
+| `connect-timeout` / `read-timeout` | `5s` / `30s` | REST timeouts |
 
 ## Health Check Summary
 
 ```bash
-# Full pipeline health in one script
 echo "=== Row Count ===" && \
 docker compose exec timescaledb psql -U tickonomics -c \
   "SELECT COUNT(*) FROM option_chain_snapshots WHERE time > NOW() - INTERVAL '1 day';" && \

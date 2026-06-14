@@ -27,6 +27,7 @@ class DemoConfigTest {
       assertEquals(DemoConfig.PortfolioAlgebra.defaults(), config.portfolioAlgebra());
       assertEquals(DemoConfig.LeverageRotation.defaults(), config.leverageRotation());
       assertEquals(DemoConfig.KillSwitchConfig.defaults(), config.killSwitch());
+      assertEquals(DemoConfig.GlobalSafeMode.defaults(), config.globalSafeMode());
     }
 
     @Test
@@ -55,7 +56,8 @@ class DemoConfigTest {
           cost, exec, DemoConfig.MarketStabilityGuard.defaults(),
           DemoConfig.OrderImpactPredictor.defaults(), DemoConfig.MarketMakerMode.defaults(),
           DemoConfig.DynamicStops.defaults(), DemoConfig.PortfolioAlgebra.defaults(),
-          DemoConfig.LeverageRotation.defaults(), DemoConfig.KillSwitchConfig.defaults());
+          DemoConfig.LeverageRotation.defaults(), DemoConfig.KillSwitchConfig.defaults(),
+          DemoConfig.GlobalSafeMode.defaults());
 
       assertEquals(cost, config.advancedCostModel());
       assertEquals(30, config.randomizedExecution().windowSeconds());
@@ -95,6 +97,39 @@ class DemoConfigTest {
       assertDoesNotThrow(() -> new DemoConfig.RandomizedExecution(true, 120, true));
       assertDoesNotThrow(() -> new DemoConfig.MarketStabilityGuard(true, 7.5, 50));
       assertDoesNotThrow(() -> new DemoConfig.DynamicStops(true, "1d"));
+      assertDoesNotThrow(() -> new DemoConfig.GlobalSafeMode(true, 80.0, 5000L, 2, 5000L));
+    }
+
+    @Test
+    void givenNegativeOverflowThreshold_whenConstructGlobalSafeMode_thenThrows() {
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, -1.0, 5000L, 2, 5000L));
+    }
+
+    @Test
+    void givenOverflowThresholdOverHundred_whenConstructGlobalSafeMode_thenThrows() {
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, 150.0, 5000L, 2, 5000L));
+    }
+
+    @Test
+    void givenMinDegradedIndicatorsOutOfRange_whenConstructGlobalSafeMode_thenThrows() {
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, 80.0, 5000L, 0, 5000L));
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, 80.0, 5000L, 4, 5000L));
+    }
+
+    @Test
+    void givenNegativeWorkerLatencyThreshold_whenConstructGlobalSafeMode_thenThrows() {
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, 80.0, -1L, 2, 5000L));
+    }
+
+    @Test
+    void givenNonPositiveEvaluationInterval_whenConstructGlobalSafeMode_thenThrows() {
+      assertThrows(IllegalArgumentException.class,
+          () -> new DemoConfig.GlobalSafeMode(true, 80.0, 5000L, 2, 0L));
     }
   }
 }

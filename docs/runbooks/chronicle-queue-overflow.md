@@ -40,7 +40,7 @@ If the database is unreachable, the overflow buffer will continue growing.
 1. Stop non-essential services to free disk space:
 
    ```bash
-   docker compose stop openbb analytics-worker
+   docker compose stop dashboard landing
    ```
 
 2. Clean old overflow files older than 7 days:

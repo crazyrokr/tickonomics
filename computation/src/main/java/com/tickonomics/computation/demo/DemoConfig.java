@@ -21,7 +21,8 @@ public record DemoConfig(
     DynamicStops dynamicStops,
     PortfolioAlgebra portfolioAlgebra,
     LeverageRotation leverageRotation,
-    KillSwitchConfig killSwitch) {
+    KillSwitchConfig killSwitch,
+    GlobalSafeMode globalSafeMode) {
 
   public DemoConfig {
     if (virtualBalance <= 0) {
@@ -56,7 +57,7 @@ public record DemoConfig(
         AdvancedCostModel.defaults(), RandomizedExecution.defaults(),
         MarketStabilityGuard.defaults(), OrderImpactPredictor.defaults(),
         MarketMakerMode.defaults(), DynamicStops.defaults(), PortfolioAlgebra.defaults(),
-        LeverageRotation.defaults(), KillSwitchConfig.defaults());
+        LeverageRotation.defaults(), KillSwitchConfig.defaults(), GlobalSafeMode.defaults());
   }
 
   public static DemoConfig defaults() {
@@ -173,6 +174,40 @@ public record DemoConfig(
 
     public static KillSwitchConfig defaults() {
       return new KillSwitchConfig(true);
+    }
+  }
+
+  /**
+   * Cross-module systemic resilience thresholds. Global Safe Mode latches on when at least
+   * {@link #minDegradedIndicators()} of the three health indicators (ingestion overflow
+   * utilization, analytics worker health/latency, proxy divergence) are degraded simultaneously,
+   * and stays latched until a manual recovery acknowledgment clears it. See ADR-018.
+   */
+  public record GlobalSafeMode(
+      boolean enabled,
+      double overflowUtilizationThresholdPct,
+      long workerLatencyThresholdMs,
+      int minDegradedIndicators,
+      long evaluationIntervalMs) {
+
+    public GlobalSafeMode {
+      if (overflowUtilizationThresholdPct < 0 || overflowUtilizationThresholdPct > 100) {
+        throw new IllegalArgumentException(
+            "overflowUtilizationThresholdPct must be between 0 and 100");
+      }
+      if (workerLatencyThresholdMs < 0) {
+        throw new IllegalArgumentException("workerLatencyThresholdMs must not be negative");
+      }
+      if (minDegradedIndicators < 1 || minDegradedIndicators > 3) {
+        throw new IllegalArgumentException("minDegradedIndicators must be between 1 and 3");
+      }
+      if (evaluationIntervalMs <= 0) {
+        throw new IllegalArgumentException("evaluationIntervalMs must be positive");
+      }
+    }
+
+    public static GlobalSafeMode defaults() {
+      return new GlobalSafeMode(true, 80.0, 5000L, 2, 5000L);
     }
   }
 }
