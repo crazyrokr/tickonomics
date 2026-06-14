@@ -1,0 +1,70 @@
+{
+  "title": "Forecast",
+  "tags": ["tickonomics", "forecast"],
+  "refresh": "1m",
+  "time": { "from": "now-7d", "to": "now" },
+  "panels": [
+    {
+      "title": "Forecast Pipeline Runs",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 },
+      "targets": [
+        { "expr": "forecast_runs_total{job=\"analytics-worker\"}", "legendFormat": "{{status}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Spot Instance Cost ($)",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 6 },
+      "targets": [
+        { "expr": "forecast_cost_total{job=\"analytics-worker\"}", "legendFormat": "Cost" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+    },
+    {
+      "title": "Training Duration",
+      "type": "graph",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 6 },
+      "targets": [
+        { "expr": "forecast_training_duration_seconds{job=\"analytics-worker\"}", "legendFormat": "Duration" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "title": "Forecast Accuracy (MAPE)",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "forecast_mape{job=\"analytics-worker\"}", "legendFormat": "{{horizon}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit" } }
+    },
+    {
+      "title": "Anomaly Score Distribution (Forecast)",
+      "type": "heatmap",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "rate(forecast_anomaly_score_bucket{job=\"analytics-worker\"}[1h])", "legendFormat": "{{le}}" }
+      ]
+    },
+    {
+      "title": "Lambda Invocations",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "forecast_lambda_invocations_total{job=\"analytics-worker\"}", "legendFormat": "{{function}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Lambda Errors",
+      "type": "graph",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "forecast_lambda_errors_total{job=\"analytics-worker\"}", "legendFormat": "{{function}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    }
+  ]
+}
