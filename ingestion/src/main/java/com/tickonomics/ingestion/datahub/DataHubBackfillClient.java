@@ -2,10 +2,10 @@ package com.tickonomics.ingestion.datahub;
 
 import com.tickonomics.cdm.adapter.GoldPriceCdmAdapter;
 import com.tickonomics.cdm.adapter.OilPriceCdmAdapter;
-import com.tickonomics.cdm.adapter.ShillerSp500CdmAdapter;
 import com.tickonomics.cdm.adapter.VixCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.DataHubPriceRow;
 import com.tickonomics.cdm.adapter.raw.ShillerSp500Row;
+import com.tickonomics.cdm.enums.InstrumentType;
 import com.tickonomics.cdm.model.CdmRateSnapshot;
 import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
@@ -43,7 +43,6 @@ public class DataHubBackfillClient {
   private final RestClient restClient;
   private final TimescaleDbWriter writer;
 
-  private final ShillerSp500CdmAdapter shillerAdapter = new ShillerSp500CdmAdapter();
   private final VixCdmAdapter vixAdapter = new VixCdmAdapter();
   private final OilPriceCdmAdapter wtiAdapter = new OilPriceCdmAdapter("DATAHUB_OIL_WTI");
   private final OilPriceCdmAdapter brentAdapter = new OilPriceCdmAdapter("DATAHUB_OIL_BRENT");
@@ -70,9 +69,14 @@ public class DataHubBackfillClient {
     byte[] csv = fetchCsv(url);
     if (csv == null) return;
 
-    List<ShillerSp500Row> rows = parseShillerCsv(csv);
+    writeShillerRows(parseShillerCsv(csv));
+  }
+
+  void writeShillerRows(List<ShillerSp500Row> rows) {
     for (ShillerSp500Row row : rows) {
-      shillerAdapter.toCdm(row);
+      CdmRateSnapshot snapshot = new CdmRateSnapshot(
+          row.time(), InstrumentType.EQUITY, row.price(), "DATAHUB_SHILLER_SP500");
+      writer.writeRate(toEntity(snapshot));
     }
     log.info("Backfilled {} Shiller S&P 500 rows", rows.size());
   }

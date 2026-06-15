@@ -12,7 +12,7 @@ import java.util.Objects;
 public record FrenchFactorRow(
     Instant time, FactorSet factorSet, String frequency,
     double rmRf, double smb, double hml, double rmw, double cma,
-    double rf, double mom) {
+    double rf, double mom, double stRev, double ltRev) {
   public FrenchFactorRow {
     Objects.requireNonNull(time, "time must not be null");
     Objects.requireNonNull(factorSet, "factorSet must not be null");
