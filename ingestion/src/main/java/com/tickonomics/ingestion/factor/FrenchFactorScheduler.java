@@ -33,6 +33,8 @@ public class FrenchFactorScheduler {
     fetch3Factor();
     fetch5Factor();
     fetchMomentum();
+    fetchStReversal();
+    fetchLtReversal();
   }
 
   private void fetch3Factor() {
@@ -51,5 +53,17 @@ public class FrenchFactorScheduler {
     List<FactorReturn> returns = client.fetchDataset(
         "Momentum_Factor_CSV.zip", FactorSet.MOMENTUM, "MONTHLY");
     log.info("Ingested {} momentum monthly rows", returns.size());
+  }
+
+  private void fetchStReversal() {
+    List<FactorReturn> returns = client.fetchDataset(
+        "ST_Reversal_Factor_CSV.zip", FactorSet.ST_REVERSAL, "MONTHLY");
+    log.info("Ingested {} short-term reversal monthly rows", returns.size());
+  }
+
+  private void fetchLtReversal() {
+    List<FactorReturn> returns = client.fetchDataset(
+        "LT_Reversal_Factor_CSV.zip", FactorSet.LT_REVERSAL, "MONTHLY");
+    log.info("Ingested {} long-term reversal monthly rows", returns.size());
   }
 }

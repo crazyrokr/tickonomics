@@ -31,7 +31,7 @@ public class NyFedClient {
   private final NyFedCdmAdapter cdmAdapter;
   private final IngestionTracer tracer;
 
-  @Value("${nyfed.base-url:https://markets.newyorkfed.org/api}")
+  @Value("${monitor.nyfed.base-url:https://markets.newyorkfed.org/api}")
   private String baseUrl;
 
   public NyFedClient(
@@ -45,7 +45,7 @@ public class NyFedClient {
     this.tracer = tracer;
   }
 
-  @Scheduled(fixedDelayString = "${nyfed.poll-interval-ms:300000}")
+  @Scheduled(fixedDelayString = "${monitor.nyfed.poll-interval-ms:300000}")
   @Bulkhead(name = "criticalIngestion")
   public void pollAllRates() {
     for (String rateType : RATE_TYPES) {

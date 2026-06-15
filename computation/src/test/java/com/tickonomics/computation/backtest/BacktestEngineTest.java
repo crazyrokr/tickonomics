@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +60,7 @@ class BacktestEngineTest {
   @BeforeEach
   void setUp() {
     engine = new BacktestEngine(dataReplay, equityRegistry, delayDExecutor,
-        backtestResultRepository, alphaSignalRepository);
+        backtestResultRepository, alphaSignalRepository, new PriceBasedIndicatorComputer());
   }
 
   @Nested
@@ -72,11 +73,9 @@ class BacktestEngineTest {
           new TickData(Instant.parse("2025-01-01T16:00:00Z"), "SPY", 102.0, 1500, new int[]{}),
           new TickData(Instant.parse("2025-01-02T10:00:00Z"), "SPY", 105.0, 1200, new int[]{}),
           new TickData(Instant.parse("2025-01-03T10:00:00Z"), "SPY", 103.0, 800, new int[]{}));
-      List<Double> dailyReturns = List.of(0.0294, -0.0190);
 
       when(equityRegistry.get("RSI_OSCILLATOR")).thenReturn(Optional.of(strategy));
       when(dataReplay.replay("SPY", FROM, TO)).thenReturn(ticks);
-      when(dataReplay.computeDailyReturns(ticks)).thenReturn(dailyReturns);
       when(strategy.strategyId()).thenReturn(STRATEGY_ID);
       when(strategy.compute(any(), any())).thenReturn(
           new AlphaSignal(STRATEGY_ID, "SPY", "LONG", 0.8, 0.9, Instant.now(), Map.of()));
@@ -112,6 +111,28 @@ class BacktestEngineTest {
 
       assertThrows(IllegalArgumentException.class,
           () -> engine.runEquityBacktest("NONEXISTENT", "SPY", FROM, TO, CTX));
+    }
+
+    @Test
+    void givenRsiStrategyAndRisingPrices_whenRun_thenNonNeutralSignalsPersisted() {
+      List<TickData> ticks = new ArrayList<>();
+      double price = 100.0;
+      for (int i = 0; i < 30; i++) {
+        price *= 1.01;
+        ticks.add(new TickData(Instant.parse("2025-01-01T10:00:00Z").plusSeconds((long) i * 86400),
+            "SPY", price, 1000, new int[]{}));
+      }
+
+      when(equityRegistry.get("RSI_OSCILLATOR"))
+          .thenReturn(Optional.of(new com.tickonomics.computation.equity.RSIOscillatorStrategy()));
+      when(dataReplay.replay("SPY", FROM, TO)).thenReturn(ticks);
+      when(delayDExecutor.compareDelays(anyString(), any(), any()))
+          .thenReturn(List.of(new BacktestResult("RSI_OSCILLATOR", ExecutionDelay.DELAY_0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, List.of())));
+
+      engine.runEquityBacktest("RSI_OSCILLATOR", "SPY", FROM, TO, CTX);
+
+      org.mockito.Mockito.verify(alphaSignalRepository).saveAll(org.mockito.ArgumentMatchers.any());
     }
   }
 
