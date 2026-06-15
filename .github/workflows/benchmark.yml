@@ -59,15 +59,15 @@ jobs:
           set -o pipefail
           # --benchmark-compare-fail raises a hard error when no saved baseline exists,
           # so only enable comparison once a baseline is present (first run bootstraps it).
-          compare_args=""
+          compare_args=()
           if [ "$(find .benchmarks -name '*.json' 2>/dev/null | wc -l)" -gt 0 ]; then
-            compare_args="--benchmark-compare --benchmark-compare-fail=mean:10%"
+            compare_args+=(--benchmark-compare --benchmark-compare-fail=mean:10%)
           fi
           python -m pytest tests \
             --benchmark-only \
             --benchmark-storage=.benchmarks \
             --benchmark-autosave \
-            $compare_args \
+            "${compare_args[@]}" \
             2>&1 | tee benchmark-output.txt || true
 
       - name: Publish benchmark report
