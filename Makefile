@@ -2,7 +2,7 @@ WORKFLOWS := $(wildcard .github/workflows/*.yml)
 GATE_WORKFLOWS := .github/workflows/pr-checks.yml .github/workflows/benchmark.yml
 DEFAULT_GATE := .github/workflows/pr-checks.yml
 
-.PHONY: workflow-lint workflow-list workflow-dryrun workflow-run install-hooks act-pull test-hooks
+.PHONY: workflow-lint workflow-list workflow-dryrun workflow-run verify-workflows install-hooks act-pull test-hooks test-gate
 
 # Tier 1 (static, fast, no Docker): lint all workflow files with actionlint.
 workflow-lint:
@@ -27,6 +27,12 @@ workflow-run:
 	@test -n "$(JOB)" || { echo "Usage: make workflow-run JOB=<job-id> [WF=path]"; exit 2; }
 	act pull_request -W $(or $(WF),$(DEFAULT_GATE)) -j $(JOB)
 
+# Full local workflow-verification pipeline (formerly the Gradle
+# verifyWorkflows task): lint + list graph + hook tests + gate guard +
+# gate-workflow dry-run. Prerequisites run in listed (serial) order.
+verify-workflows: workflow-lint workflow-list test-hooks test-gate workflow-dryrun
+	@echo "verify-workflows: all checks passed"
+
 install-hooks:
 	scripts/install-git-hooks.sh
 
@@ -36,3 +42,8 @@ act-pull:
 
 test-hooks:
 	scripts/test-pre-commit-hook.sh
+
+# Guard: gate workflows must carry no `services:` blocks (act -n panics on
+# service containers in 0.2.89). See ADR-026 / ADR-027.
+test-gate:
+	scripts/test-gate-workflows.sh
