@@ -58,9 +58,9 @@ function PerspectiveHeatmap({ data }: { data: SystemicRiskHeatmap[] }) {
     async function init() {
       if (disposed) return;
 
-      const perspective = await import("@finos/perspective");
-      await import("@finos/perspective-viewer");
-      await import("@finos/perspective-viewer-d3fc");
+      const perspective = await import("@perspective-dev/client");
+      await import("@perspective-dev/viewer");
+      await import("@perspective-dev/viewer-charts");
 
       if (disposed || !containerRef.current) return;
 
