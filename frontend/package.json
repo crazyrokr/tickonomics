@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3001",
+    "dev": "next dev --webpack --port 3001",
     "generate:api": "openapi-typescript ../api-contracts/src/main/resources/openapi.yaml -o lib/api/types.ts",
     "prebuild": "npm run generate:api",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -17,10 +17,10 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@finos/perspective": "^3.8.0",
-    "@finos/perspective-viewer": "^3.8.0",
-    "@finos/perspective-viewer-d3fc": "^3.8.0",
-    "@finos/perspective-viewer-datagrid": "^3.8.0",
+    "@perspective-dev/client": "^4.5.1",
+    "@perspective-dev/viewer": "^4.5.1",
+    "@perspective-dev/viewer-charts": "^4.5.1",
+    "@perspective-dev/viewer-datagrid": "^4.5.1",
     "@tanstack/react-query": "^5.80.7",
     "d3": "^7.9.0",
     "lightweight-charts": "^5.2.0",
