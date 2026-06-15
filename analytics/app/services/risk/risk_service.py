@@ -69,13 +69,13 @@ def garch_forecast(
     sigma2_final = _compute_conditional_variance(r, omega, alpha_coeffs, beta_coeffs, p, q)
     sigma_final = np.sqrt(sigma2_final[-1])
 
+    persistence = sum(alpha_coeffs) + sum(beta_coeffs)
+
     forecasts = []
     sigma2 = sigma2_final[-1]
     for _ in range(horizon):
-        sigma2 = omega + sigma2 * (sum(beta_coeffs) if beta_coeffs else 0)
+        sigma2 = omega + sigma2 * persistence
         forecasts.append(float(np.sqrt(sigma2)))
-
-    persistence = sum(alpha_coeffs) + sum(beta_coeffs)
 
     return {
         "conditional_volatility": round(float(sigma_final), 6),

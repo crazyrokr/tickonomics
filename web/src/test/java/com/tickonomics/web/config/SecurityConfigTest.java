@@ -56,7 +56,7 @@ class SecurityConfigTest {
   class CorsConfigurationSource {
     @Test
     void givenAllowedOrigins_whenCorsConfigured_thenCorsSourceCreated() throws Exception {
-      var config = new SecurityConfig();
+      var config = new SecurityConfig(new SecurityProperties(false, null, null, null, null, null));
       Field originsField = SecurityConfig.class.getDeclaredField("allowedOrigins");
       originsField.setAccessible(true);
       originsField.set(config, List.of("http://localhost:3000", "http://localhost:3001"));

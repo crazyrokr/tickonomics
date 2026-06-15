@@ -3,6 +3,7 @@ package com.tickonomics.ingestion.nyfed
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter
 import com.tickonomics.ingestion.tracing.IngestionTracer
 import com.tickonomics.ingestion.writer.TimescaleDbWriter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -20,6 +21,14 @@ class NyFedClientSpec extends Specification {
   def setup() {
     restClientBuilder.build() >> restClient
     client = new NyFedClient(restClientBuilder, timescaleDbWriter, new NyFedCdmAdapter(), tracer)
+  }
+
+  def "given nyfed config field, when inspected, then it binds to the monitor.nyfed namespace"() {
+    given:
+      def baseUrl = NyFedClient.getDeclaredField("baseUrl").getAnnotation(Value)
+
+    expect: "property name matches application.yml monitor.nyfed.* (guards the missing-namespace regression)"
+      baseUrl.value() == "\${monitor.nyfed.base-url:https://markets.newyorkfed.org/api}"
   }
 
   def "given valid rates, when fetchRates, then return mapped responses"() {
