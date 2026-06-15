@@ -182,14 +182,24 @@ def assert_pr_checks_runs_on_all_pull_requests(data: dict) -> None:
 
 
 def assert_benchmark_workflow(data: dict) -> None:
-    """GIVEN benchmark.yml WHEN parsed THEN benchmark job runs pytest-benchmark compare."""
+    """GIVEN benchmark.yml WHEN parsed THEN benchmark job runs a same-runner A/B
+    (PR base vs head checked out in one job) gated by compare_benchmarks.py.
+
+    This supersedes the cached-baseline + --benchmark-compare design of ADR-024,
+    which compared across heterogeneous GitHub-hosted runners and fired false
+    positives on runner CPU-generation changes. The new contract (ADR-030) keeps
+    base and head on a single runner, so the comparison is machine-equivalent by
+    construction.
+    """
     if "benchmark" not in jobs_of(data):
         fail("benchmark.yml missing 'benchmark' job")
     blob = step_text([s for job in jobs_of(data).values() for s in steps_of(job)])
     if "pytest-benchmark" not in blob and "pytest" not in blob:
         fail("benchmark.yml does not run a pytest benchmark")
-    if "--benchmark-compare" not in blob:
-        fail("benchmark.yml does not compare against a baseline")
+    if "compare_benchmarks" not in blob:
+        fail("benchmark.yml does not gate via compare_benchmarks.py (same-runner A/B)")
+    if "github.event.pull_request.base.sha" not in blob:
+        fail("benchmark.yml does not check out the PR base for same-runner A/B (ADR-030)")
 
 
 def assert_codeql_workflow(data: dict) -> None:
