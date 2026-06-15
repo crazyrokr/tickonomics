@@ -166,6 +166,21 @@ def assert_pr_checks_contract(data: dict) -> None:
         fail("pr-checks.yml java job does not attach the OTel agent via -javaagent:")
 
 
+def assert_pr_checks_runs_on_all_pull_requests(data: dict) -> None:
+    """GIVEN pr-checks.yml WHEN parsed THEN its pull_request trigger has no branch
+    filter, so the Java build & test job runs on every PR regardless of target
+    branch (ADR-029). A `types:` activity filter is allowed; `branches` /
+    `branches-ignore` are not."""
+    on = triggers(data)
+    if not isinstance(on, dict) or "pull_request" not in on:
+        fail("pr-checks.yml is not triggered by pull_request")
+        return
+    pr = on.get("pull_request")
+    if isinstance(pr, dict) and ("branches" in pr or "branches-ignore" in pr):
+        fail("pr-checks.yml restricts pull_request by branches; per ADR-029 it "
+             "must run on all pull_request events")
+
+
 def assert_benchmark_workflow(data: dict) -> None:
     """GIVEN benchmark.yml WHEN parsed THEN benchmark job runs pytest-benchmark compare."""
     if "benchmark" not in jobs_of(data):
@@ -240,6 +255,7 @@ def main() -> int:
     assert_deploy_staging_contract(load("deploy-staging.yml"))
     assert_deploy_production_contract(load("deploy-production.yml"))
     assert_pr_checks_contract(load("pr-checks.yml"))
+    assert_pr_checks_runs_on_all_pull_requests(load("pr-checks.yml"))
     assert_benchmark_workflow(load("benchmark.yml"))
     assert_codeql_workflow(load("codeql.yml"))
     assert_chaos_benchmark_real()
