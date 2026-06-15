@@ -29,7 +29,7 @@ subprojects {
       mavenBom "org.spockframework:spock-bom:2.4-groovy-4.0"
     }
     dependencies {
-      dependency 'org.apache.groovy:groovy:4.0.29'
+      dependency 'org.apache.groovy:groovy:5.0.6'
       dependency 'org.apache.commons:commons-lang3:3.20.0'
     }
   }
