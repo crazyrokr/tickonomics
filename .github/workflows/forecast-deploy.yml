@@ -98,7 +98,7 @@ jobs:
 
       - name: Login to GCP Artifact Registry
         if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ vars.GCP_REGISTRY || 'us-central1-docker.pkg.dev' }}
           username: oauth2accesstoken
@@ -115,7 +115,7 @@ jobs:
 
       - name: Login to Azure Container Registry
         if: inputs.provider == 'azure' || vars.CLOUD_PROVIDER == 'azure'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ secrets.ACR_NAME }}.azurecr.io
           username: ${{ secrets.ACR_NAME }}
