@@ -15,5 +15,5 @@ dependencies {
   implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.wiremock:wiremock:3.9.1'
+  testImplementation 'org.wiremock:wiremock:3.13.2'
 }
