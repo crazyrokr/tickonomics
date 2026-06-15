@@ -47,13 +47,15 @@ jobs:
 
       - name: Download OpenTelemetry agent
         run: |
-          curl -fsSL -o opentelemetry-javaagent.jar \
+          curl -fsSL -o "$RUNNER_TEMP/opentelemetry-javaagent.jar" \
             https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/2.28.1/opentelemetry-javaagent-2.28.1.jar
 
       - name: Build & Test (except integration-tests)
         env:
-          JAVA_TOOL_OPTIONS: "-javaagent:opentelemetry-javaagent.jar"
-          OTEL_EXPORTER: "none"
+          JAVA_TOOL_OPTIONS: "-javaagent:${{ runner.temp }}/opentelemetry-javaagent.jar"
+          OTEL_TRACES_EXPORTER: "none"
+          OTEL_METRICS_EXPORTER: "none"
+          OTEL_LOGS_EXPORTER: "none"
         run: ./gradlew build -x :integration-tests:test --no-daemon
 
       - uses: actions/upload-artifact@v4
