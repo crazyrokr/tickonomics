@@ -22,7 +22,7 @@ gradlePlugin {
   plugins {
     gitHooks {
       id = 'io.tickonomics.git-hooks'
-      implementationClass = 'io.tickonomics.build.githooks.GitHooksPlugin'
+      implementationClass = 'io.tickonomics.git.hooks.GitHooksPlugin'
     }
   }
 }

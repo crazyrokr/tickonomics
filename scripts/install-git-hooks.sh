@@ -17,7 +17,7 @@ done
 cat <<'EOF'
 
 Hooks installed.
-  pre-commit: actionlint on staged workflow files (always on).
+  pre-commit: actionlint on staged workflows + npm run lint on staged frontend apps (always on).
   pre-push:   act dry-run of gate workflows (opt-in).
 
 Enable the pre-push dry-run with one of:

@@ -103,6 +103,39 @@ mkfile "$shellcheck_only" ".github/workflows/shellcheck.yml"
 git -C "$work/repo" add .github/workflows/shellcheck.yml
 check "shellcheck-only-finding allowed" "$(commit_status)" ok
 
+# --- Frontend lint (npm run lint) scenarios --------------------------------
+# The hook runs `npm run lint` for an app only when files under it are staged.
+# These mirror the actionlint scenarios: missing tooling skips (not blocks), a
+# failing lint blocks, a passing lint allows. Guarded on npm availability.
+if command -v npm >/dev/null 2>&1; then
+
+	# Given a staged file under frontend/ with node_modules absent, When a commit
+	# is attempted, Then it is allowed (lint is skipped, not fatal).
+	new_repo
+	mkfile '{"name":"x","version":"0.0.0","scripts":{"lint":"exit 0"}}' "frontend/package.json"
+	git -C "$work/repo" add frontend/package.json
+	check "frontend-staged-no-deps skips lint" "$(commit_status)" ok
+
+	# Given a staged file under frontend/ whose lint script exits non-zero, When a
+	# commit is attempted, Then it is blocked.
+	new_repo
+	mkfile '{"name":"x","version":"0.0.0","scripts":{"lint":"exit 1"}}' "frontend/package.json"
+	mkdir -p "$work/repo/frontend/node_modules"
+	git -C "$work/repo" add frontend/package.json
+	check "frontend-lint-failure blocks commit" "$(commit_status)" blocked
+
+	# Given a staged file under frontend/ whose lint script exits zero, When a
+	# commit is attempted, Then it is allowed.
+	new_repo
+	mkfile '{"name":"x","version":"0.0.0","scripts":{"lint":"exit 0"}}' "frontend/package.json"
+	mkdir -p "$work/repo/frontend/node_modules"
+	git -C "$work/repo" add frontend/package.json
+	check "frontend-lint-pass allows commit" "$(commit_status)" ok
+
+else
+	echo "SKIP: npm not installed; frontend-lint hook scenarios not exercised" >&2
+fi
+
 echo "---"
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

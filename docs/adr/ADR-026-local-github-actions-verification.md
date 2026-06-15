@@ -27,6 +27,16 @@
 > gains one step: `make install-hooks` after clone" consequence below is
 > softened: that step is now optional once any `./gradlew build` has run.
 
+> **Update (2026-06-15):** The Tier-1 `pre-commit` hook now also runs `npm run
+> lint` (eslint) for each Next.js app (`frontend/`, `landing/`) that has staged
+> files, mirroring the Lint step of `pr-checks.yml`'s `frontend-build-test` job
+> so a frontend lint error is caught locally before it fails CI. It is gated on
+> staged paths (no frontend changes → no lint) and on `node_modules` presence
+> (a checkout without installed deps skips with a hint instead of blocking),
+> matching the actionlint "missing tool → warn and skip" philosophy. The
+> actionlint path is unchanged; new Given-When-Then scenarios in
+> `scripts/test-pre-commit-hook.sh` cover the skip / block / allow cases.
+
 ## Context
 
 Workflow changes have repeatedly broken CI after push — most recently `benchmark.yml`
