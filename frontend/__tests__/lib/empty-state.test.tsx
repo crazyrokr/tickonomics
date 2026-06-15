@@ -68,6 +68,7 @@ interface Case {
   name: string;
   // Heterogeneous components with distinct prop shapes are rendered with their
   // own empty-state props, so a permissive component type keeps the table uniform.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Component: ComponentType<any>;
   props: Record<string, unknown>;
 }
