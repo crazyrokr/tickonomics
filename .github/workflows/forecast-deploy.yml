@@ -54,7 +54,7 @@ jobs:
 
       - name: Configure AWS Credentials
         if: vars.CLOUD_PROVIDER == 'aws' || inputs.provider == 'aws'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: Login to GCP Artifact Registry
         if: inputs.provider == 'gcp' || vars.CLOUD_PROVIDER == 'gcp'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ vars.GCP_REGISTRY || 'us-central1-docker.pkg.dev' }}
           username: oauth2accesstoken
@@ -115,7 +115,7 @@ jobs:
 
       - name: Login to Azure Container Registry
         if: inputs.provider == 'azure' || vars.CLOUD_PROVIDER == 'azure'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ secrets.ACR_NAME }}.azurecr.io
           username: ${{ secrets.ACR_NAME }}
@@ -138,7 +138,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
@@ -193,13 +193,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Configure AWS Credentials
         if: inputs.provider == 'aws' || inputs.provider == ''
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
@@ -227,13 +227,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Configure AWS Credentials
         if: inputs.provider == 'aws' || inputs.provider == ''
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
