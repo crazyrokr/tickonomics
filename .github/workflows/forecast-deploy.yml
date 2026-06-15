@@ -222,6 +222,8 @@ jobs:
       contents: read
       id-token: write
     environment: production
+    outputs:
+      api_gateway_endpoint: ${{ steps.get-output.outputs.endpoint }}
     steps:
       - uses: actions/checkout@v4
 
@@ -243,6 +245,13 @@ jobs:
       - name: Terraform Apply
         working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
         run: terraform apply -var="image_tag=${{ inputs.image_tag || github.sha }}" -auto-approve
+
+      - name: Get output
+        id: get-output
+        working-directory: infra/terraform/environments/${{ inputs.provider || 'aws' }}
+        run: |
+          ENDPOINT="$(terraform output -raw api_gateway_endpoint)"
+          printf "endpoint=%s\n" "$ENDPOINT" >> "$GITHUB_OUTPUT"
 
   smoke-test:
     name: Forecast Smoke Test

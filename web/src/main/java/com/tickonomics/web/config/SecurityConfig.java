@@ -17,15 +17,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-  @Value("${security.auth-disabled:false}")
-  private boolean authDisabled;
+  private final SecurityProperties securityProperties;
 
   @Value("${security.cors.allowed-origins:http://localhost:3000,http://localhost:3001}")
   private List<String> allowedOrigins;
 
+  public SecurityConfig(SecurityProperties securityProperties) {
+    this.securityProperties = securityProperties;
+  }
+
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    if (authDisabled) {
+    if (securityProperties.authDisabled()) {
       return http
           .securityMatcher("/**")
           .csrf(AbstractHttpConfigurer::disable)

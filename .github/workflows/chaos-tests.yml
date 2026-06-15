@@ -86,16 +86,15 @@ jobs:
           echo "Injecting 1000ms latency into TimescaleDB for 60 seconds..."
 
           # Add network latency using tc (traffic control)
-          docker exec $(docker ps -q -f name=timescaledb) sh -c \
+          docker exec "$(docker ps -q -f name=timescaledb)" sh -c \
             "apt-get update -qq && apt-get install -qq -y iproute2 > /dev/null 2>&1 && \
              tc qdisc add dev eth0 root netem delay 1000ms" || true
 
-          START=$(date +%s)
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
           END=$(date +%s)
 
           # Remove latency
-          docker exec $(docker ps -q -f name=timescaledb) sh -c \
+          docker exec "$(docker ps -q -f name=timescaledb)" sh -c \
             "tc qdisc del dev eth0 root netem 2>/dev/null" || true
 
           if [ "$HTTP_CODE" -ge 500 ] || [ "$HTTP_CODE" = "000" ]; then
@@ -152,14 +151,14 @@ jobs:
           echo "Simulating Finnhub WebSocket disconnect for 6 minutes..."
 
           # Simulate disconnect by blocking outbound connections
-          docker network disconnect tickonomics-net $(docker ps -q -f name=backend) || true
+          docker network disconnect tickonomics-net "$(docker ps -q -f name=backend)" || true
           sleep 10
 
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
           echo "Backend health during WS disconnect: HTTP $HTTP_CODE"
           echo "Expected: REST fallback activates for market data"
 
-          docker network connect tickonomics-net $(docker ps -q -f name=backend) || true
+          docker network connect tickonomics-net "$(docker ps -q -f name=backend)" || true
           sleep 5
 
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
@@ -176,7 +175,6 @@ jobs:
           docker compose stop analytics-worker jaeger
 
           START=$(date +%s)
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
           BODY=$(curl -s http://localhost:8080/health 2>/dev/null || echo "{}")
 
           if echo "$BODY" | grep -q "NaN\|Infinity\|null"; then

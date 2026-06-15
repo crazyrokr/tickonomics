@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Pre-commit gate (Tier 1), fast and Docker-free:
+#   1. actionlint on staged GitHub Actions workflow files only.
+#   2. `npm run lint` (eslint) on each Next.js app (frontend/, landing/) that has
+#      staged files, mirroring the Lint step of pr-checks.yml's frontend-build-test
+#      job so a lint error is caught locally before it fails CI.
+# Non-workflow, non-frontend changes are never linted here. A missing tool
+# (actionlint not on PATH, or an app's node_modules absent) is reported and
+# skipped, not fatal, so a fresh checkout without tooling is never blocked.
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+
+staged_workflows=$(git diff --cached --name-only --diff-filter=ACM \
+	| grep -E '^\.github/workflows/.*\.ya?ml$' || true)
+
+staged_frontend=$(git diff --cached --name-only --diff-filter=ACM \
+	| grep -E '^(frontend|landing)/' || true)
+
+if [ -z "$staged_workflows" ] && [ -z "$staged_frontend" ]; then
+	exit 0
+fi
+
+# --- 1. Workflow lint -------------------------------------------------------
+if [ -n "$staged_workflows" ]; then
+	if ! command -v actionlint >/dev/null 2>&1; then
+		echo "pre-commit: actionlint not found; skipping workflow lint." >&2
+		echo "  install: brew install actionlint" >&2
+	else
+		echo "pre-commit: actionlint $(echo "$staged_workflows" | tr '\n' ' ')"
+		# Ignore shellcheck (SC*) advisories: inline-shell style findings are surfaced by
+		# `make workflow-lint` but not blocked here, so pre-existing style debt does not
+		# stall commits. Native actionlint errors (expression, syntax, schema, ...) still
+		# block, which is what catches actually-broken workflows.
+		# shellcheck disable=SC2086 # word-splitting is intentional; workflow paths have no spaces.
+		actionlint -ignore 'SC[0-9]+' $staged_workflows
+	fi
+fi
+
+# --- 2. Frontend lint -------------------------------------------------------
+# `npm run lint` for each Next.js app with staged changes. node_modules presence
+# is the gate: a repo without installed deps skips with a hint instead of
+# blocking every commit, matching the actionlint "missing tool -> warn, skip".
+lint_frontend_app() {
+	local app=$1
+	if [ ! -d "$root/$app/node_modules" ]; then
+		echo "pre-commit: $app/node_modules missing; skipping $app lint." >&2
+		echo "  run: (cd $app && npm ci)" >&2
+		return 0
+	fi
+	echo "pre-commit: npm run lint ($app)"
+	(cd "$root/$app" && npm run --silent lint)
+}
+
+if printf '%s\n' "$staged_frontend" | grep -qE '^frontend/'; then
+	lint_frontend_app frontend
+fi
+if printf '%s\n' "$staged_frontend" | grep -qE '^landing/'; then
+	lint_frontend_app landing
+fi

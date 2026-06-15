@@ -66,6 +66,30 @@ class DataHubBackfillClientSpec extends Specification {
       results.isEmpty()
   }
 
+  def "given parsed Shiller rows, when writeShillerRows, then each row is persisted"() {
+    given:
+      def jan = YearMonth.of(1871, 1).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC)
+      def feb = YearMonth.of(1871, 2).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC)
+      def rows = [
+          new com.tickonomics.cdm.adapter.raw.ShillerSp500Row(jan, 4.44d, 0.26d, 0.4d, 12.46d, 5.32d, 4.44d, 0.26d, 0.4d, 0.0d),
+          new com.tickonomics.cdm.adapter.raw.ShillerSp500Row(feb, 4.50d, 0.26d, 0.4d, 12.84d, 5.33d, 4.49d, 0.26d, 0.4d, 0.0d)
+      ]
+      List<com.tickonomics.persistence.entity.RateSnapshot> written = []
+
+    when:
+      client.writeShillerRows(rows)
+
+    then:
+      2 * writer.writeRate(_) >> { com.tickonomics.persistence.entity.RateSnapshot rs -> written.add(rs) }
+      written.size() == 2
+      written[0].time() == jan
+      written[0].rateType() == "EQUITY"
+      written[0].value() == 4.44d
+      written[0].source() == "DATAHUB_SHILLER_SP500"
+      written[1].time() == feb
+      written[1].value() == 4.50d
+  }
+
   def "given valid VIX CSV, when parsePriceCsv, then return rows"() {
     given:
       def csv = """DATE,VIX_HIGH,VIX_LOW,VIX_CLOSE
