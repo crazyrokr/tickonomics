@@ -15,7 +15,7 @@ public class FrenchFactorCdmAdapter implements CdmAdapter<FrenchFactorRow, Facto
         raw.time(), raw.factorSet(), raw.frequency(), "US",
         sanitize(raw.rmRf()), sanitize(raw.smb()), sanitize(raw.hml()),
         sanitize(raw.rmw()), sanitize(raw.cma()), sanitize(raw.rf()),
-        sanitize(raw.mom()), Double.NaN, Double.NaN);
+        sanitize(raw.mom()), sanitize(raw.stRev()), sanitize(raw.ltRev()));
   }
 
   private static double sanitize(double value) {

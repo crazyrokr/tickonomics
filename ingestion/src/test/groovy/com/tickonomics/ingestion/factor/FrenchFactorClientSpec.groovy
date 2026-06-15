@@ -80,6 +80,60 @@ class FrenchFactorClientSpec extends Specification {
       results[1].mom() == 0.56
   }
 
+  def "given valid ST reversal CSV, when parseZipCsv, then stRev carries data"() {
+    given:
+      def csv = """
+      Short-Term Reversal Factor
+      192701,    0.37
+      192702,    0.56
+      """.stripIndent().trim()
+      def zipBytes = createZip(csv)
+
+    when:
+      def results = client.parseZipCsv(zipBytes, FactorSet.ST_REVERSAL, "MONTHLY")
+
+    then:
+      results.size() == 2
+      results[0].stRev() == 0.37
+      results[1].stRev() == 0.56
+      Double.isNaN(results[0].ltRev())
+  }
+
+  def "given valid LT reversal CSV, when parseZipCsv, then ltRev carries data"() {
+    given:
+      def csv = """
+      Long-Term Reversal Factor
+      192701,    0.21
+      192702,    0.09
+      """.stripIndent().trim()
+      def zipBytes = createZip(csv)
+
+    when:
+      def results = client.parseZipCsv(zipBytes, FactorSet.LT_REVERSAL, "MONTHLY")
+
+    then:
+      results.size() == 2
+      results[0].ltRev() == 0.21
+      results[1].ltRev() == 0.09
+      Double.isNaN(results[0].stRev())
+  }
+
+  def "given ST reversal row, when adapted to CDM, then stRev is preserved (not NaN)"() {
+    given:
+      def time = YearMonth.of(1926, 7).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC)
+      def row = new com.tickonomics.cdm.adapter.raw.FrenchFactorRow(
+          time, FactorSet.ST_REVERSAL, "MONTHLY",
+          Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+          1.35d, Double.NaN)
+
+    when:
+      def result = cdmAdapter.toCdm(row)
+
+    then:
+      Math.abs(result.stRev() - 0.0135d) < 1e-9
+      Double.isNaN(result.ltRev())
+  }
+
   def "given missing value sentinel -99.99, when parseRow, then return NaN"() {
     given:
       def csv = "192607,    2.62,   -99.99,   -0.31,    0.22"
@@ -129,7 +183,7 @@ class FrenchFactorClientSpec extends Specification {
       def time = YearMonth.of(1926, 7).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC)
       def row = new com.tickonomics.cdm.adapter.raw.FrenchFactorRow(
           time, FactorSet.FACTOR_3, "MONTHLY", 2.62, -0.21, -0.31,
-          Double.NaN, Double.NaN, Double.NaN, Double.NaN)
+          Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN)
 
     when:
       def result = cdmAdapter.toCdm(row)
