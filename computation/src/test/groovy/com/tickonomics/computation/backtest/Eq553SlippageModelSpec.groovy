@@ -24,12 +24,24 @@ class Eq553SlippageModelSpec extends Specification {
         slippage > 0.0
   }
 
-  def "Given zero ADDV, when calculateSlippageBps, then returns infinity"() {
+  def "Given zero ADDV, when calculateSlippageBps, then returns a finite cap"() {
     when:
         double slippage = model.calculateSlippageBps(0.20, 0, 100)
 
     then:
-        slippage == Double.MAX_VALUE
+        slippage == Eq553SlippageModel.MAX_SLIPPAGE_BPS
+        !Double.isInfinite(slippage)
+        !Double.isNaN(slippage)
+  }
+
+  def "Given zero ADDV, when adjustReturn, then adjusted return stays finite"() {
+    when:
+        double adjusted = model.adjustReturn(0.05, 0.20, 0, 100)
+
+    then:
+        !Double.isInfinite(adjusted)
+        !Double.isNaN(adjusted)
+        adjusted < 0.0
   }
 
   def "Given positive ideal return exceeding slippage, when adjustReturn, then adjusted is positive"() {

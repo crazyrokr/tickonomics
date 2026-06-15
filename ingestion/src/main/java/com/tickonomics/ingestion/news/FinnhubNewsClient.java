@@ -29,11 +29,13 @@ public class FinnhubNewsClient implements NewsIngestionClient {
   @Value("${monitor.finnhub.rest-url:https://finnhub.io/api/v1}")
   private String restUrl;
 
-  @Value("${monitor.finnub.api-key:}")
-  private String apiKey;
+  private final String apiKey;
 
-  public FinnhubNewsClient(RestClient.Builder restClientBuilder) {
+  public FinnhubNewsClient(
+      RestClient.Builder restClientBuilder,
+      @Value("${monitor.finnhub.api-key:}") String apiKey) {
     this.restClient = restClientBuilder.build();
+    this.apiKey = apiKey;
   }
 
   @Override

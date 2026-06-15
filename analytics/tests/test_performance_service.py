@@ -65,14 +65,15 @@ def test_sortino_all_positive():
     assert "error" in result
 
 
-def test_fama_french_capm():
+@pytest.mark.benchmark
+def test_fama_french_capm(benchmark):
     """Given returns and market returns only, when FF regression, then CAPM model."""
     rng = np.random.default_rng(42)
     n = 120
     market = rng.standard_normal(n).tolist()
     returns = [0.001 + 1.2 * m + rng.normal(0, 0.01) for m in market]
 
-    result = fama_french_regression(returns, market)
+    result = benchmark(fama_french_regression, returns, market)
     assert "error" not in result
     assert result["model"] == "Fama-French CAPM"
     assert len(result["coefficients"]) == 2
