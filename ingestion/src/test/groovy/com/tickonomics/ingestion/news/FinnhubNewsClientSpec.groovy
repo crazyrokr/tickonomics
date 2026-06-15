@@ -1,6 +1,7 @@
 package com.tickonomics.ingestion.news
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -15,9 +16,36 @@ class FinnhubNewsClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new FinnhubNewsClient(restClientBuilder)
+    client = new FinnhubNewsClient(restClientBuilder, "test-key")
     client.restUrl = "https://finnhub.io/api/v1"
-    client.apiKey = "test-key"
+  }
+
+  def "given apiKey parameter, when constructed, then it binds to the finnhub property"() {
+    given: "the api-key constructor parameter"
+      def ctor = FinnhubNewsClient.constructors.find { it.parameterCount == 2 }
+      def paramAnnotations = ctor.parameterAnnotations[1]
+      def valueAnno = paramAnnotations.find { it instanceof Value } as Value
+
+    expect: "the property name matches application.yml (guards the finnub typo regression)"
+      valueAnno != null
+      valueAnno.value() == "\${monitor.finnhub.api-key:}"
+  }
+
+  def "given configured api key, when fetchNews, then key is sent as the token URI variable"() {
+    given:
+      def json = "[]"
+      def requestHeadersUriSpec = Mock(RestClient.RequestHeadersUriSpec)
+      def requestHeadersSpec = Mock(RestClient.RequestHeadersSpec)
+      def responseSpec = Mock(RestClient.ResponseSpec)
+
+    when:
+      client.fetchNews()
+
+    then:
+      1 * restClient.get() >> requestHeadersUriSpec
+      1 * requestHeadersUriSpec.uri(_ as String, "test-key") >> requestHeadersSpec
+      1 * requestHeadersSpec.retrieve() >> responseSpec
+      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
   }
 
   def "given valid news response, when fetchNews, then return articles"() {

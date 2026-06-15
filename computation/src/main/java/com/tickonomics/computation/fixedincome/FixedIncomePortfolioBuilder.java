@@ -74,9 +74,14 @@ public class FixedIncomePortfolioBuilder {
     double dM = midBond.duration();
     double dL = longBond.duration();
 
+    if (dL <= dS) {
+      throw new IllegalArgumentException(
+          "longDuration must exceed shortDuration for a duration-neutral butterfly");
+    }
+
     double wMid = -1.0;
-    double wShort = dM / (dS + dL) * (dL / dM);
-    double wLong = 1.0 - wShort;
+    double wShort = (dL - dM) / (dL - dS);
+    double wLong = (dM - dS) / (dL - dS);
 
     double netDuration = wShort * dS + wMid * dM + wLong * dL;
 

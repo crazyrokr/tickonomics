@@ -33,10 +33,10 @@ public class FredClient {
   private final FredCdmAdapter cdmAdapter;
   private final IngestionTracer tracer;
 
-  @Value("${fred.api-key:}")
+  @Value("${monitor.fred.api-key:}")
   private String apiKey;
 
-  @Value("${fred.base-url:https://api.stlouisfed.org/fred}")
+  @Value("${monitor.fred.base-url:https://api.stlouisfed.org/fred}")
   private String baseUrl;
 
   public FredClient(
@@ -50,7 +50,7 @@ public class FredClient {
     this.tracer = tracer;
   }
 
-  @Scheduled(fixedDelayString = "${fred.poll-interval-ms:300000}")
+  @Scheduled(fixedDelayString = "${monitor.fred.poll-interval-ms:300000}")
   @Bulkhead(name = "criticalIngestion")
   public void pollAllSeries() {
     for (String seriesId : SERIES_IDS) {

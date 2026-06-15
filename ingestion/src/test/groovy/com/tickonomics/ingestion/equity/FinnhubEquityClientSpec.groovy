@@ -1,6 +1,7 @@
 package com.tickonomics.ingestion.equity
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -15,9 +16,39 @@ class FinnhubEquityClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new FinnhubEquityClient(restClientBuilder)
+    client = new FinnhubEquityClient(restClientBuilder, "test-key")
     client.restUrl = "https://finnhub.io/api/v1"
-    client.apiKey = "test-key"
+  }
+
+  def "given apiKey parameter, when constructed, then it binds to the finnhub property"() {
+    given: "the api-key constructor parameter"
+      def ctor = FinnhubEquityClient.constructors.find { it.parameterCount == 2 }
+      def paramAnnotations = ctor.parameterAnnotations[1]
+      def valueAnno = paramAnnotations.find { it instanceof Value } as Value
+
+    expect: "the property name matches application.yml (guards the finnub typo regression)"
+      valueAnno != null
+      valueAnno.value() == "\${monitor.finnhub.api-key:}"
+  }
+
+  def "given configured api key, when fetchQuote, then key is sent as the token URI variable"() {
+    given:
+      def json = '{"c":503.5,"h":508.0,"l":500.0,"o":501.0,"pc":499.0,"v":150000}'
+      def requestHeadersUriSpec = Mock(RestClient.RequestHeadersUriSpec)
+      def requestHeadersSpec = Mock(RestClient.RequestHeadersSpec)
+      def responseSpec = Mock(RestClient.ResponseSpec)
+
+    when:
+      def result = client.fetchQuote("SPY")
+
+    then:
+      1 * restClient.get() >> requestHeadersUriSpec
+      1 * requestHeadersUriSpec.uri(_ as String, "SPY", "test-key") >> requestHeadersSpec
+      1 * requestHeadersSpec.retrieve() >> responseSpec
+      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+
+      result != null
+      result.currentPrice() == 503.5
   }
 
   def "given valid quote response, when fetchQuote, then return quote"() {

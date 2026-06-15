@@ -15,28 +15,35 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BacktestEngine {
+
+  private static final Logger log = LoggerFactory.getLogger(BacktestEngine.class);
 
   private final HistoricalDataReplay dataReplay;
   private final EquityStrategyRegistry equityRegistry;
   private final DelayDExecutor delayDExecutor;
   private final BacktestResultRepository backtestResultRepository;
   private final AlphaSignalRepository alphaSignalRepository;
+  private final IndicatorComputer indicatorComputer;
 
   public BacktestEngine(
       HistoricalDataReplay dataReplay,
       EquityStrategyRegistry equityRegistry,
       DelayDExecutor delayDExecutor,
       BacktestResultRepository backtestResultRepository,
-      AlphaSignalRepository alphaSignalRepository) {
+      AlphaSignalRepository alphaSignalRepository,
+      IndicatorComputer indicatorComputer) {
     this.dataReplay = dataReplay;
     this.equityRegistry = equityRegistry;
     this.delayDExecutor = delayDExecutor;
     this.backtestResultRepository = backtestResultRepository;
     this.alphaSignalRepository = alphaSignalRepository;
+    this.indicatorComputer = indicatorComputer;
   }
 
   public BacktestResult runEquityBacktest(
@@ -56,24 +63,33 @@ public class BacktestEngine {
           0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, List.of());
     }
 
-    List<Double> dailyReturns = dataReplay.computeDailyReturns(ticks);
-
     List<Double> signalReturns = new ArrayList<>();
     List<Double> executionPrices = new ArrayList<>();
     List<AlphaSignal> generatedSignals = new ArrayList<>();
 
-    Map<String, Double> input = new LinkedHashMap<>();
-    for (int i = 0; i < dailyReturns.size(); i++) {
-      input.put("return_" + i, dailyReturns.get(i));
+    for (int i = 1; i < ticks.size(); i++) {
+      Map<String, Double> input = indicatorComputer.compute(ticks, i);
       AlphaSignal signal = strategy.compute(input, ctx);
       generatedSignals.add(signal);
-      signalReturns.add(dailyReturns.get(i));
-      executionPrices.add(dailyReturns.get(i));
+      double previousPrice = ticks.get(i - 1).price();
+      double barReturn = previousPrice != 0.0
+          ? (ticks.get(i).price() - previousPrice) / previousPrice
+          : 0.0;
+      signalReturns.add(barReturn);
+      executionPrices.add(ticks.get(i).price());
     }
 
     if (signalReturns.isEmpty()) {
       return new BacktestResult(strategyName, ExecutionDelay.DELAY_0,
           0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, List.of());
+    }
+
+    long nonNeutralSignals = generatedSignals.stream()
+        .filter(signal -> !"NEUTRAL".equals(signal.direction()))
+        .count();
+    if (nonNeutralSignals == 0L) {
+      log.info("Backtest of {} produced only NEUTRAL signals; the strategy may require indicators "
+          + "not provided by {}", strategyName, indicatorComputer.getClass().getSimpleName());
     }
 
     List<BacktestResult> delayResults = delayDExecutor.compareDelays(
