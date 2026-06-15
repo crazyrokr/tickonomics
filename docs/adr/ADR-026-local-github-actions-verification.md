@@ -4,6 +4,29 @@
 **Status:** Accepted
 **Related:** ADR-008 (CI/CD Pipeline), ADR-016 (CI/CD Pipeline Finalization)
 
+> **Update (2026-06-15):** `pr-checks.yml` no longer declares a `services:`
+> block — the service-container `integration-test` job was split into
+> `.github/workflows/integration-tests.yml` because `act` 0.2.89 panics on
+> service containers in dry-run (`act -n`). Service-bearing workflows are now
+> kept out of the dry-run gate by a regression guard. The `services:` row in the
+> table below and the "Timescale/Postgres in `pr-checks`" mention are
+> superseded — see **ADR-027**.
+
+> **Update (2026-06-15):** The Gradle task mirror described below
+> (`verifyWorkflows`, `workflowLint`, `workflowDryRun`, etc.) was **removed**.
+> `actionlint` now lives only in the `pre-commit` hook and `act` only in the
+> `pre-push` hook, with the `Makefile` as the unified entry point
+> (`make verify-workflows`). `build.gradle` contains no GitHub Actions
+> references. The "build.gradle mirrors those as Gradle tasks" bullet in the
+> Decision below is superseded.
+
+> **Update (2026-06-15):** Hook installation is now **automatic on
+> `./gradlew build`** via a first-party `buildSrc` plugin
+> (`io.tickonomics.git-hooks`); see **ADR-028**. `make install-hooks` remains as
+> the bootstrap path for installing before the first build. The "Developer setup
+> gains one step: `make install-hooks` after clone" consequence below is
+> softened: that step is now optional once any `./gradlew build` has run.
+
 ## Context
 
 Workflow changes have repeatedly broken CI after push — most recently `benchmark.yml`
@@ -62,15 +85,11 @@ Concrete artifacts:
 - **`.actrc`** maps `ubuntu-latest` / `ubuntu-22.04` / `ubuntu-24.04` to the
   `catthehacker/ubuntu:act-*` runner images and pins `--container-architecture`.
   Per-machine overrides (image choice, secrets) go in `.actrc.local` (gitignored).
-- **`Makefile`** exposes: `workflow-lint`, `workflow-list`, `workflow-dryrun`,
-  `workflow-run JOB=<id> [WF=...]`, `install-hooks`, `act-pull`, `test-hooks`.
-- **`build.gradle`** mirrors those as Gradle tasks in the `verification` group
-  (`verifyWorkflows` runs the full pipeline; `workflowRun -PworkflowJob=<id>` runs a
-  single job), so the workflow is drivable from the same `./gradlew` entry point as
-  the rest of the build. The tasks are configuration-cache safe: all `project`/
-  `rootProject` access happens at configuration time and child-process output is
-  drained through Gradle's logger (not `inheritIO`, which the forked daemon JVM
-  swallows).
+- **`Makefile`** exposes: `verify-workflows` (full pipeline), `workflow-lint`,
+  `workflow-list`, `workflow-dryrun`, `workflow-run JOB=<id> [WF=...]`,
+  `install-hooks`, `act-pull`, `test-hooks`, `test-gate`. This is the single
+  entry point; the former Gradle task mirror was removed so there is one source
+  of truth and `build.gradle` carries no GitHub Actions references.
 - **`scripts/git-hooks/{pre-commit,pre-push}`** are version-controlled hook
   sources; `scripts/install-git-hooks.sh` copies them into `.git/hooks/`. The
   `pre-push` dry-run is opt-in (`WORKFLOW_DRYRUN_ON_PUSH=1` or

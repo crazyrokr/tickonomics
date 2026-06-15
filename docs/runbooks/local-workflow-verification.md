@@ -24,32 +24,36 @@ Install the git hooks (Tier 1 commit gate is always on; Tier 2 pre-push dry-run 
 make install-hooks
 ```
 
+The hooks also auto-install (and refresh) on every `./gradlew build` via the
+first-party `io.tickonomics.git-hooks` plugin (ADR-028); the step above is only
+needed to get the hooks in place before the first build.
+
 Pre-pull the runner image so the first dry-run is not dominated by a download (~1–2 GB, once):
 
 ```sh
 make act-pull
 ```
 
-## Gradle entry points (preferred)
+## Makefile entry points
 
-Every step is also a Gradle task. Since the project is already Gradle-based,
-`./gradlew` is the recommended entry point (no separate `make` dependency). Tasks
-live in the `verification` group; `verifyWorkflows` runs the whole pipeline.
+The `Makefile` is the canonical entry point for workflow verification. The Gradle
+tasks that previously mirrored these were removed — `build.gradle` carries no
+GitHub Actions references. `verify-workflows` runs the whole pipeline.
 
 ```sh
-./gradlew verifyWorkflows                       # full pipeline: lint + list + hook tests + dry-run
-./gradlew workflowLint                          # strict actionlint over all workflows
-./gradlew workflowList                          # act -l job graph (no Docker)
-./gradlew workflowDryRun                        # act -n on pr-checks + benchmark (pulls image first run)
-./gradlew workflowRun -PworkflowJob=python-test # run one job (-PworkflowFile=path optional)
-./gradlew installGitHooks                       # install the pre-commit/pre-push hooks
-./gradlew testGitHooks                          # Given-When-Then tests for the hook
-./gradlew actPull                               # pre-pull the runner image
+make verify-workflows            # full pipeline: lint + list + hook tests + gate guard + dry-run
+make workflow-lint               # strict actionlint over all workflows
+make workflow-list               # act -l job graph (no Docker)
+make workflow-dryrun             # act -n on pr-checks + benchmark (pulls image first run)
+make workflow-run JOB=python-test # run one job (WF=path optional)
+make install-hooks               # install the pre-commit/pre-push hooks
+make test-hooks                  # Given-When-Then tests for the pre-commit hook
+make test-gate                   # guard: gate workflows declare no services: blocks
+make act-pull                    # pre-pull the runner image
 ```
 
-`./gradlew tasks --group verification` lists them all. The tasks are
-configuration-cache safe and fail fast with a clear message when `act`,
-`actionlint`, or `docker` is missing from the PATH the Gradle JVM uses.
+Each target shells out to `act`, `actionlint`, `docker`, or a `scripts/*.sh` test
+directly and fails fast when the tool is missing.
 
 ## Day-to-day
 
