@@ -19,7 +19,7 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -28,13 +28,13 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: talib-native-cache
         with:
           path: native-libs
           key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: talib-jna-cache
         with:
           path: ~/.m2/repository/com/tictactec
@@ -111,7 +111,7 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ${{ matrix.app }}/.next/cache
           key: nextjs-${{ matrix.app }}-${{ hashFiles(format('{0}/package-lock.json', matrix.app)) }}
@@ -156,7 +156,7 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
