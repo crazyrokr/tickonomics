@@ -3,14 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { LiquidityHeatmap } from "@/components/charts/LiquidityHeatmap";
 import type { SystemicRiskHeatmap } from "@/types/api";
 
-vi.mock("@finos/perspective", () => ({
+vi.mock("@perspective-dev/client", () => ({
   worker: vi.fn(() => Promise.resolve({
     table: vi.fn(() => "mock-table"),
   })),
 }));
 
-vi.mock("@finos/perspective-viewer", () => ({}));
-vi.mock("@finos/perspective-viewer-d3fc", () => ({}));
+vi.mock("@perspective-dev/viewer", () => ({}));
+vi.mock("@perspective-dev/viewer-charts", () => ({}));
 
 const mockHeatmap: SystemicRiskHeatmap[] = [
   {

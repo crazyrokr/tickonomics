@@ -2,14 +2,14 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { CorrelationMatrix } from "@/components/charts/CorrelationMatrix";
 
-vi.mock("@finos/perspective", () => ({
+vi.mock("@perspective-dev/client", () => ({
   worker: vi.fn(() => Promise.resolve({
     table: vi.fn(() => "mock-table"),
   })),
 }));
 
-vi.mock("@finos/perspective-viewer", () => ({}));
-vi.mock("@finos/perspective-viewer-datagrid", () => ({}));
+vi.mock("@perspective-dev/viewer", () => ({}));
+vi.mock("@perspective-dev/viewer-datagrid", () => ({}));
 
 describe("CorrelationMatrix", () => {
   const mockData = [

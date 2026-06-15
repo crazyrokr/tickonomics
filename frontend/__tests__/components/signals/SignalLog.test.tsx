@@ -3,14 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { SignalLog } from "@/components/signals/SignalLog";
 import type { SignalMarker } from "@/types/api";
 
-vi.mock("@finos/perspective", () => ({
+vi.mock("@perspective-dev/client", () => ({
   worker: vi.fn(() => Promise.resolve({
     table: vi.fn(() => "mock-table"),
   })),
 }));
 
-vi.mock("@finos/perspective-viewer", () => ({}));
-vi.mock("@finos/perspective-viewer-datagrid", () => ({}));
+vi.mock("@perspective-dev/viewer", () => ({}));
+vi.mock("@perspective-dev/viewer-datagrid", () => ({}));
 
 describe("SignalLog", () => {
   const mockSignals: SignalMarker[] = [
