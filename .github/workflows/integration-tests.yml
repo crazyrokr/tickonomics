@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main, test]
 
+permissions:
+  contents: read
+
 # Distinct concurrency group: GitHub shares concurrency groups across workflows,
 # so reusing pr-checks' "pr-<ref>" group would let these two workflows cancel
 # each other mid-run.
