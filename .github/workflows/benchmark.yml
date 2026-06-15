@@ -21,54 +21,88 @@ jobs:
     name: Performance Benchmark Regression
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Resolve base and head refs
+        id: refs
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+            is_pr=true
+          else
+            base="$GITHUB_SHA"
+            head="$GITHUB_SHA"
+            is_pr=false
+          fi
+          {
+            echo "base=$base"
+            echo "head=$head"
+            echo "base_short=${base:0:7}"
+            echo "head_short=${head:0:7}"
+            echo "is_pr=$is_pr"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.refs.outputs.head }}
+          path: head
+
+      - name: Checkout base
+        if: steps.refs.outputs.is_pr == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.refs.outputs.base }}
+          path: base
 
       - name: Set up Python
         uses: actions/setup-python@v5
         id: setup-python
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: head/analytics/requirements.txt
 
-      - name: Cache Python venv
-        uses: actions/cache@v4
-        id: venv-cache
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('analytics/requirements.txt') }}
-
-      - name: Install dependencies and benchmark tooling
-        if: steps.venv-cache.outputs.cache-hit != 'true'
+      - name: Install dependencies
         run: |
-          python -m venv .venv
-          .venv/bin/python -m pip install --upgrade pip
-          .venv/bin/pip install -r analytics/requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r head/analytics/requirements.txt
 
-      - name: Put venv on PATH
-        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
-
-      - name: Restore benchmark baseline
-        uses: actions/cache@v4
-        with:
-          path: analytics/.benchmarks
-          key: benchmark-baseline-${{ runner.os }}
-
-      - name: Run benchmark regression
-        working-directory: analytics
-        continue-on-error: true
+      - name: Run head benchmark
+        working-directory: head/analytics
         run: |
-          set -o pipefail
-          # --benchmark-compare-fail raises a hard error when no saved baseline exists,
-          # so only enable comparison once a baseline is present (first run bootstraps it).
-          compare_args=""
-          if [ "$(find .benchmarks -name '*.json' 2>/dev/null | wc -l)" -gt 0 ]; then
-            compare_args="--benchmark-compare --benchmark-compare-fail=mean:10%"
-          fi
           python -m pytest tests \
             --benchmark-only \
             --benchmark-storage=.benchmarks \
-            --benchmark-autosave \
-            $compare_args \
-            2>&1 | tee benchmark-output.txt || true
+            --benchmark-save=head
+
+      - name: Run base benchmark
+        if: steps.refs.outputs.is_pr == 'true'
+        working-directory: base/analytics
+        run: |
+          python -m pytest tests \
+            --benchmark-only \
+            --benchmark-storage=.benchmarks \
+            --benchmark-save=base
+
+      - name: Compare base vs head (same-runner A/B)
+        if: steps.refs.outputs.is_pr == 'true'
+        continue-on-error: true
+        working-directory: head
+        run: |
+          set +e
+          base_json="$(find ../base/analytics/.benchmarks -name '*_base.json' | sort | tail -n 1)"
+          head_json="$(find analytics/.benchmarks -name '*_head.json' | sort | tail -n 1)"
+          if [ -z "$base_json" ] || [ -z "$head_json" ]; then
+            echo "Could not locate benchmark JSONs (base=$base_json head=$head_json). Comparison skipped." \
+              | tee analytics/benchmark-comparison.md
+            exit 0
+          fi
+          # Advisory: compare_benchmarks.py exits 1 on a >threshold regression, but the
+          # verdict is surfaced in the PR comment and must not fail the job.
+          python analytics/compare_benchmarks.py "$base_json" "$head_json" \
+            --threshold 10 --metric mean --format markdown \
+            | tee analytics/benchmark-comparison.md
+          exit 0
 
       - name: Publish benchmark report
         if: always()
@@ -77,17 +111,21 @@ jobs:
             echo "<!-- benchmark-report -->"
             echo "## Benchmark Regression Report"
             echo ""
-            echo "Engine: pytest-benchmark (cached-baseline, >10% mean regression gate)."
+            echo "Engine: same-runner A/B (base \`${{ steps.refs.outputs.base_short }}\` vs head \`${{ steps.refs.outputs.head_short }}\` on a single job), gated by \`compare_benchmarks.py\` at >10% mean regression. See [ADR-030](docs/adr/ADR-030-same-runner-benchmark-ab.md)."
             echo ""
-            echo '```'
-            cat analytics/benchmark-output.txt 2>/dev/null || echo "_No benchmark output captured._"
-            echo '```'
+            if [ "${{ steps.refs.outputs.is_pr }}" = "true" ] && [ -f head/analytics/benchmark-comparison.md ]; then
+              cat head/analytics/benchmark-comparison.md
+            else
+              echo "_No comparison produced (non-PR trigger or benchmark error). Head benchmark was recorded._"
+            fi
           } > benchmark-report.md
+          cat benchmark-report.md
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # Find this bot's prior benchmark report (matched by the hidden marker in the
@@ -108,5 +146,6 @@ jobs:
       - name: Deferred benchmark capabilities
         run: |
           echo "Java JMH benchmark tasks (backtestBenchmark, regulatoryScenarioTest) and the"
-          echo "compare_benchmarks.py / rds_check.py helper scripts are deferred to Tracks 5/8."
-          echo "See docs/adr/ADR-016-cicd-pipeline-finalization.md."
+          echo "rds_check.py helper script are deferred to Tracks 5/8."
+          echo "The chaos-benchmark.yml scheduled job is out of scope for same-runner A/B"
+          echo "(it is not PR-triggered); see docs/adr/ADR-030-same-runner-benchmark-ab.md."

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-push gate (Tier 2, opt-in): resolve the PR-gate workflow DAG with `act -n`
+# so structural/expression errors surface before they hit GitHub. Opt-in because
+# the first run pulls the ~1-2 GB runner image.
+#
+# Enable: WORKFLOW_DRYRUN_ON_PUSH=1 git push
+# Or persist: git config --bool workflow.dryrunOnPush true
+set -euo pipefail
+
+enabled="${WORKFLOW_DRYRUN_ON_PUSH:-}"
+if [ "$enabled" != "1" ] && [ "$(git config --bool workflow.dryrunOnPush)" != "true" ]; then
+	exit 0
+fi
+
+if ! command -v act >/dev/null 2>&1; then
+	echo "pre-push: act not found; skipping workflow dry-run." >&2
+	exit 0
+fi
+
+gate_workflows=".github/workflows/pr-checks.yml .github/workflows/benchmark.yml"
+for wf in $gate_workflows; do
+	[ -f "$wf" ] || continue
+	echo "pre-push: act dry-run $wf"
+	act -n pull_request -W "$wf"
+done
