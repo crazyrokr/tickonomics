@@ -1,0 +1,8 @@
+# Local GitHub Actions verification with `act`.
+# Maps GitHub runner labels to the catthehocker/ubuntu act runner images and pins
+# the container architecture so host/container arches always match.
+# Override per-machine (different image, secrets) in .actrc.local (gitignored).
+-P ubuntu-latest=catthehacker/ubuntu:act-22.04
+-P ubuntu-22.04=catthehacker/ubuntu:act-22.04
+-P ubuntu-24.04=catthehacker/ubuntu:act-24.04
+--container-architecture linux/amd64

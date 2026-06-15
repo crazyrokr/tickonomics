@@ -182,3 +182,30 @@ def test_garch_forecast_converges():
     late_spread = abs(forecasts[-1] - forecasts[-5])
     early_spread = abs(forecasts[4] - forecasts[0])
     assert late_spread <= early_spread + 1e-6
+
+
+def test_garch_forecast_converges_to_unconditional_variance():
+    """Given a fitted GARCH(1,1) with alpha > 0, the long-horizon forecast must
+    converge to the unconditional variance omega / (1 - persistence), where
+    persistence = sum(alpha) + sum(beta). A recursion that omits alpha would
+    instead converge to omega / (1 - sum(beta)), which is wrong whenever
+    alpha > 0."""
+    # Given
+    rng = np.random.default_rng(7)
+    returns = (rng.standard_normal(600) * 0.01).tolist()
+
+    # When
+    result = garch_forecast(returns, p=1, q=1, horizon=200)
+
+    # Then
+    assert "error" not in result
+    params = result["parameters"]
+    assert params["alpha"][0] > 0, "test requires a non-trivial ARCH term"
+
+    uncond_var = params["omega"] / (1.0 - params["persistence"])
+    uncond_vol = float(np.sqrt(uncond_var))
+    limit_vol = result["forecast"][-1]
+
+    assert abs(limit_vol - uncond_vol) < 1e-3, (
+        f"forecast limit {limit_vol:.6f} != unconditional vol {uncond_vol:.6f}"
+    )

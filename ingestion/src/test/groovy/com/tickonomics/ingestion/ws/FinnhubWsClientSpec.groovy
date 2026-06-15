@@ -120,4 +120,22 @@ class FinnhubWsClientSpec extends Specification {
       FinnhubWsClient.computeNextDelay(32000, 60000) == 60000
       FinnhubWsClient.computeNextDelay(30000, 60000) == 60000
   }
+
+  def "given ws url and api key, when buildConnectUrl, then token appended as query param"() {
+    expect:
+      FinnhubWsClient.buildConnectUrl("wss://ws.finnhub.io", "abc123") ==
+          "wss://ws.finnhub.io?token=abc123"
+  }
+
+  def "given ws url with existing query, when buildConnectUrl, then token appended with ampersand"() {
+    expect:
+      FinnhubWsClient.buildConnectUrl("wss://ws.finnhub.io?foo=bar", "abc123") ==
+          "wss://ws.finnhub.io?foo=bar&token=abc123"
+  }
+
+  def "given api key with special characters, when buildConnectUrl, then url-encoded"() {
+    expect:
+      FinnhubWsClient.buildConnectUrl("wss://ws.finnhub.io", "a b&c") ==
+          "wss://ws.finnhub.io?token=a+b%26c"
+  }
 }
