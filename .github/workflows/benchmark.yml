@@ -67,7 +67,7 @@ jobs:
             --benchmark-only \
             --benchmark-storage=.benchmarks \
             --benchmark-autosave \
-            $compare_args \
+            "$compare_args" \
             2>&1 | tee benchmark-output.txt || true
 
       - name: Publish benchmark report

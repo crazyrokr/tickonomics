@@ -147,7 +147,7 @@ jobs:
             --benchmark-only \
             --benchmark-storage=.benchmarks \
             --benchmark-autosave \
-            $compare_args || true
+            "$compare_args" \
 
       - name: Upload benchmark results
         if: always()
