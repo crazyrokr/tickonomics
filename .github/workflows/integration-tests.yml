@@ -66,9 +66,7 @@ jobs:
 
       - name: Build TA-Lib native
         if: steps.talib-native-cache.outputs.cache-hit != 'true'
-        run: |
-          ./gradlew :computation:cloneTalibNative --no-daemon
-          ./gradlew :computation:buildTalibNative --no-daemon
+        run: ./gradlew :computation:setupTalib --no-daemon
 
       - name: Run integration tests
         env:
