@@ -64,16 +64,31 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: tickonomics
         run: ./gradlew build --no-daemon
 
-      - name: Run Python analytics tests
+      - name: Set up Python
         uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: analytics/requirements.txt
 
-      - run: |
-          pip install -r analytics/requirements.txt
-          cd analytics && python -m pytest tests -q
+      - name: Cache Python venv
+        uses: actions/cache@v4
+        id: venv-cache
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('analytics/requirements.txt') }}
+
+      - name: Install analytics dependencies
+        if: steps.venv-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/pip install -r analytics/requirements.txt
+
+      - name: Put venv on PATH
+        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Run Python analytics tests
+        run: cd analytics && python -m pytest tests -q
 
       - name: Upload results
         if: always()
@@ -89,17 +104,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: analytics/requirements.txt
+
+      - name: Cache Python venv
+        uses: actions/cache@v4
+        id: venv-cache
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('analytics/requirements.txt') }}
 
       - name: Install benchmark tooling
+        if: steps.venv-cache.outputs.cache-hit != 'true'
         run: |
-          pip install --upgrade pip
-          pip install -r analytics/requirements.txt
-          pip install pytest-benchmark
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/pip install -r analytics/requirements.txt
+
+      - name: Put venv on PATH
+        run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Restore benchmark baseline
         uses: actions/cache@v4
@@ -111,12 +137,17 @@ jobs:
         working-directory: analytics
         continue-on-error: true
         run: |
+          # --benchmark-compare-fail raises a hard error when no saved baseline exists,
+          # so only enable comparison once a baseline is present (first run bootstraps it).
+          compare_args=()
+          if [ "$(find .benchmarks -name '*.json' 2>/dev/null | wc -l)" -gt 0 ]; then
+            compare_args+=(--benchmark-compare --benchmark-compare-fail=mean:10%)
+          fi
           python -m pytest tests \
             --benchmark-only \
-            --benchmark-compare \
-            --benchmark-compare-fail=mean:10% \
             --benchmark-storage=.benchmarks \
-            --benchmark-autosave || true
+            --benchmark-autosave \
+            "${compare_args[@]}" || true
 
       - name: Upload benchmark results
         if: always()

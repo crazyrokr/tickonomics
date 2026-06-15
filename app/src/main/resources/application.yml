@@ -33,7 +33,7 @@ spring:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/oauth2/jwks}
 
 security:
-  auth-disabled: ${AUTH_DISABLED:true}
+  auth-disabled: ${AUTH_DISABLED:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
 
@@ -181,6 +181,15 @@ monitor:
     base-url: https://datahub.io
     startup-full-load: true
     incremental-check-cron: "0 0 2 1 * *"
+
+  fred:
+    api-key: ${FRED_API_KEY:}
+    base-url: https://api.stlouisfed.org/fred
+    poll-interval-ms: 300000
+
+  nyfed:
+    base-url: https://markets.newyorkfed.org/api
+    poll-interval-ms: 300000
 
 resilience4j:
   retry:

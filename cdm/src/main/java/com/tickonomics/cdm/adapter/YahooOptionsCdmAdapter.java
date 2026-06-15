@@ -17,7 +17,7 @@ public class YahooOptionsCdmAdapter implements CdmAdapter<YahooOptionContract, C
 
   @Override
   public CdmOptionSnapshot toCdm(YahooOptionContract raw) {
-    OptionType type = "CALL".equals(raw.optionType()) ? OptionType.CALL : OptionType.PUT;
+    OptionType type = parseOptionType(raw.optionType());
     double ttmYears = computeTtmYears(raw.expiry());
 
     double ask = raw.ask();
@@ -49,5 +49,14 @@ public class YahooOptionsCdmAdapter implements CdmAdapter<YahooOptionContract, C
   private double computeTtmYears(LocalDate expiry) {
     long days = ChronoUnit.DAYS.between(LocalDate.now(), expiry);
     return Math.max(0, days / 365.25);
+  }
+
+  private static OptionType parseOptionType(String raw) {
+    var normalized = raw.trim().toUpperCase();
+    return switch (normalized) {
+      case "CALL", "C" -> OptionType.CALL;
+      case "PUT", "P" -> OptionType.PUT;
+      default -> throw new IllegalArgumentException("Unknown optionType: " + raw);
+    };
   }
 }

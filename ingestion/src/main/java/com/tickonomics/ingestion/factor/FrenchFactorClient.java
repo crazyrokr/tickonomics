@@ -133,6 +133,8 @@ public class FrenchFactorClient {
       case FACTOR_3 -> parse3FactorRow(time, factorSet, frequency, parts);
       case FACTOR_5 -> parse5FactorRow(time, factorSet, frequency, parts);
       case MOMENTUM -> parseMomentumRow(time, factorSet, frequency, parts);
+      case ST_REVERSAL -> parseStReversalRow(time, factorSet, frequency, parts);
+      case LT_REVERSAL -> parseLtReversalRow(time, factorSet, frequency, parts);
       default -> null;
     };
   }
@@ -141,7 +143,7 @@ public class FrenchFactorClient {
     if (parts.length < 4) return null;
     return new FrenchFactorRow(time, factorSet, frequency,
         parseDouble(parts[1]), parseDouble(parts[2]), parseDouble(parts[3]),
-        Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+        Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
   }
 
   private FrenchFactorRow parse5FactorRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
@@ -149,14 +151,32 @@ public class FrenchFactorClient {
     return new FrenchFactorRow(time, factorSet, frequency,
         parseDouble(parts[1]), parseDouble(parts[2]), parseDouble(parts[3]),
         parseDouble(parts[4]), parseDouble(parts[5]),
-        parts.length > 6 ? parseDouble(parts[6]) : Double.NaN, Double.NaN);
+        parts.length > 6 ? parseDouble(parts[6]) : Double.NaN, Double.NaN,
+        Double.NaN, Double.NaN);
   }
 
   private FrenchFactorRow parseMomentumRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
     if (parts.length < 2) return null;
     return new FrenchFactorRow(time, factorSet, frequency,
         Double.NaN, Double.NaN, Double.NaN,
-        Double.NaN, Double.NaN, Double.NaN, parseDouble(parts[1]));
+        Double.NaN, Double.NaN, Double.NaN, parseDouble(parts[1]),
+        Double.NaN, Double.NaN);
+  }
+
+  private FrenchFactorRow parseStReversalRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
+    if (parts.length < 2) return null;
+    return new FrenchFactorRow(time, factorSet, frequency,
+        Double.NaN, Double.NaN, Double.NaN,
+        Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+        parseDouble(parts[1]), Double.NaN);
+  }
+
+  private FrenchFactorRow parseLtReversalRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
+    if (parts.length < 2) return null;
+    return new FrenchFactorRow(time, factorSet, frequency,
+        Double.NaN, Double.NaN, Double.NaN,
+        Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+        Double.NaN, parseDouble(parts[1]));
   }
 
   private Instant parseDate(String dateStr, String frequency) {
