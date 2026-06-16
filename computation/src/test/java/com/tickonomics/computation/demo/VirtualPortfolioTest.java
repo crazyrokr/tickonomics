@@ -62,7 +62,7 @@ class VirtualPortfolioTest {
       assertNotNull(result);
       assertEquals("SPY", result.symbol());
       assertEquals("BUY", result.direction());
-      assertEquals(520.50, result.entryPrice());
+      assertEquals(0, new BigDecimal("520.50").compareTo(result.entryPrice()));
       verify(positionRepository).save(any());
       verify(tradeRepository).save(any());
     }
@@ -96,13 +96,15 @@ class VirtualPortfolioTest {
       when(positionRepository.save(any())).thenReturn(1L);
       when(tradeRepository.save(any())).thenReturn(1L);
 
-      double fillPrice = 500.0;
-      double expectedSize = 100_000.0 * 5.0 / 100.0;
-      double expectedQuantity = expectedSize / fillPrice;
+      BigDecimal fillPrice = new BigDecimal("500.0");
+      BigDecimal expectedSize = config.virtualBalance()
+          .multiply(BigDecimal.valueOf(config.positionSizePct()))
+          .divide(new BigDecimal("100"), java.math.MathContext.DECIMAL64);
+      BigDecimal expectedQuantity = expectedSize.divide(fillPrice, 4, java.math.RoundingMode.HALF_UP);
 
       VirtualPortfolioPosition result = portfolio.openPosition(buySignal, fillPrice);
 
-      assertEquals(expectedQuantity, result.quantity(), 0.001);
+      assertEquals(0, expectedQuantity.compareTo(result.quantity()));
     }
   }
 
@@ -119,7 +121,7 @@ class VirtualPortfolioTest {
 
       assertNotNull(trade);
       assertEquals(0, new BigDecimal("500.0").compareTo(trade.realizedPnl()));
-      verify(positionRepository).close(eq(1L), any(Instant.class), eq(550.0));
+      verify(positionRepository).close(eq(1L), any(Instant.class), eq(new BigDecimal("550.0")));
     }
 
     @Test
@@ -151,7 +153,9 @@ class VirtualPortfolioTest {
 
       portfolio.markToMarket(Map.of("SPY", new BigDecimal("520.0")));
 
-      verify(positionRepository).updateMarkToMarket(1L, 520.0, 200.0);
+      verify(positionRepository).updateMarkToMarket(eq(1L), eq(new BigDecimal("520.0")),
+          org.mockito.ArgumentMatchers.argThat(
+              (BigDecimal bd) -> bd.compareTo(new BigDecimal("200.0")) == 0));
     }
 
     @Test
@@ -236,11 +240,11 @@ class VirtualPortfolioTest {
 
       VirtualPortfolio.PortfolioSummary summary = portfolio.getPortfolioSummary();
 
-      assertEquals(100_000.0, summary.initialBalance());
-      assertEquals(100_000.0, summary.currentBalance());
-      assertEquals(0.0, summary.realizedPnl());
-      assertEquals(0.0, summary.unrealizedPnl());
-      assertEquals(0.0, summary.winRate());
+      assertEquals(0, new BigDecimal("100000.00").compareTo(summary.initialBalance()));
+      assertEquals(0, new BigDecimal("100000.00").compareTo(summary.currentBalance()));
+      assertEquals(0, BigDecimal.ZERO.compareTo(summary.realizedPnl()));
+      assertEquals(0, BigDecimal.ZERO.compareTo(summary.unrealizedPnl()));
+      assertEquals(0.0, summary.winRate(), 0.001);
     }
 
     @Test
@@ -256,7 +260,7 @@ class VirtualPortfolioTest {
       VirtualPortfolio.PortfolioSummary summary = portfolio.getPortfolioSummary();
 
       assertEquals(0, new BigDecimal("50.0").compareTo(summary.realizedPnl()));
-      assertEquals(0, new BigDecimal("0.5").compareTo(summary.winRate()));
+      assertEquals(0.5, summary.winRate(), 0.001);
     }
   }
 }

@@ -103,7 +103,7 @@ class PaperTradingEngineTest {
     when(portfolio.findOpenBySymbol("SPY")).thenReturn(null);
     when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
         .thenReturn(2.0);
-    when(portfolio.openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class)))
+    when(portfolio.openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class)))
         .thenReturn(openedPosition(1L, "BUY", new BigDecimal("500.1")));
   }
 
@@ -119,7 +119,7 @@ class PaperTradingEngineTest {
 
       assertEquals("OPENED", result.action());
       assertEquals("BUY", result.direction());
-      verify(portfolio).openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class));
+      verify(portfolio).openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class));
     }
 
     @Test
@@ -128,7 +128,7 @@ class PaperTradingEngineTest {
       when(portfolio.findOpenBySymbol("SPY")).thenReturn(null);
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(2.0);
-      when(portfolio.openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class)))
+      when(portfolio.openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class)))
           .thenReturn(openedPosition(2L, "SELL", new BigDecimal("499.9")));
 
       PaperTradingEngine.TradeResult result = engine.processSignal(actionableSell, validIli, new BigDecimal("500.0"));
@@ -145,7 +145,7 @@ class PaperTradingEngineTest {
 
       assertEquals("SKIPPED", result.action());
       assertEquals("dislocated_data", result.reason());
-      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class));
+      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class));
     }
 
     @Test
@@ -192,14 +192,14 @@ class PaperTradingEngineTest {
       when(portfolio.findOpenBySymbol("SPY")).thenReturn(existing);
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(1.0);
-      when(portfolio.openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class)))
+      when(portfolio.openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class)))
           .thenReturn(openedPosition(2L, "SELL", new BigDecimal("499.95")));
 
       PaperTradingEngine.TradeResult result = engine.processSignal(actionableSell, validIli, new BigDecimal("500.0"));
 
       assertEquals("OPENED", result.action());
       verify(portfolio).closePosition(1L, new BigDecimal("500.0"));
-      verify(portfolio).openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class));
+      verify(portfolio).openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class));
     }
 
     @Test
@@ -228,7 +228,7 @@ class PaperTradingEngineTest {
 
       assertEquals("SKIPPED", result.action());
       assertEquals("kill_switch_active", result.reason());
-      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class));
+      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class));
     }
 
     @Test
@@ -243,14 +243,14 @@ class PaperTradingEngineTest {
 
       assertEquals("SKIPPED", result.action());
       assertEquals("global_safe_mode", result.reason());
-      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class));
+      verify(portfolio, never()).openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class));
     }
 
     @Test
     void givenUnstablePortfolio_whenProcessSignal_thenSkipped() {
       PaperTradingEngine engine = buildEngine(activeConfig());
       PaperTradingEngine.ExecutionContext ctx = new PaperTradingEngine.ExecutionContext(
-          List.of(0.10, -0.10, 0.12, -0.08), 0.0, 0.0, 0.0, 0.0);
+          List.of(0.10, -0.10, 0.12, -0.08), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 
       PaperTradingEngine.TradeResult result = engine.processSignal(actionableBuy, validIli, new BigDecimal("500.0"), ctx);
 
@@ -263,7 +263,7 @@ class PaperTradingEngineTest {
       PaperTradingEngine engine = buildEngine(activeConfig());
       stubOpen();
       PaperTradingEngine.ExecutionContext ctx = new PaperTradingEngine.ExecutionContext(
-          List.of(0.001, -0.001, 0.002, -0.002), 0.0, 0.0, 0.0, 0.0);
+          List.of(0.001, -0.001, 0.002, -0.002), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 
       PaperTradingEngine.TradeResult result = engine.processSignal(actionableBuy, validIli, new BigDecimal("500.0"), ctx);
 
@@ -317,25 +317,25 @@ class PaperTradingEngineTest {
       when(portfolio.findOpenBySymbol("SPY")).thenReturn(null);
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(10.0);
-      ArgumentCaptor<Double> fillPriceCaptor = ArgumentCaptor.forClass(Double.class);
-      when(portfolio.openPosition(any(), fillPriceCaptor.capture(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class)))
+      ArgumentCaptor<BigDecimal> fillPriceCaptor = ArgumentCaptor.forClass(BigDecimal.class);
+      when(portfolio.openPosition(any(), fillPriceCaptor.capture(), anyDouble(), anyDouble(), any(BigDecimal.class)))
           .thenReturn(openedPosition(1L, "BUY", new BigDecimal("501.0")));
 
       PaperTradingEngine.ExecutionContext ctx = new PaperTradingEngine.ExecutionContext(
-          List.of(), 1.0, 0.0, 0.0, 0.0);
+          List.of(), new BigDecimal("1.0"), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
       engine.processSignal(actionableBuy, validIli, new BigDecimal("500.0"), ctx);
 
-      assertEquals(501.0, fillPriceCaptor.getValue(), 0.0001);
+      assertEquals(0, new BigDecimal("501.0").compareTo(fillPriceCaptor.getValue()));
     }
 
     @Test
     void givenMarketMakerLimitMode_whenProcessSignal_thenStrategyIsLimitAndSpreadCaptured() {
       PaperTradingEngine engine = buildEngine(fullConfig(true, false, false, 10.0));
       when(portfolio.findOpenBySymbol("SPY")).thenReturn(null);
-      when(portfolio.openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class)))
+      when(portfolio.openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), any(BigDecimal.class)))
           .thenReturn(openedPosition(1L, "BUY", new BigDecimal("100.0")));
       PaperTradingEngine.ExecutionContext ctx = new PaperTradingEngine.ExecutionContext(
-          List.of(), 0.0, 99.0, 101.0, 0.0);
+          List.of(), BigDecimal.ZERO, new BigDecimal("99.0"), new BigDecimal("101.0"), BigDecimal.ZERO);
 
       PaperTradingEngine.TradeResult result = engine.processSignal(actionableBuy, validIli, new BigDecimal("100.0"), ctx);
 
@@ -347,16 +347,16 @@ class PaperTradingEngineTest {
     @Test
     void givenStandardizedCostModel_whenProcessSignal_thenCommissionApplied() {
       PaperTradingEngine engine = buildEngine(activeConfig());
-      ArgumentCaptor<Double> commissionCaptor = ArgumentCaptor.forClass(Double.class);
+      ArgumentCaptor<BigDecimal> commissionCaptor = ArgumentCaptor.forClass(BigDecimal.class);
       when(portfolio.findOpenBySymbol("SPY")).thenReturn(null);
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(2.0);
-      when(portfolio.openPosition(any(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), commissionCaptor.capture()))
+      when(portfolio.openPosition(any(), any(BigDecimal.class), anyDouble(), anyDouble(), commissionCaptor.capture()))
           .thenReturn(openedPosition(1L, "BUY", new BigDecimal("500.1")));
 
       engine.processSignal(actionableBuy, validIli, new BigDecimal("500.0"));
 
-      assertTrue(commissionCaptor.getValue() > 0.0);
+      assertTrue(commissionCaptor.getValue().compareTo(BigDecimal.ZERO) > 0);
     }
 
     @Test

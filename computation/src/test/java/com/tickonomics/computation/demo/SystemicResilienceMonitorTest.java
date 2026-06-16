@@ -16,7 +16,7 @@ class SystemicResilienceMonitorTest {
 
   private static SystemicResilienceMonitor monitor(GlobalSafeMode gsm) {
     DemoConfig config = new DemoConfig(
-        true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0,
+        true, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, true, true, true, 10_000_000.0,
         DemoConfig.AdvancedCostModel.defaults(), DemoConfig.RandomizedExecution.defaults(),
         DemoConfig.MarketStabilityGuard.defaults(), DemoConfig.OrderImpactPredictor.defaults(),
         DemoConfig.MarketMakerMode.defaults(), DemoConfig.DynamicStops.defaults(),

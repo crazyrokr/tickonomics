@@ -52,7 +52,7 @@ class SignalQualityAnalyzerTest {
 
   private List<VirtualPortfolioTrade> trades(double... pnls) {
     return IntStream.range(0, pnls.length)
-        .mapToObj(i -> new VirtualPortfolioTrade((long) i + 1, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO, pnls[i], (long) i + 1, null, "PAPER"))
+        .mapToObj(i -> new VirtualPortfolioTrade((long) i + 1, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.valueOf(pnls[i]), (long) i + 1, null, "PAPER"))
         .toList();
   }
 

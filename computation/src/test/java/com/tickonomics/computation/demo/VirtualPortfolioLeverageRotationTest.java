@@ -63,7 +63,7 @@ class VirtualPortfolioLeverageRotationTest {
     void givenCustomStopsAndCommission_whenOpenPosition_thenAppliedToSavedTrade() {
       when(positionRepository.save(any())).thenReturn(1L);
 
-      portfolio.openPosition(buySignal, 500.0, 4.0, 8.0, 12.5);
+      portfolio.openPosition(buySignal, new BigDecimal("500.0"), 4.0, 8.0, new BigDecimal("12.5"));
 
       verify(positionRepository).save(any());
     }
@@ -94,7 +94,7 @@ class VirtualPortfolioLeverageRotationTest {
 
       assertEquals(LeverageSignaler.Signal.LEVERAGE_OFF, outcome.signal().signal());
       assertEquals(1, outcome.closedTrades().size());
-      verify(positionRepository).close(eq(1L), any(), eq(90.0));
+      verify(positionRepository).close(eq(1L), any(), eq(new BigDecimal("90.0")));
     }
 
     @Test
