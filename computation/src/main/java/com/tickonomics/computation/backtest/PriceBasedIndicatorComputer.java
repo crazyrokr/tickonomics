@@ -29,11 +29,11 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
             return indicators;
         }
 
-        double price = ticks.get(currentIndex).price();
+        double price = ticks.get(currentIndex).price().doubleValue();
         indicators.put("price", price);
 
         if (currentIndex >= 1) {
-            double previous = ticks.get(currentIndex - 1).price();
+            double previous = ticks.get(currentIndex - 1).price().doubleValue();
             if (previous != 0.0) {
                 indicators.put("priceChange", (price - previous) / previous);
             }
@@ -74,11 +74,11 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         double k = 2.0 / (period + 1);
         double ema = 0.0;
         for (int i = 0; i < period; i++) {
-            ema += ticks.get(i).price();
+            ema += ticks.get(i).price().doubleValue();
         }
         ema /= period;
         for (int i = period; i <= index; i++) {
-            ema = ticks.get(i).price() * k + ema * (1.0 - k);
+            ema = ticks.get(i).price().doubleValue() * k + ema * (1.0 - k);
         }
         return ema;
     }
@@ -90,7 +90,7 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         double gainSum = 0.0;
         double lossSum = 0.0;
         for (int i = 1; i <= period; i++) {
-            double change = ticks.get(i).price() - ticks.get(i - 1).price();
+            double change = ticks.get(i).price().doubleValue() - ticks.get(i - 1).price().doubleValue();
             if (change >= 0.0) {
                 gainSum += change;
             } else {
@@ -100,7 +100,7 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         double avgGain = gainSum / period;
         double avgLoss = lossSum / period;
         for (int i = period + 1; i <= index; i++) {
-            double change = ticks.get(i).price() - ticks.get(i - 1).price();
+            double change = ticks.get(i).price().doubleValue() - ticks.get(i - 1).price().doubleValue();
             double gain = change >= 0.0 ? change : 0.0;
             double loss = change < 0.0 ? -change : 0.0;
             avgGain = (avgGain * (period - 1) + gain) / period;
@@ -122,8 +122,8 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         double sum = 0.0;
         double[] returns = new double[count];
         for (int i = start; i <= index; i++) {
-            double previous = ticks.get(i - 1).price();
-            double ret = previous != 0.0 ? (ticks.get(i).price() - previous) / previous : 0.0;
+            double previous = ticks.get(i - 1).price().doubleValue();
+            double ret = previous != 0.0 ? (ticks.get(i).price().doubleValue() - previous) / previous : 0.0;
             returns[i - start] = ret;
             sum += ret;
         }
@@ -142,12 +142,12 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         }
         double sum = 0.0;
         for (int i = start; i <= index; i++) {
-            sum += ticks.get(i).price();
+            sum += ticks.get(i).price().doubleValue();
         }
         double sma = sum / lookback;
         double squared = 0.0;
         for (int i = start; i <= index; i++) {
-            squared += Math.pow(ticks.get(i).price() - sma, 2);
+            squared += Math.pow(ticks.get(i).price().doubleValue() - sma, 2);
         }
         double sd = Math.sqrt(squared / lookback);
         return new double[] {sma + mult * sd, sma - mult * sd, sma};
@@ -171,7 +171,7 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         int start = Math.max(0, index - lookback + 1);
         double max = Double.NEGATIVE_INFINITY;
         for (int i = start; i <= index; i++) {
-            max = Math.max(max, ticks.get(i).price());
+            max = Math.max(max, ticks.get(i).price().doubleValue());
         }
         return max;
     }
@@ -180,7 +180,7 @@ public class PriceBasedIndicatorComputer implements IndicatorComputer {
         int start = Math.max(0, index - lookback + 1);
         double min = Double.POSITIVE_INFINITY;
         for (int i = start; i <= index; i++) {
-            min = Math.min(min, ticks.get(i).price());
+            min = Math.min(min, ticks.get(i).price().doubleValue());
         }
         return min;
     }

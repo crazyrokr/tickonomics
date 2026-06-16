@@ -2,6 +2,7 @@ package com.tickonomics.computation.demo;
 
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +39,7 @@ public class KillSwitch {
    * price are skipped rather than liquidated at a stale value.
    */
   public List<VirtualPortfolioTrade> liquidateAll(VirtualPortfolio portfolio,
-      Map<String, Double> currentPrices) {
+      Map<String, BigDecimal> currentPrices) {
     if (portfolio == null || currentPrices == null) {
       return List.of();
     }

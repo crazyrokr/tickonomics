@@ -1,6 +1,7 @@
 package com.tickonomics.ingestion.filter;
 
 import com.tickonomics.persistence.entity.TickData;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +34,8 @@ public class TimePeriodicityFilter implements TickFilter {
 
         double smoothedPrice = computeSmoothedPrice(recentTicks);
         long smoothedVolume = computeSmoothedVolume(recentTicks);
-        return new TickData(tick.time(), tick.symbol(), smoothedPrice, smoothedVolume, tick.conditions());
+        return new TickData(tick.time(), tick.symbol(),
+            BigDecimal.valueOf(smoothedPrice), smoothedVolume, tick.conditions());
     }
 
     boolean isNearWholeSecond(Instant time) {
@@ -44,20 +46,20 @@ public class TimePeriodicityFilter implements TickFilter {
 
     boolean isPriceSpike(TickData tick, List<TickData> recentTicks) {
         double avgPrice = recentTicks.stream()
-                .mapToDouble(TickData::price)
+                .mapToDouble(t -> t.price().doubleValue())
                 .average()
-                .orElse(tick.price());
+                .orElse(tick.price().doubleValue());
 
         if (avgPrice == 0) {
             return false;
         }
-        double deviation = Math.abs(tick.price() - avgPrice) / avgPrice;
+        double deviation = Math.abs(tick.price().doubleValue() - avgPrice) / avgPrice;
         return deviation > 0.005;
     }
 
     double computeSmoothedPrice(List<TickData> ticks) {
         return ticks.stream()
-                .mapToDouble(TickData::price)
+                .mapToDouble(t -> t.price().doubleValue())
                 .average()
                 .orElse(0);
     }

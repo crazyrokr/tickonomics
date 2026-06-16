@@ -1,4 +1,5 @@
 package com.tickonomics.computation.demo;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +18,7 @@ class DemoConfigTest {
     @Test
     void givenCoreArgs_whenCore_thenNestedBlocksUseDefaults() {
       DemoConfig config = DemoConfig.core(
-          true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
+          true, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
 
       assertEquals(DemoConfig.AdvancedCostModel.defaults(), config.advancedCostModel());
       assertEquals(DemoConfig.RandomizedExecution.defaults(), config.randomizedExecution());
@@ -52,7 +53,7 @@ class DemoConfigTest {
       DemoConfig.RandomizedExecution exec = new DemoConfig.RandomizedExecution(false, 30, false);
 
       DemoConfig config = new DemoConfig(
-          true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0,
+          true, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, true, true, true, 10_000_000.0,
           cost, exec, DemoConfig.MarketStabilityGuard.defaults(),
           DemoConfig.OrderImpactPredictor.defaults(), DemoConfig.MarketMakerMode.defaults(),
           DemoConfig.DynamicStops.defaults(), DemoConfig.PortfolioAlgebra.defaults(),

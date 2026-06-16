@@ -9,6 +9,7 @@ import spock.lang.Subject
 
 import java.time.Instant
 import java.util.UUID
+import java.math.BigDecimal;
 
 class IngestionIdempotencyRepositorySpec extends Specification {
 
@@ -26,9 +27,9 @@ class IngestionIdempotencyRepositorySpec extends Specification {
     def "given idempotent tick rows, when saveAllIdempotent, then uses ON CONFLICT dedup sql"() {
         given:
             def rows = [
-                new IdempotentRow(KEY, new TickData(NOW, "SPY", 100.0, 1L, new int[0])),
+                new IdempotentRow(KEY, new TickData(NOW, "SPY", BigDecimal.valueOf(100.0), 1L, new int[0])),
                 new IdempotentRow(UUID.fromString("00000000-0000-0000-0000-000000000002"),
-                    new TickData(NOW, "QQQ", 200.0, 2L, new int[0]))
+                    new TickData(NOW, "QQQ", BigDecimal.valueOf(200.0), 2L, new int[0]))
             ]
             String capturedSql = null
 

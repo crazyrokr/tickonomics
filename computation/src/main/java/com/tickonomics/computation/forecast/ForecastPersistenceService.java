@@ -109,8 +109,8 @@ public class ForecastPersistenceService {
 
     double[] returns = new double[ticks.size() - 1];
     for (int i = 1; i < ticks.size(); i++) {
-      double prevPrice = ticks.get(i - 1).price();
-      double currPrice = ticks.get(i).price();
+      double prevPrice = ticks.get(i - 1).price().doubleValue();
+      double currPrice = ticks.get(i).price().doubleValue();
       returns[i - 1] = Math.log(currPrice / prevPrice);
     }
 

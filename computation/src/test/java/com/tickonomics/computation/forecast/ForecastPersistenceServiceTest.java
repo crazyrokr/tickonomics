@@ -26,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.math.BigDecimal;
 
 @ExtendWith(MockitoExtension.class)
 class ForecastPersistenceServiceTest {
@@ -135,11 +136,11 @@ class ForecastPersistenceServiceTest {
           .thenReturn(List.of(forecast));
 
       List<TickData> ticks = List.of(
-          new TickData(pastTime.minusSeconds(86400 * 5), "SPY", 100.0, 1000, new int[0]),
-          new TickData(pastTime.minusSeconds(86400 * 4), "SPY", 101.0, 1000, new int[0]),
-          new TickData(pastTime.minusSeconds(86400 * 3), "SPY", 102.0, 1000, new int[0]),
-          new TickData(pastTime.minusSeconds(86400 * 2), "SPY", 103.0, 1000, new int[0]),
-          new TickData(pastTime.minusSeconds(86400), "SPY", 104.0, 1000, new int[0]));
+          new TickData(pastTime.minusSeconds(86400 * 5), "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]),
+          new TickData(pastTime.minusSeconds(86400 * 4), "SPY", BigDecimal.valueOf(101.0), 1000, new int[0]),
+          new TickData(pastTime.minusSeconds(86400 * 3), "SPY", BigDecimal.valueOf(102.0), 1000, new int[0]),
+          new TickData(pastTime.minusSeconds(86400 * 2), "SPY", BigDecimal.valueOf(103.0), 1000, new int[0]),
+          new TickData(pastTime.minusSeconds(86400), "SPY", BigDecimal.valueOf(104.0), 1000, new int[0]));
       when(tickDataRepository.findBySymbolAndTimeBetween(eq("SPY"), any(Instant.class), any(Instant.class)))
           .thenReturn(ticks);
 
@@ -165,9 +166,9 @@ class ForecastPersistenceServiceTest {
     @Test
     void givenConstantPrices_whenCompute_thenZeroVol() {
       List<TickData> ticks = List.of(
-          new TickData(NOW, "SPY", 100.0, 1000, new int[0]),
-          new TickData(NOW.plusSeconds(86400), "SPY", 100.0, 1000, new int[0]),
-          new TickData(NOW.plusSeconds(2 * 86400), "SPY", 100.0, 1000, new int[0]));
+          new TickData(NOW, "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]),
+          new TickData(NOW.plusSeconds(86400), "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]),
+          new TickData(NOW.plusSeconds(2 * 86400), "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]));
 
       double vol = service.computeAnnualizedVol(ticks);
 
@@ -177,9 +178,9 @@ class ForecastPersistenceServiceTest {
     @Test
     void givenRisingPrices_whenCompute_thenPositiveVol() {
       List<TickData> ticks = List.of(
-          new TickData(NOW, "SPY", 100.0, 1000, new int[0]),
-          new TickData(NOW.plusSeconds(86400), "SPY", 105.0, 1000, new int[0]),
-          new TickData(NOW.plusSeconds(2 * 86400), "SPY", 110.0, 1000, new int[0]));
+          new TickData(NOW, "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]),
+          new TickData(NOW.plusSeconds(86400), "SPY", BigDecimal.valueOf(105.0), 1000, new int[0]),
+          new TickData(NOW.plusSeconds(2 * 86400), "SPY", BigDecimal.valueOf(110.0), 1000, new int[0]));
 
       double vol = service.computeAnnualizedVol(ticks);
 
@@ -189,7 +190,7 @@ class ForecastPersistenceServiceTest {
     @Test
     void givenSingleTick_whenCompute_thenZeroVol() {
       List<TickData> ticks = List.of(
-          new TickData(NOW, "SPY", 100.0, 1000, new int[0]));
+          new TickData(NOW, "SPY", BigDecimal.valueOf(100.0), 1000, new int[0]));
 
       double vol = service.computeAnnualizedVol(ticks);
 

@@ -1,6 +1,7 @@
 package com.tickonomics.computation.demo;
 
 import com.tickonomics.computation.kpi.SignalResult;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,6 +17,7 @@ public class SniperExecutionHandler {
     double fillPrice = SignalResult.DIR_SELL.equals(signal.direction())
         ? referencePrice * (1.0 - multiplier)
         : referencePrice * (1.0 + multiplier);
-    return new FillEstimate("SNIPER", fillPrice, aggressiveSlippageBps, true);
+    return new FillEstimate("SNIPER", BigDecimal.valueOf(fillPrice),
+        aggressiveSlippageBps, true);
   }
 }

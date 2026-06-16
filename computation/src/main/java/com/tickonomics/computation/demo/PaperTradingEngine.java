@@ -8,6 +8,8 @@ import com.tickonomics.computation.kpi.SignalResult;
 import com.tickonomics.computation.portfolio.PortfolioManagementAlgebra;
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PaperTradingEngine {
+
+  private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
+  private static final BigDecimal BPS_DIVISOR = new BigDecimal("10000");
 
   private final VirtualPortfolio portfolio;
   private final Eq553SlippageModel slippageModel;
@@ -76,11 +81,11 @@ public class PaperTradingEngine {
     this.randomizedExecutionWindow = randomizedExecutionWindow;
   }
 
-  public TradeResult processSignal(SignalResult signal, IliResult iliResult, double price) {
+  public TradeResult processSignal(SignalResult signal, IliResult iliResult, BigDecimal price) {
     return processSignal(signal, iliResult, price, ExecutionContext.empty());
   }
 
-  public TradeResult processSignal(SignalResult signal, IliResult iliResult, double price,
+  public TradeResult processSignal(SignalResult signal, IliResult iliResult, BigDecimal price,
       ExecutionContext ctx) {
     if (!config.enabled() || !config.autoExecuteSignals()) {
       return TradeResult.skipped("demo_disabled");
@@ -117,30 +122,34 @@ public class PaperTradingEngine {
       portfolio.closePosition(existing.id(), price);
     }
 
-    double orderNotional = config.virtualBalance() * config.positionSizePct() / 100.0;
+    BigDecimal orderNotional = config.virtualBalance()
+        .multiply(BigDecimal.valueOf(config.positionSizePct()))
+        .divide(ONE_HUNDRED, MathContext.DECIMAL64);
     if (config.orderImpactPredictor().enabled()) {
-      double liquidityNotional = ctx.liquidityNotional() > 0
-          ? ctx.liquidityNotional() : config.defaultAddv();
+      double liquidityNotional = ctx.liquidityNotional().compareTo(BigDecimal.ZERO) > 0
+          ? ctx.liquidityNotional().doubleValue() : config.defaultAddv();
       if (!orderImpactPredictor.isAcceptable(
-          orderNotional, liquidityNotional, config.orderImpactPredictor().maxImpactThresholdBps())) {
+          orderNotional.doubleValue(), liquidityNotional,
+          config.orderImpactPredictor().maxImpactThresholdBps())) {
         return TradeResult.skipped("order_impact_excessive");
       }
     }
 
-    double rawSlippageBps = slippageModel.calculateSlippageBps(0.20, config.defaultAddv(), orderNotional);
-    double slippageMultiplier = fillProbabilityEngine.slippageMultiplier(ctx.pli());
+    double rawSlippageBps = slippageModel.calculateSlippageBps(
+        0.20, config.defaultAddv(), orderNotional.doubleValue());
+    double slippageMultiplier = fillProbabilityEngine.slippageMultiplier(ctx.pli().doubleValue());
     double effectiveSlippageBps = rawSlippageBps * slippageMultiplier;
 
-    double fillPrice;
+    BigDecimal fillPrice;
     double spreadCaptureBps = 0.0;
     String strategy = "MARKET";
-    if (config.marketMakerMode().enabled() && ctx.bid() > 0 && ctx.ask() > 0) {
+    if (config.marketMakerMode().enabled()) {
       MarketMakerExecutionModel.ExecutionDecision decision =
-          marketMakerModel.decide(ctx.bid(), ctx.ask(), price,
-              config.marketMakerMode().preferLimitOrders());
+          marketMakerModel.decide(ctx.bid().doubleValue(), ctx.ask().doubleValue(),
+              price.doubleValue(), config.marketMakerMode().preferLimitOrders());
       strategy = decision.strategy().name();
       if (decision.strategy() == MarketMakerExecutionModel.Strategy.LIMIT) {
-        fillPrice = decision.expectedFillPrice();
+        fillPrice = BigDecimal.valueOf(decision.expectedFillPrice());
         spreadCaptureBps = decision.spreadCaptureBps();
       } else {
         fillPrice = applySlippage(price, signal.direction(), effectiveSlippageBps);
@@ -159,20 +168,23 @@ public class PaperTradingEngine {
       }
     }
 
-    double commission = 0.0;
+    BigDecimal commission = BigDecimal.ZERO;
     if (config.portfolioAlgebra().useStandardizedCostModel()) {
-      double quantity = orderNotional / fillPrice;
       DemoConfig.AdvancedCostModel cost = config.advancedCostModel();
       commission = portfolioAlgebra.computeCosts(
-          (long) Math.ceil(quantity), fillPrice,
-          cost.passiveBps() / 10_000.0, cost.aggressiveBps() / 10_000.0,
-          effectiveSlippageBps).totalCost();
+          fillPrice.doubleValue() > 0
+              ? orderNotional.divide(fillPrice, 0, java.math.RoundingMode.CEILING).longValue()
+              : 0,
+          fillPrice,
+          BigDecimal.valueOf(cost.passiveBps()).divide(BPS_DIVISOR, MathContext.DECIMAL64),
+          BigDecimal.valueOf(cost.aggressiveBps()).divide(BPS_DIVISOR, MathContext.DECIMAL64),
+          BigDecimal.valueOf(effectiveSlippageBps)).totalCost();
     }
 
     VirtualPortfolioPosition position = portfolio.openPosition(
         signal, fillPrice, stopLossPct, takeProfitPct, commission);
 
-    recordExecutionSamples(signal, price, effectiveSlippageBps);
+    recordExecutionSamples(signal, price.doubleValue(), effectiveSlippageBps);
 
     long executionDelaySeconds = config.randomizedExecution().enabled()
         ? randomizedExecutionWindow.delaySeconds(
@@ -185,11 +197,11 @@ public class PaperTradingEngine {
         executionDelaySeconds, spreadCaptureBps);
   }
 
-  private double applySlippage(double price, String direction, double slippageBps) {
-    double factor = slippageBps / 10_000.0;
+  private BigDecimal applySlippage(BigDecimal price, String direction, double slippageBps) {
+    BigDecimal factor = BigDecimal.valueOf(slippageBps).divide(BPS_DIVISOR, MathContext.DECIMAL64);
     return SignalResult.DIR_SELL.equals(direction)
-        ? price * (1.0 - factor)
-        : price * (1.0 + factor);
+        ? price.multiply(BigDecimal.ONE.subtract(factor))
+        : price.multiply(BigDecimal.ONE.add(factor));
   }
 
   private void recordExecutionSamples(SignalResult signal, double referencePrice,
@@ -209,13 +221,13 @@ public class PaperTradingEngine {
     aggressiveSamples.clear();
   }
 
-  public List<VirtualPortfolioTrade> evaluateExits(Map<String, Double> currentPrices) {
+  public List<VirtualPortfolioTrade> evaluateExits(Map<String, BigDecimal> currentPrices) {
     portfolio.markToMarket(currentPrices);
     List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(currentPrices);
 
     return breached.stream()
         .map(pos -> {
-          Double price = currentPrices.get(pos.symbol());
+          BigDecimal price = currentPrices.get(pos.symbol());
           return portfolio.closePosition(pos.id(), price);
         })
         .toList();
@@ -223,13 +235,14 @@ public class PaperTradingEngine {
 
   public record ExecutionContext(
       List<Double> recentPortfolioReturns,
-      double pli,
-      double bid,
-      double ask,
-      double liquidityNotional) {
+      BigDecimal pli,
+      BigDecimal bid,
+      BigDecimal ask,
+      BigDecimal liquidityNotional) {
 
     public static ExecutionContext empty() {
-      return new ExecutionContext(List.of(), 0.0, 0.0, 0.0, 0.0);
+      return new ExecutionContext(List.of(), BigDecimal.ZERO, BigDecimal.ZERO,
+          BigDecimal.ZERO, BigDecimal.ZERO);
     }
   }
 
@@ -238,22 +251,22 @@ public class PaperTradingEngine {
       Long positionId,
       String symbol,
       String direction,
-      double quantity,
-      double fillPrice,
+      BigDecimal quantity,
+      BigDecimal fillPrice,
       double slippageBps,
-      double commission,
+      BigDecimal commission,
       String strategy,
       long executionDelaySeconds,
       double spreadCaptureBps,
       String reason) {
 
     static TradeResult skipped(String reason) {
-      return new TradeResult("SKIPPED", null, null, null, 0, 0, 0, 0,
-          null, 0L, 0.0, reason);
+      return new TradeResult("SKIPPED", null, null, null, BigDecimal.ZERO,
+          BigDecimal.ZERO, 0, BigDecimal.ZERO, null, 0L, 0.0, reason);
     }
 
     static TradeResult opened(long positionId, String symbol, String direction,
-        double quantity, double fillPrice, double slippageBps, double commission,
+        BigDecimal quantity, BigDecimal fillPrice, double slippageBps, BigDecimal commission,
         String strategy, long executionDelaySeconds, double spreadCaptureBps) {
       return new TradeResult("OPENED", positionId, symbol, direction,
           quantity, fillPrice, slippageBps, commission, strategy,

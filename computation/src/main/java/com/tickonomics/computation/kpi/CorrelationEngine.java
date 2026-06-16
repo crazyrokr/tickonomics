@@ -103,7 +103,7 @@ public class CorrelationEngine {
         try {
             var ticks = tickRepository.findLatestBySymbol(identifier, count);
             if (!ticks.isEmpty()) {
-                return ticks.stream().mapToDouble(t -> t.price()).toArray();
+                return ticks.stream().mapToDouble(t -> t.price().doubleValue()).toArray();
             }
         } catch (Exception ignored) {}
 

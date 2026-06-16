@@ -2,6 +2,7 @@ package com.tickonomics.persistence.repository;
 
 import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.TickData;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Repository;
 public class TickDataRepository {
 
   private static final String INSERT_SQL =
-      "INSERT INTO tick_data (time, symbol, price, volume, conditions) "
-          + "VALUES (:time, :symbol, :price, :volume, :conditions)";
+      "INSERT INTO tick_data (time, symbol, price, price_num, volume, conditions) "
+          + "VALUES (:time, :symbol, :price, :price, :volume, :conditions)";
 
   private static final String IDEMPOTENT_INSERT_SQL =
-      "INSERT INTO tick_data (time, symbol, price, volume, conditions, idempotency_key) "
-          + "VALUES (:time, :symbol, :price, :volume, :conditions, :idempotencyKey) "
+      "INSERT INTO tick_data (time, symbol, price, price_num, volume, conditions, idempotency_key) "
+          + "VALUES (:time, :symbol, :price, :price, :volume, :conditions, :idempotencyKey) "
           + "ON CONFLICT (time, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING";
 
   private final NamedParameterJdbcTemplate jdbc;
@@ -59,7 +60,7 @@ public class TickDataRepository {
 
   public List<TickData> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {
     return jdbc.query(
-        "SELECT time, symbol, price, volume, conditions FROM tick_data WHERE symbol = :symbol AND time BETWEEN :from "
+        "SELECT time, symbol, price_num, volume, conditions FROM tick_data WHERE symbol = :symbol AND time BETWEEN :from "
             + "AND :to ORDER BY time",
         Map.of("symbol", symbol, "from", from, "to", to),
         (rs, rowNum) -> new TickData(
@@ -67,7 +68,7 @@ public class TickDataRepository {
                 .getTimestamp("time")
                 .toInstant(),
             rs.getString("symbol"),
-            rs.getDouble("price"),
+            rs.getBigDecimal("price_num"),
             rs.getLong("volume"),
             (int[]) rs
                 .getArray("conditions")
@@ -76,7 +77,7 @@ public class TickDataRepository {
 
   public List<TickData> findLatestBySymbol(String symbol, int limit) {
     return jdbc.query(
-        "SELECT time, symbol, price, volume, conditions FROM tick_data WHERE symbol = :symbol ORDER BY time DESC "
+        "SELECT time, symbol, price_num, volume, conditions FROM tick_data WHERE symbol = :symbol ORDER BY time DESC "
             + "LIMIT :limit",
         Map.of("symbol", symbol, "limit", limit),
         (rs, rowNum) -> new TickData(
@@ -84,7 +85,7 @@ public class TickDataRepository {
                 .getTimestamp("time")
                 .toInstant(),
             rs.getString("symbol"),
-            rs.getDouble("price"),
+            rs.getBigDecimal("price_num"),
             rs.getLong("volume"),
             (int[]) rs
                 .getArray("conditions")
