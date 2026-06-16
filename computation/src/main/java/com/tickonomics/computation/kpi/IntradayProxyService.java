@@ -39,7 +39,7 @@ public class IntradayProxyService {
                     ProxyStatus.INSUFFICIENT_DATA, "Missing tick or rate data");
         }
 
-        double tickMean = ticks.stream().mapToDouble(TickData::price).average().orElse(0.0);
+        double tickMean = ticks.stream().mapToDouble(t -> t.price().doubleValue()).average().orElse(0.0);
         double rateMean = rates.stream().mapToDouble(RateSnapshot::value).average().orElse(0.0);
 
         if (tickMean <= 0 || rateMean <= 0) {

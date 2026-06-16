@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tickonomics.computation.kpi.SignalResult;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class ExecutionHandlersTest {
       FillEstimate estimate = passive.fill(buy, 500.0);
 
       assertEquals("PASSIVE", estimate.type());
-      assertEquals(500.0, estimate.fillPrice());
+      assertEquals(0, new BigDecimal("500.0").compareTo(estimate.fillPrice()));
       assertEquals(0.0, estimate.slippageBps());
       assertTrue(estimate.filled());
     }
@@ -48,7 +49,8 @@ class ExecutionHandlersTest {
       FillEstimate estimate = sniper.fill(buy, 500.0, 10.0);
 
       assertEquals("SNIPER", estimate.type());
-      assertEquals(500.5, estimate.fillPrice(), 0.0001);
+      double expectedPrice = 500.0 * (1.0 + 10.0 / 10000.0);
+      assertEquals(0, BigDecimal.valueOf(expectedPrice).compareTo(estimate.fillPrice()));
       assertEquals(10.0, estimate.slippageBps());
     }
 
@@ -56,14 +58,14 @@ class ExecutionHandlersTest {
     void givenSellSignal_whenFill_thenFillPriceBelowReference() {
       FillEstimate estimate = sniper.fill(sell, 500.0, 10.0);
 
-      assertEquals(499.5, estimate.fillPrice(), 0.0001);
+      assertEquals(0, new BigDecimal("499.5").compareTo(estimate.fillPrice()));
     }
 
     @Test
     void givenZeroSlippage_whenFill_thenFillPriceEqualsReference() {
       FillEstimate estimate = sniper.fill(buy, 500.0, 0.0);
 
-      assertEquals(500.0, estimate.fillPrice());
+      assertEquals(0, new BigDecimal("500.0").compareTo(estimate.fillPrice()));
     }
   }
 }

@@ -7,11 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import java.math.BigDecimal;
 
 class CdmTickTest {
 
   private static CdmTick tick(int... conditions) {
-    return new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", 150.0, 100L, conditions);
+    return new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", BigDecimal.valueOf(150.0), 100L, conditions);
   }
 
   @Nested
@@ -39,8 +40,8 @@ class CdmTickTest {
 
     @Test
     void givenNullConditionsOnBoth_whenEquals_thenEqual() {
-      var a = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", 150.0, 100L, null);
-      var b = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", 150.0, 100L, null);
+      var a = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", BigDecimal.valueOf(150.0), 100L, null);
+      var b = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", BigDecimal.valueOf(150.0), 100L, null);
 
       assertTrue(a.equals(b));
       assertEquals(a.hashCode(), b.hashCode());
@@ -68,7 +69,7 @@ class CdmTickTest {
     @Test
     void givenCallerMutatesSourceArray_whenConditionsAccessed_thenUnchanged() {
       var source = new int[] {1, 2};
-      var tick = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", 150.0, 100L, source);
+      var tick = new CdmTick(Instant.parse("2026-06-14T10:00:00Z"), "AAPL", BigDecimal.valueOf(150.0), 100L, source);
 
       source[0] = 99;
 

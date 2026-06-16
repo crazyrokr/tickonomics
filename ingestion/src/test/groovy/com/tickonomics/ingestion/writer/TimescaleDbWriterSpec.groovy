@@ -8,6 +8,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import java.time.Instant
+import java.math.BigDecimal;
 
 class TimescaleDbWriterSpec extends Specification {
 
@@ -27,7 +28,7 @@ class TimescaleDbWriterSpec extends Specification {
     }
 
     private static TickData tick(String symbol, Instant time) {
-        new TickData(time, symbol, 100.0, 1L, new int[0])
+        new TickData(time, symbol, BigDecimal.valueOf(100.0), 1L, new int[0])
     }
 
     def "given tick below batch size, when writeTick, then buffered and not flushed"() {

@@ -6,6 +6,7 @@ import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.SignalQualityReportRepository;
 import com.tickonomics.persistence.repository.SignalLogRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -80,8 +81,8 @@ public class SignalQualityAnalyzer {
 
     HitStats hitStats = computeHitStats(windowSignals, reportDate);
     double vsSpyReturn = computeVsSpyReturn(startDate, reportDate);
-    double portfolioReturn = config.virtualBalance() > 0
-        ? portfolioPnl / config.virtualBalance() : 0.0;
+    double portfolioReturn = config.virtualBalance().compareTo(BigDecimal.ZERO) > 0
+        ? portfolioPnl / config.virtualBalance().doubleValue() : 0.0;
     ReturnGapCalculator.ReturnGapResult returnGap =
         returnGapCalculator.calculate(portfolioReturn, vsSpyReturn);
 
@@ -104,14 +105,14 @@ public class SignalQualityAnalyzer {
   double computePortfolioPnl(List<VirtualPortfolioTrade> trades) {
     return trades.stream()
         .filter(t -> t.realizedPnl() != null)
-        .mapToDouble(VirtualPortfolioTrade::realizedPnl)
+        .mapToDouble(t -> t.realizedPnl().doubleValue())
         .sum();
   }
 
   double computeSharpe(List<VirtualPortfolioTrade> trades) {
     List<Double> returns = trades.stream()
         .filter(t -> t.realizedPnl() != null)
-        .mapToDouble(VirtualPortfolioTrade::realizedPnl)
+        .mapToDouble(t -> t.realizedPnl().doubleValue())
         .boxed()
         .toList();
 
@@ -131,7 +132,7 @@ public class SignalQualityAnalyzer {
   double computeWinRate(List<VirtualPortfolioTrade> trades) {
     List<Double> pnls = trades.stream()
         .filter(t -> t.realizedPnl() != null)
-        .mapToDouble(VirtualPortfolioTrade::realizedPnl)
+        .mapToDouble(t -> t.realizedPnl().doubleValue())
         .boxed()
         .toList();
 
@@ -146,7 +147,7 @@ public class SignalQualityAnalyzer {
   double computeMaxDrawdown(List<VirtualPortfolioTrade> trades) {
     List<Double> pnls = trades.stream()
         .filter(t -> t.realizedPnl() != null)
-        .mapToDouble(VirtualPortfolioTrade::realizedPnl)
+        .mapToDouble(t -> t.realizedPnl().doubleValue())
         .boxed()
         .toList();
 

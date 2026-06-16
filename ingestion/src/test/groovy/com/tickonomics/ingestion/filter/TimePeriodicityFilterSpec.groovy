@@ -5,6 +5,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import java.time.Instant
+import java.math.BigDecimal;
 
 class TimePeriodicityFilterSpec extends Specification {
 
@@ -16,10 +17,10 @@ class TimePeriodicityFilterSpec extends Specification {
 
     def "given tick at whole second with price spike, when filter, then smoothed"() {
         given:
-            def tick = new TickData(WHOLE_SECOND, "SPY", 460.00, 5000, new int[0])
+            def tick = new TickData(WHOLE_SECOND, "SPY", BigDecimal.valueOf(460.00), 5000, new int[0])
             def recent = [
-                new TickData(WHOLE_SECOND.minusMillis(500), "SPY", 450.00, 100, new int[0]),
-                new TickData(WHOLE_SECOND.minusMillis(200), "SPY", 450.50, 110, new int[0])
+                new TickData(WHOLE_SECOND.minusMillis(500), "SPY", BigDecimal.valueOf(450.00), 100, new int[0]),
+                new TickData(WHOLE_SECOND.minusMillis(200), "SPY", BigDecimal.valueOf(450.50), 110, new int[0])
             ]
 
         when:
@@ -32,9 +33,9 @@ class TimePeriodicityFilterSpec extends Specification {
 
     def "given tick mid-second, when filter, then unchanged"() {
         given:
-            def tick = new TickData(MID_SECOND, "SPY", 460.00, 5000, new int[0])
+            def tick = new TickData(MID_SECOND, "SPY", BigDecimal.valueOf(460.00), 5000, new int[0])
             def recent = [
-                new TickData(MID_SECOND.minusMillis(500), "SPY", 450.00, 100, new int[0])
+                new TickData(MID_SECOND.minusMillis(500), "SPY", BigDecimal.valueOf(450.00), 100, new int[0])
             ]
 
         when:
@@ -46,10 +47,10 @@ class TimePeriodicityFilterSpec extends Specification {
 
     def "given tick at whole second without price spike, when filter, then unchanged"() {
         given:
-            def tick = new TickData(WHOLE_SECOND, "SPY", 450.51, 100, new int[0])
+            def tick = new TickData(WHOLE_SECOND, "SPY", BigDecimal.valueOf(450.51), 100, new int[0])
             def recent = [
-                new TickData(WHOLE_SECOND.minusMillis(500), "SPY", 450.50, 100, new int[0]),
-                new TickData(WHOLE_SECOND.minusMillis(200), "SPY", 450.50, 105, new int[0])
+                new TickData(WHOLE_SECOND.minusMillis(500), "SPY", BigDecimal.valueOf(450.50), 100, new int[0]),
+                new TickData(WHOLE_SECOND.minusMillis(200), "SPY", BigDecimal.valueOf(450.50), 105, new int[0])
             ]
 
         when:
@@ -61,7 +62,7 @@ class TimePeriodicityFilterSpec extends Specification {
 
     def "given insufficient context, when filter, then unchanged"() {
         given:
-            def tick = new TickData(WHOLE_SECOND, "SPY", 460.00, 5000, new int[0])
+            def tick = new TickData(WHOLE_SECOND, "SPY", BigDecimal.valueOf(460.00), 5000, new int[0])
 
         when:
             def result = filter.apply(tick, [])

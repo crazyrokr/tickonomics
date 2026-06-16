@@ -1,6 +1,7 @@
 package com.tickonomics.ingestion.filter;
 
 import com.tickonomics.persistence.entity.TickData;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,8 @@ public class DeRoundingFilter implements TickFilter {
         }
 
         double timeWeightedPrice = computeTimeWeightedPrice(recentTicks, tick.time());
-        return new TickData(tick.time(), tick.symbol(), timeWeightedPrice, avgVolume, tick.conditions());
+        return new TickData(tick.time(), tick.symbol(),
+            BigDecimal.valueOf(timeWeightedPrice), avgVolume, tick.conditions());
     }
 
     boolean isNearRoundMark(Instant time) {
@@ -67,10 +69,11 @@ public class DeRoundingFilter implements TickFilter {
 
         for (TickData t : ticks) {
             double weight = 1.0 / (1.0 + Math.abs(t.time().toEpochMilli() - referenceTime.toEpochMilli()) / 1000.0);
-            weightedSum += t.price() * weight;
+            weightedSum += t.price().doubleValue() * weight;
             weightTotal += weight;
         }
 
-        return weightTotal > 0 ? weightedSum / weightTotal : ticks.get(ticks.size() - 1).price();
+        return weightTotal > 0 ? weightedSum / weightTotal
+            : ticks.get(ticks.size() - 1).price().doubleValue();
     }
 }

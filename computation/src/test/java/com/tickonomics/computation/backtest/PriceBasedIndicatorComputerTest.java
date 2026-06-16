@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import java.math.BigDecimal;
 
 class PriceBasedIndicatorComputerTest {
 
@@ -19,7 +20,7 @@ class PriceBasedIndicatorComputerTest {
         List<TickData> ticks = new ArrayList<>();
         for (int i = 0; i < prices.length; i++) {
             ticks.add(new TickData(Instant.parse("2025-01-01T00:00:00Z").plusSeconds((long) i * 86400),
-                    "SPY", prices[i], 1000L + i, new int[]{}));
+                    "SPY", BigDecimal.valueOf(prices[i]), 1000L + i, new int[]{}));
         }
         return ticks;
     }

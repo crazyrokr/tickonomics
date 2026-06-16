@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.entity;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public record VirtualPortfolioPosition(
@@ -7,12 +8,12 @@ public record VirtualPortfolioPosition(
     Instant openedAt,
     String symbol,
     String direction,
-    double quantity,
-    double entryPrice,
-    Double currentPrice,
-    Double unrealizedPnl,
-    Double stopLossPrice,
-    Double takeProfitPrice,
+    BigDecimal quantity,
+    BigDecimal entryPrice,
+    BigDecimal currentPrice,
+    BigDecimal unrealizedPnl,
+    BigDecimal stopLossPrice,
+    BigDecimal takeProfitPrice,
     Long signalId,
     Instant closedAt) {
 
@@ -23,10 +24,10 @@ public record VirtualPortfolioPosition(
     if (direction == null || direction.isBlank()) {
       throw new IllegalArgumentException("direction must not be blank");
     }
-    if (quantity <= 0) {
+    if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("quantity must be positive");
     }
-    if (entryPrice <= 0) {
+    if (entryPrice == null || entryPrice.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("entryPrice must be positive");
     }
   }

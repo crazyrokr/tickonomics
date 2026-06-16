@@ -42,8 +42,8 @@ public class HistoricalDataReplay {
 
     List<Double> returns = new ArrayList<>();
     for (int i = 1; i < dailyLast.size(); i++) {
-      double prev = dailyLast.get(i - 1).price();
-      double curr = dailyLast.get(i).price();
+      double prev = dailyLast.get(i - 1).price().doubleValue();
+      double curr = dailyLast.get(i).price().doubleValue();
       if (prev != 0) {
         returns.add((curr - prev) / prev);
       }

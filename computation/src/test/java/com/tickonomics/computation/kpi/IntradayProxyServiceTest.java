@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import java.math.BigDecimal;
 
 @ExtendWith(MockitoExtension.class)
 class IntradayProxyServiceTest {
@@ -44,7 +45,7 @@ class IntradayProxyServiceTest {
             ticks.add(new TickData(
                     now.minusSeconds((long) (count - i) * 60),
                     symbol,
-                    basePrice + i * 0.001,
+                    BigDecimal.valueOf(basePrice + i * 0.001),
                     100,
                     new int[]{}
             ));

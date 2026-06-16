@@ -1,6 +1,7 @@
 package com.tickonomics.persistence.repository;
 
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +23,16 @@ public class VirtualPortfolioPositionRepository {
   public long save(VirtualPortfolioPosition position) {
     var keyHolder = new GeneratedKeyHolder();
     jdbc.update(
-        "INSERT INTO virtual_portfolio_positions (opened_at, symbol, direction, quantity, entry_price, "
-            + "current_price, unrealized_pnl, stop_loss_price, take_profit_price, signal_id, closed_at) "
-            + "VALUES (:openedAt, :symbol, :direction, :quantity, :entryPrice, :currentPrice, "
-            + ":unrealizedPnl, :stopLossPrice, :takeProfitPrice, :signalId, :closedAt)",
+        "INSERT INTO virtual_portfolio_positions (opened_at, symbol, direction, "
+            + "quantity, quantity_num, entry_price, entry_price_num, "
+            + "current_price, current_price_num, unrealized_pnl, unrealized_pnl_num, "
+            + "stop_loss_price, stop_loss_price_num, take_profit_price, take_profit_price_num, "
+            + "signal_id, closed_at) "
+            + "VALUES (:openedAt, :symbol, :direction, "
+            + ":quantity, :quantity, :entryPrice, :entryPrice, "
+            + ":currentPrice, :currentPrice, :unrealizedPnl, :unrealizedPnl, "
+            + ":stopLossPrice, :stopLossPrice, :takeProfitPrice, :takeProfitPrice, "
+            + ":signalId, :closedAt)",
         toParams(position),
         keyHolder,
         new String[]{"id"});
@@ -34,8 +41,10 @@ public class VirtualPortfolioPositionRepository {
 
   public List<VirtualPortfolioPosition> findOpenPositions() {
     return jdbc.query(
-        "SELECT id, opened_at, symbol, direction, quantity, entry_price, current_price, "
-            + "unrealized_pnl, stop_loss_price, take_profit_price, signal_id, closed_at "
+        "SELECT id, opened_at, symbol, direction, "
+            + "quantity_num, entry_price_num, current_price_num, "
+            + "unrealized_pnl_num, stop_loss_price_num, take_profit_price_num, "
+            + "signal_id, closed_at "
             + "FROM virtual_portfolio_positions WHERE closed_at IS NULL ORDER BY opened_at",
         Map.of(),
         rowMapper());
@@ -43,24 +52,30 @@ public class VirtualPortfolioPositionRepository {
 
   public Optional<VirtualPortfolioPosition> findOpenBySymbol(String symbol) {
     List<VirtualPortfolioPosition> results = jdbc.query(
-        "SELECT id, opened_at, symbol, direction, quantity, entry_price, current_price, "
-            + "unrealized_pnl, stop_loss_price, take_profit_price, signal_id, closed_at "
+        "SELECT id, opened_at, symbol, direction, "
+            + "quantity_num, entry_price_num, current_price_num, "
+            + "unrealized_pnl_num, stop_loss_price_num, take_profit_price_num, "
+            + "signal_id, closed_at "
             + "FROM virtual_portfolio_positions WHERE symbol = :symbol AND closed_at IS NULL",
         Map.of("symbol", symbol),
         rowMapper());
     return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
   }
 
-  public void updateMarkToMarket(long id, double currentPrice, double unrealizedPnl) {
+  public void updateMarkToMarket(long id, BigDecimal currentPrice, BigDecimal unrealizedPnl) {
     jdbc.update(
         "UPDATE virtual_portfolio_positions SET current_price = :currentPrice, "
-            + "unrealized_pnl = :unrealizedPnl WHERE id = :id",
+            + "current_price_num = :currentPrice, "
+            + "unrealized_pnl = :unrealizedPnl, "
+            + "unrealized_pnl_num = :unrealizedPnl "
+            + "WHERE id = :id",
         Map.of("id", id, "currentPrice", currentPrice, "unrealizedPnl", unrealizedPnl));
   }
 
-  public void close(long id, Instant closedAt, double exitPrice) {
+  public void close(long id, Instant closedAt, BigDecimal exitPrice) {
     jdbc.update(
-        "UPDATE virtual_portfolio_positions SET closed_at = :closedAt, current_price = :exitPrice "
+        "UPDATE virtual_portfolio_positions SET closed_at = :closedAt, "
+            + "current_price = :exitPrice, current_price_num = :exitPrice "
             + "WHERE id = :id",
         Map.of("id", id, "closedAt", closedAt, "exitPrice", exitPrice));
   }
@@ -71,12 +86,12 @@ public class VirtualPortfolioPositionRepository {
         rs.getTimestamp("opened_at").toInstant(),
         rs.getString("symbol"),
         rs.getString("direction"),
-        rs.getDouble("quantity"),
-        rs.getDouble("entry_price"),
-        rs.getObject("current_price") != null ? rs.getDouble("current_price") : null,
-        rs.getObject("unrealized_pnl") != null ? rs.getDouble("unrealized_pnl") : null,
-        rs.getObject("stop_loss_price") != null ? rs.getDouble("stop_loss_price") : null,
-        rs.getObject("take_profit_price") != null ? rs.getDouble("take_profit_price") : null,
+        rs.getBigDecimal("quantity_num"),
+        rs.getBigDecimal("entry_price_num"),
+        rs.getObject("current_price_num") != null ? rs.getBigDecimal("current_price_num") : null,
+        rs.getObject("unrealized_pnl_num") != null ? rs.getBigDecimal("unrealized_pnl_num") : null,
+        rs.getObject("stop_loss_price_num") != null ? rs.getBigDecimal("stop_loss_price_num") : null,
+        rs.getObject("take_profit_price_num") != null ? rs.getBigDecimal("take_profit_price_num") : null,
         rs.getObject("signal_id") != null ? rs.getLong("signal_id") : null,
         rs.getTimestamp("closed_at") != null ? rs.getTimestamp("closed_at").toInstant() : null);
   }

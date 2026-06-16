@@ -18,6 +18,7 @@ import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.SignalLogRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +70,16 @@ class DemoControllerTest {
     void givenPortfolioSummary_whenGetPortfolioSummary_thenBalanceReturned() {
       when(portfolio.getPortfolioSummary()).thenReturn(
           new VirtualPortfolio.PortfolioSummary(
-              100_000.0, 105_000.0, 4_000.0, 1_000.0, 2, 10, 0.6, true));
+              new BigDecimal("100000.00"), new BigDecimal("105000.00"),
+              new BigDecimal("4000.00"), new BigDecimal("1000.00"),
+              2, 10, 0.6, true));
 
       ResponseEntity<Map<String, Object>> response = controller.getPortfolioSummary();
 
       assertEquals(200, response.getStatusCode().value());
       Map<String, Object> body = response.getBody();
-      assertEquals(105_000.0, (Double) body.get("balance"));
-      assertEquals(5_000.0, (Double) body.get("totalPnl"));
+      assertEquals(0, new BigDecimal("105000.00").compareTo((BigDecimal) body.get("balance")));
+      assertEquals(0, new BigDecimal("5000.00").compareTo((BigDecimal) body.get("totalPnl")));
       assertEquals(0.6, (Double) body.get("winRate"));
       assertTrue((Boolean) body.get("enabled"));
     }
@@ -89,7 +92,8 @@ class DemoControllerTest {
     @SuppressWarnings("unchecked")
     void givenTrades_whenGetTrades_thenTradeListReturned() {
       VirtualPortfolioTrade trade = new VirtualPortfolioTrade(
-          1L, Instant.now(), "SPY", "BUY", 10.0, 500.0, 1.0, 0.5, null, 1L, null, "PAPER");
+          1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"),
+          new BigDecimal("1.0"), new BigDecimal("0.5"), null, 1L, null, "PAPER");
       when(tradeRepository.findLatest(50, 0)).thenReturn(List.of(trade));
 
       ResponseEntity<List<Map<String, Object>>> response = controller.getTrades(50, 0);
@@ -131,14 +135,18 @@ class DemoControllerTest {
     @Test
     @SuppressWarnings("unchecked")
     void givenOpenPosition_whenClosePosition_thenTradeReturned() {
-      when(portfolio.closePosition(eq(1L), eq(550.0))).thenReturn(
-          new VirtualPortfolioTrade(2L, Instant.now(), "SPY", "SELL", 10.0,
-              550.0, 0, 0, 500.0, 1L, null, "PAPER"));
+      when(portfolio.closePosition(eq(1L), eq(new BigDecimal("550.0")))).thenReturn(
+          new VirtualPortfolioTrade(2L, Instant.now(), "SPY", "SELL",
+              new BigDecimal("10.0"), new BigDecimal("550.0"),
+              BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("500.0"),
+              1L, null, "PAPER"));
 
-      ResponseEntity<Map<String, Object>> response = controller.closePosition(1L, 550.0);
+      ResponseEntity<Map<String, Object>> response =
+          controller.closePosition(1L, new BigDecimal("550.0"));
 
       assertEquals(2L, response.getBody().get("tradeId"));
-      assertEquals(500.0, (Double) response.getBody().get("realizedPnl"));
+      assertEquals(0, new BigDecimal("500.0")
+          .compareTo((BigDecimal) response.getBody().get("realizedPnl")));
     }
   }
 
@@ -160,14 +168,17 @@ class DemoControllerTest {
     void givenPrices_whenActivateKillSwitch_thenLiquidatedCountReturned() {
       com.tickonomics.persistence.entity.VirtualPortfolioPosition open =
           new com.tickonomics.persistence.entity.VirtualPortfolioPosition(
-              1L, Instant.now(), "SPY", "BUY", 10.0, 500.0, null, null, 475.0, 550.0, null, null);
+              1L, Instant.now(), "SPY", "BUY",
+              new BigDecimal("10.0"), new BigDecimal("500.0"),
+              null, null, new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
       VirtualPortfolioTrade closed = new VirtualPortfolioTrade(
-          1L, Instant.now(), "SPY", "SELL", 10.0, 510.0, 0, 0, 100.0, 1L, null, "PAPER");
+          1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("510.0"),
+          BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("100.0"), 1L, null, "PAPER");
       when(portfolio.findOpenPositions()).thenReturn(List.of(open));
-      when(portfolio.closePosition(eq(1L), eq(510.0))).thenReturn(closed);
+      when(portfolio.closePosition(eq(1L), eq(new BigDecimal("510.0")))).thenReturn(closed);
 
       ResponseEntity<Map<String, Object>> response =
-          controller.activateKillSwitch(Map.of("SPY", 510.0));
+          controller.activateKillSwitch(Map.of("SPY", new BigDecimal("510.0")));
 
       assertTrue(killSwitch.isActive());
       assertEquals(true, response.getBody().get("active"));
@@ -252,10 +263,10 @@ class DemoControllerTest {
           .thenReturn(new VirtualPortfolio.LeverageRotationOutcome(signal, List.of()));
 
       ResponseEntity<Map<String, Object>> response =
-          controller.evaluateLeverageRotation(Map.of("SPY", 90.0));
+          controller.evaluateLeverageRotation(Map.of("SPY", new BigDecimal("90.0")));
 
       assertEquals("LEVERAGE_OFF", response.getBody().get("signal"));
-      assertEquals(90.0, (Double) response.getBody().get("benchmarkPrice"));
+      assertEquals(90.0, (Double) response.getBody().get("benchmarkPrice"), 0.001);
       assertEquals(0, response.getBody().get("closedTrades"));
       verify(portfolio).applyLeverageRotation(eq(priceLookup), eq(leverageSignaler), any());
     }

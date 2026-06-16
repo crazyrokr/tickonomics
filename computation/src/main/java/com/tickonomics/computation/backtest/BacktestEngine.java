@@ -71,12 +71,12 @@ public class BacktestEngine {
       Map<String, Double> input = indicatorComputer.compute(ticks, i);
       AlphaSignal signal = strategy.compute(input, ctx);
       generatedSignals.add(signal);
-      double previousPrice = ticks.get(i - 1).price();
+      double previousPrice = ticks.get(i - 1).price().doubleValue();
       double barReturn = previousPrice != 0.0
-          ? (ticks.get(i).price() - previousPrice) / previousPrice
+          ? (ticks.get(i).price().doubleValue() - previousPrice) / previousPrice
           : 0.0;
       signalReturns.add(barReturn);
-      executionPrices.add(ticks.get(i).price());
+      executionPrices.add(ticks.get(i).price().doubleValue());
     }
 
     if (signalReturns.isEmpty()) {
