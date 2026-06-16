@@ -4785,9 +4785,9 @@
     "semantic_hash": "92da225a73e8c43588e998c47d240b54"
   },
   "web/src/main/java/com/tickonomics/web/controller/KpiController.java": {
-    "mtime": 1781630534.9895027,
-    "ast_hash": "788766c56927764ccb5d7e6595ad9c89",
-    "semantic_hash": "788766c56927764ccb5d7e6595ad9c89"
+    "mtime": 1781650238.5340822,
+    "ast_hash": "0857e4beb936040fd3886955f6d21693",
+    "semantic_hash": ""
   },
   "web/src/main/java/com/tickonomics/web/controller/QuantController.java": {
     "mtime": 1780522044.0,
@@ -4860,9 +4860,9 @@
     "semantic_hash": "baaacc5f982e64c782145f2464c96f7c"
   },
   "web/src/test/java/com/tickonomics/web/controller/KpiControllerTest.java": {
-    "mtime": 1781631165.1853952,
-    "ast_hash": "705db9299418bc4b434be703989fb920",
-    "semantic_hash": "705db9299418bc4b434be703989fb920"
+    "mtime": 1781650541.1434474,
+    "ast_hash": "d1a94845e877285ef719564528ee40ba",
+    "semantic_hash": ""
   },
   "web/src/test/java/com/tickonomics/web/exception/GlobalExceptionHandlerTest.java": {
     "mtime": 1781544718.5306752,

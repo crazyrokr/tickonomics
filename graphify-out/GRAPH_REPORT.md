@@ -1,16 +1,16 @@
 # Graph Report - tickonomics  (2026-06-17)
 
 ## Corpus Check
-- 1220 files · ~691,135 words
+- 1220 files · ~691,156 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 14331 nodes · 19567 edges · 1338 communities (1144 shown, 194 thin omitted)
+- 14331 nodes · 19573 edges · 1344 communities (1147 shown, 197 thin omitted)
 - Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 1573 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b93cef20`
+- Built from commit: `8ca869d2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -875,6 +875,7 @@
 - [[_COMMUNITY_Community 1008|Community 1008]]
 - [[_COMMUNITY_Community 1009|Community 1009]]
 - [[_COMMUNITY_Community 1010|Community 1010]]
+- [[_COMMUNITY_Community 1011|Community 1011]]
 - [[_COMMUNITY_Community 1012|Community 1012]]
 - [[_COMMUNITY_Community 1013|Community 1013]]
 - [[_COMMUNITY_Community 1014|Community 1014]]
@@ -931,6 +932,7 @@
 - [[_COMMUNITY_Community 1065|Community 1065]]
 - [[_COMMUNITY_Community 1066|Community 1066]]
 - [[_COMMUNITY_Community 1067|Community 1067]]
+- [[_COMMUNITY_Community 1068|Community 1068]]
 - [[_COMMUNITY_Community 1069|Community 1069]]
 - [[_COMMUNITY_Community 1070|Community 1070]]
 - [[_COMMUNITY_Community 1071|Community 1071]]
@@ -955,8 +957,10 @@
 - [[_COMMUNITY_Community 1090|Community 1090]]
 - [[_COMMUNITY_Community 1091|Community 1091]]
 - [[_COMMUNITY_Community 1092|Community 1092]]
+- [[_COMMUNITY_Community 1093|Community 1093]]
 - [[_COMMUNITY_Community 1094|Community 1094]]
 - [[_COMMUNITY_Community 1095|Community 1095]]
+- [[_COMMUNITY_Community 1096|Community 1096]]
 - [[_COMMUNITY_Community 1097|Community 1097]]
 - [[_COMMUNITY_Community 1098|Community 1098]]
 - [[_COMMUNITY_Community 1099|Community 1099]]
@@ -980,6 +984,7 @@
 - [[_COMMUNITY_Community 1117|Community 1117]]
 - [[_COMMUNITY_Community 1118|Community 1118]]
 - [[_COMMUNITY_Community 1119|Community 1119]]
+- [[_COMMUNITY_Community 1120|Community 1120]]
 - [[_COMMUNITY_Community 1121|Community 1121]]
 - [[_COMMUNITY_Community 1122|Community 1122]]
 - [[_COMMUNITY_Community 1123|Community 1123]]
@@ -1031,6 +1036,7 @@
 - [[_COMMUNITY_Community 1169|Community 1169]]
 - [[_COMMUNITY_Community 1170|Community 1170]]
 - [[_COMMUNITY_Community 1171|Community 1171]]
+- [[_COMMUNITY_Community 1172|Community 1172]]
 - [[_COMMUNITY_Community 1173|Community 1173]]
 - [[_COMMUNITY_Community 1174|Community 1174]]
 - [[_COMMUNITY_Community 1175|Community 1175]]
@@ -1065,7 +1071,9 @@
 - [[_COMMUNITY_Community 1204|Community 1204]]
 - [[_COMMUNITY_Community 1205|Community 1205]]
 - [[_COMMUNITY_Community 1206|Community 1206]]
+- [[_COMMUNITY_Community 1207|Community 1207]]
 - [[_COMMUNITY_Community 1208|Community 1208]]
+- [[_COMMUNITY_Community 1209|Community 1209]]
 - [[_COMMUNITY_Community 1210|Community 1210]]
 - [[_COMMUNITY_Community 1211|Community 1211]]
 - [[_COMMUNITY_Community 1212|Community 1212]]
@@ -1118,7 +1126,6 @@
 - [[_COMMUNITY_Community 1259|Community 1259]]
 - [[_COMMUNITY_Community 1260|Community 1260]]
 - [[_COMMUNITY_Community 1261|Community 1261]]
-- [[_COMMUNITY_Community 1262|Community 1262]]
 - [[_COMMUNITY_Community 1263|Community 1263]]
 - [[_COMMUNITY_Community 1265|Community 1265]]
 - [[_COMMUNITY_Community 1266|Community 1266]]
@@ -1132,7 +1139,6 @@
 - [[_COMMUNITY_Community 1274|Community 1274]]
 - [[_COMMUNITY_Community 1275|Community 1275]]
 - [[_COMMUNITY_Community 1276|Community 1276]]
-- [[_COMMUNITY_Community 1277|Community 1277]]
 - [[_COMMUNITY_Community 1278|Community 1278]]
 - [[_COMMUNITY_Community 1279|Community 1279]]
 - [[_COMMUNITY_Community 1280|Community 1280]]
@@ -1270,7 +1276,7 @@
 - **Landing Next.js Documentation Bundle** — landing_agents, landing_claude, landing_readme [EXTRACTED 1.00]
 - **Integration Test Disabled Feature Set** — resources_application_test_auth_disabled, resources_application_test_oauth2_exclusion, resources_application_test_tracing_disabled, resources_application_test_demo_disabled [EXTRACTED 1.00]
 
-## Communities (1338 total, 194 thin omitted)
+## Communities (1344 total, 197 thin omitted)
 
 ### Community 0 - "Frontend Charts (87 nodes)"
 Cohesion: 0.04
@@ -1297,16 +1303,16 @@ Cohesion: 0.07
 Nodes (15): StressTestResult, BeforeEach, Test, LiquidityStressTestModule, ApplyShocks, ComputeDrawdown, ComputeFalsePositiveRate, ComputeMean (+7 more)
 
 ### Community 6 - "External Validation (57 nodes)"
-Cohesion: 0.09
-Nodes (18): DisasterAlert, DisasterAlertClient, CircuitBreakerBehavior, CriticalAlertsDetection, DisasterAlertClientTest, HappyPathPolling, ParseEdgeCases, QueueOverflow (+10 more)
+Cohesion: 0.22
+Nodes (4): CircuitBreakerBehavior, HappyPathPolling, String, Severity
 
 ### Community 7 - "Backtesting Engine (53 nodes)"
 Cohesion: 0.09
 Nodes (26): PriceBasedIndicatorComputer, Double, List, Map, Override, String, TickData, FinnhubEquityClient (+18 more)
 
 ### Community 8 - "Data Ingestion (52 nodes)"
-Cohesion: 0.07
-Nodes (29): Object, Override, CdmTick, Test, EquityPriceScheduler, Bulkhead, CdmTick, EquityPriceClient (+21 more)
+Cohesion: 0.26
+Nodes (8): IdempotentRow, Instant, List, MapSqlParameterSource, NamedParameterJdbcTemplate, String, TickData, TickDataRepository
 
 ### Community 9 - "Econometrics (51 nodes)"
 Cohesion: 0.05
@@ -1321,8 +1327,8 @@ Cohesion: 0.09
 Nodes (47): data.archive_file.gcp_trigger, data.google_compute_image.ubuntu, google_artifact_registry_repository.analytics, google_artifact_registry_repository.backend, google_cloud_scheduler_job.forecast, google_cloudfunctions2_function.trigger, google_compute_disk.timescaledb, google_compute_firewall.egress (+39 more)
 
 ### Community 12 - "Database Persistence (49 nodes)"
-Cohesion: 0.05
-Nodes (29): AnalyticsWorkerClient, Override, ResilienceHealthSnapshot, BBandsResult, DivergenceResult, List, RateSnapshot, RateSnapshotRepository (+21 more)
+Cohesion: 0.30
+Nodes (3): BBandsResult, RealResult, TalibAdapter
 
 ### Community 13 - "Performance (49 nodes)"
 Cohesion: 0.06
@@ -1373,7 +1379,7 @@ Cohesion: 0.07
 Nodes (44): Unit tests for the same-runner benchmark A/B comparator (ADR-030).  All tests fo, Given head is faster, when evaluated, then negative delta and no regression., Given a zero baseline mean, when evaluated, then no division error and no regres, Given a benchmark present only in head, when evaluated, then listed, no regressi, Given a benchmark present only in base, when evaluated, then listed, no regressi, Given a benchmark entry without stats, when evaluated, then n/a and no crash., Given median differs but mean matches, when evaluated on median, then regression, Given a 30% slowdown, when evaluated at 50%, then no regression. (+36 more)
 
 ### Community 25 - "Computation Engine (44 nodes)"
-Cohesion: 0.20
+Cohesion: 0.19
 Nodes (13): Action, String, SystemicResilienceMonitor, Test, EvaluateExits, ExecutionModel, PaperTradingEngineTest, ProcessSignalCore (+5 more)
 
 ### Community 26 - "Factor (43 nodes)"
@@ -1458,7 +1464,7 @@ Nodes (34): assert_benchmark_workflow(), assert_chaos_benchmark_real(), assert_c
 
 ### Community 46 - "Demo/Virtual Portfolio (34 nodes)"
 Cohesion: 0.10
-Nodes (20): AdvancedCostModel, BigDecimal, DemoConfig, GlobalSafeMode, MarketStabilityGuard, OrderImpactPredictor, Test, core() (+12 more)
+Nodes (21): AdvancedCostModel, BigDecimal, BigDecimal, DemoConfig, GlobalSafeMode, MarketStabilityGuard, OrderImpactPredictor, Test (+13 more)
 
 ### Community 47 - "Regime Detection (34 nodes)"
 Cohesion: 0.09
@@ -1478,7 +1484,7 @@ Nodes (12): InformationEfficiencyAnalyzer, Analyze, ClassifyEfficiency, ComputeC
 
 ### Community 51 - "Computation Engine (33 nodes)"
 Cohesion: 0.08
-Nodes (28): ComparativeExecutionAnalysis, BigDecimal, DemoConfig, Eq553SlippageModel, ExecutionComparison, IliResult, KillSwitch, List (+20 more)
+Nodes (27): ComparativeExecutionAnalysis, BigDecimal, DemoConfig, Eq553SlippageModel, ExecutionComparison, IliResult, KillSwitch, List (+19 more)
 
 ### Community 52 - "Risk Processing (33 nodes)"
 Cohesion: 0.16
@@ -1505,12 +1511,12 @@ Cohesion: 0.11
 Nodes (17): AlphaSignalRecord, Instant, List, MapSqlParameterSource, NamedParameterJdbcTemplate, String, UUID, BeforeEach (+9 more)
 
 ### Community 58 - "Computation Engine (32 nodes)"
-Cohesion: 0.16
-Nodes (11): Bulkhead, CorrelationEngine, Double, KpiResult, List, Map, NormalizationService, RateSnapshotRepository (+3 more)
+Cohesion: 0.19
+Nodes (10): Bulkhead, CorrelationEngine, Double, KpiResult, List, Map, NormalizationService, RateSnapshotRepository (+2 more)
 
 ### Community 59 - "External Validation (32 nodes)"
-Cohesion: 0.07
-Nodes (37): ndarray, bsm_delta_erfc(), bsm_gamma_erfc(), bsm_price_erfc(), make_garch_data(), norm_cdf_erfc(), norm_pdf_erfc(), Shared tolerances and helpers for external validation tests. (+29 more)
+Cohesion: 0.10
+Nodes (28): bsm_delta_erfc(), bsm_gamma_erfc(), bsm_price_erfc(), norm_cdf_erfc(), norm_pdf_erfc(), Shared tolerances and helpers for external validation tests., Standard normal CDF using math.erfc — independent of scipy.stats.norm., Standard normal PDF using math.exp/math.sqrt — independent of scipy.stats.norm. (+20 more)
 
 ### Community 60 - "Plan (32 nodes)"
 Cohesion: 0.33
@@ -1526,7 +1532,7 @@ Nodes (12): ConnectionStatus(), ConnectionStatusProps, STATE_CONFIG, Header(), N
 
 ### Community 63 - "Demo/Virtual Portfolio (31 nodes)"
 Cohesion: 0.11
-Nodes (12): BeforeEach, List, Test, ComputeHitStats, ComputeMaxDrawdown, ComputePortfolioPnl, ComputeSharpe, ComputeVsSpyReturn (+4 more)
+Nodes (13): BeforeEach, List, Test, ComputeHitStats, ComputeMaxDrawdown, ComputePortfolioPnl, ComputeSharpe, ComputeVsSpyReturn (+5 more)
 
 ### Community 64 - "ILI Calculation (31 nodes)"
 Cohesion: 0.14
@@ -1549,8 +1555,8 @@ Cohesion: 0.11
 Nodes (26): _build_parser(), Comparison, cpu_brand(), evaluate(), extract(), _fmt_delta(), _fmt_seconds(), format_markdown() (+18 more)
 
 ### Community 69 - "Configuration (29 nodes)"
-Cohesion: 0.16
-Nodes (12): ApplicationArguments, ApplicationRunner, AuthDisabledStartupCheck, AuthDisabledStartupCheck, AllowsAuthDisabledInLocalProfiles, AllowsAuthEnabledAnywhere, AuthDisabledStartupCheckTest, FailsWhenAuthDisabledOutsideLocalProfiles (+4 more)
+Cohesion: 0.13
+Nodes (14): String, ApplicationArguments, ApplicationRunner, AuthDisabledStartupCheck, AuthDisabledStartupCheck, AllowsAuthDisabledInLocalProfiles, AllowsAuthEnabledAnywhere, AuthDisabledStartupCheckTest (+6 more)
 
 ### Community 70 - "Backtesting Engine (29 nodes)"
 Cohesion: 0.12
@@ -1565,16 +1571,16 @@ Cohesion: 0.10
 Nodes (19): Sparkline(), SparklineProps, AnomalyScoreIndicator(), AnomalyScoreIndicatorProps, IliCard(), IliCardProps, STATUS_BADGE, degradedIli (+11 more)
 
 ### Community 73 - "Controller (29 nodes)"
-Cohesion: 0.14
-Nodes (15): KpiController, IliHistoryPointResponse, KpiProcessor, LiquidityStressResponse, RepoEquityBetaResponse, RrpDrainResponse, SystemicRiskHeatmapResponse, VolatilityRegimeResponse (+7 more)
+Cohesion: 0.18
+Nodes (11): KpiController, GetMapping, IliHistoryPointResponse, LiquidityStressResponse, List, RepoEquityBetaResponse, ResponseEntity, RrpDrainResponse (+3 more)
 
 ### Community 74 - "Tests (29 nodes)"
-Cohesion: 0.05
-Nodes (52): ndarray, test_step20_cvar_vs_manual(), test_step20_historical_var_vs_numpy(), test_step20_parametric_var_vs_numpy(), CvarRequest, GarchRequest, Risk metrics router: VaR, CVaR, GARCH., run_cvar() (+44 more)
+Cohesion: 0.09
+Nodes (28): test_step20_historical_var_vs_numpy(), test_step20_parametric_var_vs_numpy(), Value at Risk computation.      Methods: historical, parametric., value_at_risk(), Given returns from N(0, 0.01), when historical VaR at 95%,     then VaR should b, Given 1000 normal returns, when historical VaR at 99%, then var is positive., Given increasing confidence levels, then VaR is non-decreasing in absolute terms, Given same returns, VaR(99%) >= VaR(95%) >= VaR(90%) in absolute terms. (+20 more)
 
 ### Community 75 - "Anomaly Detection (28 nodes)"
-Cohesion: 0.16
-Nodes (14): AnomalyScoringServiceTest, ScoreIliAnomalies, ScoreRateAnomalies, BeforeEach, Boolean, Double, IliHistory, Instant (+6 more)
+Cohesion: 0.15
+Nodes (16): AnomalyScoringServiceTest, ScoreIliAnomalies, ScoreRateAnomalies, BeforeEach, Boolean, Double, IliHistory, Instant (+8 more)
 
 ### Community 76 - "Session (28 nodes)"
 Cohesion: 0.12
@@ -1585,8 +1591,8 @@ Cohesion: 0.17
 Nodes (11): DataHubBackfillClient, Builder, CdmRateSnapshot, DataHubPriceRow, Instant, List, Object, RateSnapshot (+3 more)
 
 ### Community 78 - "Tests (28 nodes)"
-Cohesion: 0.10
-Nodes (28): test_step05_nelson_siegel_fit_vs_nelder_mead(), fit_yield_curve(), interpolate_yield_curve(), nelson_siegel(), Given synthetic yields from known NS parameters, when fit,     then recovered b0, Given fitted parameters, when interpolating at the same maturities,     then val, Given standard Treasury maturities and yields, when fit,     then status is SUCC, Given only 2 data points, when fit, then returns error or FAIL status. (+20 more)
+Cohesion: 0.11
+Nodes (26): test_step05_nelson_siegel_fit_vs_nelder_mead(), fit_yield_curve(), interpolate_yield_curve(), nelson_siegel(), Given synthetic yields from known NS parameters, when fit,     then recovered b0, Given fitted parameters, when interpolating at the same maturities,     then val, Given standard Treasury maturities and yields, when fit,     then status is SUCC, Given only 2 data points, when fit, then returns error or FAIL status. (+18 more)
 
 ### Community 79 - "Alphavantage (27 nodes)"
 Cohesion: 0.15
@@ -1597,8 +1603,8 @@ Cohesion: 0.14
 Nodes (8): BeforeEach, Test, Recommendation, BuildRecommendation, CountAgreements, ResolveAction, Vote, VotingClassifierTest
 
 ### Community 81 - "Controller (27 nodes)"
-Cohesion: 0.12
-Nodes (10): IliHistoryTests, IliTests, KpiControllerTest, LiquidityStressTests, NotImplementedTests, RrpDrainTests, SystemicRiskHeatmapTests, VolatilityRegimeTests (+2 more)
+Cohesion: 0.09
+Nodes (16): BeforeEach, IliHistoryTests, IliTests, KpiControllerTest, LiquidityStressTests, NotImplementedTests, RepoEquityBetaTests, RrpDrainTests (+8 more)
 
 ### Community 82 - "Data Ingestion (27 nodes)"
 Cohesion: 0.13
@@ -1609,12 +1615,12 @@ Cohesion: 0.14
 Nodes (12): AlphaSignal, CdmOptionSnapshot, LegGroup, Override, StrategyContext, String, UUID, String (+4 more)
 
 ### Community 84 - "Demo/Virtual Portfolio (26 nodes)"
-Cohesion: 0.15
-Nodes (14): BeforeEach, Test, DailyClose, ClosingPrice, ClosingPrices, OhlcvDailyMarketPriceLookupTest, Double, List (+6 more)
+Cohesion: 0.27
+Nodes (9): DailyClose, Double, List, LocalDate, NamedParameterJdbcTemplate, Optional, String, OhlcvDailyRepository (+1 more)
 
 ### Community 85 - "Weight Aggregation (26 nodes)"
-Cohesion: 0.13
-Nodes (12): BeforeEach, Double, List, Map, String, Test, Aggregate, AgnosticAggregatorTest (+4 more)
+Cohesion: 0.10
+Nodes (14): BeforeEach, Double, List, Map, String, Test, Object, Aggregate (+6 more)
 
 ### Community 86 - "Controller (26 nodes)"
 Cohesion: 0.15
@@ -1653,8 +1659,8 @@ Cohesion: 0.11
 Nodes (22): test_step10_sgd_weight_delta_vs_manual(), Online optimizer router: SGD weight-delta computation., run_weight_delta(), WeightDeltaRequest, compute_weight_delta(), Online optimizer: SGD-based weight delta computation for ILI components., Given all-zero performance, when computing delta, then all deltas are zero., Given rrp outperforms others, when computing delta, then rrp weight increases. (+14 more)
 
 ### Community 95 - "Plan (25 nodes)"
-Cohesion: 0.08
-Nodes (29): TalibAdapter Thin Wrapper, Data Alignment Strategy (4 PM ET daily grid via time_bucket), Dynamic Weight Redistribution in ili_history (active_weights JSONB), TimescaleDB Hypertables (tick_data, rate_snapshots, ili_history, zscore_series, correlation_outputs), Proxy Divergence Events Table, FinanceToolkit Library (VaR, GARCH, Fama-French, Bond Math), OpenBB SDK Functions (econometrics, causality, ols), Data Quality Checker (Staleness, Outliers, Proxy Divergence) (+21 more)
+Cohesion: 0.10
+Nodes (24): Data Alignment Strategy (4 PM ET daily grid via time_bucket), Dynamic Weight Redistribution in ili_history (active_weights JSONB), TimescaleDB Hypertables (tick_data, rate_snapshots, ili_history, zscore_series, correlation_outputs), Proxy Divergence Events Table, FinanceToolkit Library (VaR, GARCH, Fama-French, Bond Math), OpenBB SDK Functions (econometrics, causality, ols), Data Quality Checker (Staleness, Outliers, Proxy Divergence), AlertManager (Signal Evaluation and Dispatch) (+16 more)
 
 ### Community 96 - "Backtesting Engine (24 nodes)"
 Cohesion: 0.22
@@ -1662,7 +1668,7 @@ Nodes (8): CompareDelays, DelayDExecutorTest, LiquidityFragility, SlippageIntegr
 
 ### Community 97 - "Demo/Virtual Portfolio (24 nodes)"
 Cohesion: 0.11
-Nodes (8): BeforeEach, Test, CheckStopLossTakeProfit, ClosePosition, GetPortfolioSummary, MarkToMarket, VirtualPortfolioTest, String
+Nodes (9): BeforeEach, Test, CheckStopLossTakeProfit, ClosePosition, GetPortfolioSummary, MarkToMarket, VirtualPortfolioTest, String (+1 more)
 
 ### Community 98 - "KPI Calculation (24 nodes)"
 Cohesion: 0.14
@@ -1677,7 +1683,7 @@ Cohesion: 0.15
 Nodes (12): IdempotencyGuard, IngestionTracer, List, RateSnapshot, RateSnapshotRepository, Scheduled, String, T (+4 more)
 
 ### Community 101 - "Ingestion Buffer (23 nodes)"
-Cohesion: 0.16
+Cohesion: 0.17
 Nodes (11): FileOverflowBuffer, TieredIngestionBuffer, Class, List, Path, T, Class, List (+3 more)
 
 ### Community 102 - "Weight Optimization (23 nodes)"
@@ -1689,8 +1695,8 @@ Cohesion: 0.18
 Nodes (9): BeforeEach, Instant, Test, MiddayPeriod, OtherPeriods, ThresholdAdjustmentRecord, TimeOfDayThresholdManagerTest, UsMarketClose (+1 more)
 
 ### Community 104 - "Computation Engine (22 nodes)"
-Cohesion: 0.23
-Nodes (14): AnomalyScoringService, AnalyticsWorkerClient, Double, IliHistory, IliHistoryRepository, List, Map, ModelArtifact (+6 more)
+Cohesion: 0.19
+Nodes (17): AnomalyScoringService, AnalyticsWorkerClient, Double, IliHistory, IliHistoryRepository, List, Map, ModelArtifact (+9 more)
 
 ### Community 105 - "Demo/Virtual Portfolio (22 nodes)"
 Cohesion: 0.18
@@ -1729,8 +1735,8 @@ Cohesion: 0.18
 Nodes (11): HttpClientConfig, AlphaVantageCdmAdapter, Bean, FinnhubEquityCdmAdapter, FredCdmAdapter, FrenchFactorCdmAdapter, HttpClient, NewsArticleCdmAdapter (+3 more)
 
 ### Community 114 - "Controller (21 nodes)"
-Cohesion: 0.34
-Nodes (10): DemoController, Object, BigDecimal, GetMapping, List, Map, Object, PostMapping (+2 more)
+Cohesion: 0.21
+Nodes (18): DemoController, SignalQualityAnalyzer, BigDecimal, GetMapping, KillSwitch, LeverageSignaler, List, Map (+10 more)
 
 ### Community 115 - "Tests (21 nodes)"
 Cohesion: 0.12
@@ -1841,8 +1847,8 @@ Cohesion: 0.19
 Nodes (13): FredClient, Builder, Bulkhead, CdmRateSnapshot, FredCdmAdapter, FredObservation, IngestionTracer, List (+5 more)
 
 ### Community 142 - "Guard (18 nodes)"
-Cohesion: 0.14
-Nodes (8): AlgorithmicSanityGuardTest, FlashMoveDetection, ManualOversightFlag, MessageRateDetection, NoFalsePositives, String, BeforeEach, Test
+Cohesion: 0.15
+Nodes (9): AlgorithmicSanityGuard, FlashMoveDetection, ManualOversightFlag, NoFalsePositives, Clock, Collection, Instant, Test (+1 more)
 
 ### Community 143 - "Data Ingestion (18 nodes)"
 Cohesion: 0.19
@@ -1853,12 +1859,12 @@ Cohesion: 0.23
 Nodes (13): base64UrlEncode(), buildAuthorizationUrl(), clearPkceState(), generatePkceChallenge(), generateRandomString(), getLoginUrl(), getPkceStorageKey(), isAuthDisabled() (+5 more)
 
 ### Community 145 - "Plan (18 nodes)"
-Cohesion: 0.20
-Nodes (10): 11 Parallel Implementation Tracks, 12 Consolidated Proposals (v4-v5), FinBERT Sentiment Intelligence, FINOS CDM Subset Adoption, Sobol Quasi-Random Monte Carlo, V5 Implementation Dependency Graph, Virtual Threads Primary Runtime, Track 1: Scaffolding and API Contracts (v5) (+2 more)
+Cohesion: 0.12
+Nodes (17): 11 Parallel Implementation Tracks, Chronicle Queue on Dedicated Storage, 12 Consolidated Proposals (v4-v5), De-Rounding Data Filter, Direct FRED/NY Fed Java Clients, FinBERT Sentiment Intelligence, FINOS CDM Subset Adoption, Sobol Quasi-Random Monte Carlo (+9 more)
 
 ### Community 146 - "Tests (17 nodes)"
-Cohesion: 0.13
-Nodes (17): ndarray, Coupled process: y[t] = 0.8*x[t-1] + noise => TE(X->Y) >> 0., Independent Gaussians => TE(X->Y) should be approximately zero., Bidirectional coupling => TE > 0 in both directions., test_step24_transfer_entropy_bidirectional(), test_step24_transfer_entropy_coupled(), test_step24_transfer_entropy_independent(), compute_transfer_entropy() (+9 more)
+Cohesion: 0.15
+Nodes (15): ndarray, Coupled process: y[t] = 0.8*x[t-1] + noise => TE(X->Y) >> 0., Independent Gaussians => TE(X->Y) should be approximately zero., test_step24_transfer_entropy_coupled(), test_step24_transfer_entropy_independent(), compute_transfer_entropy(), _transfer_entropy(), Given two independent random series, when compute TE, then entropy_bits is low. (+7 more)
 
 ### Community 147 - "Tests (17 nodes)"
 Cohesion: 0.12
@@ -1877,8 +1883,8 @@ Cohesion: 0.21
 Nodes (4): Test, DetermineAction, Process, SaliProcessorTest
 
 ### Community 151 - "Backtesting Engine (16 nodes)"
-Cohesion: 0.13
-Nodes (15): 1. Multi-Module Project Structure, 2. OpenAPI 3.1 Spec for REST Endpoints, 3. AsyncAPI Spec for WebSocket Endpoints, 4. TypeScript Client Generation, 5. TalibAdapter (Thin Wrapper), 6. HTTP Clients (Interfaces), 7. Arrow IPC Transport Layer, 8. Shared Configuration Properties Classes (+7 more)
+Cohesion: 0.09
+Nodes (21): AsyncAPI WebSocket Contract, OpenAPI 3.1 REST Contract, 1. Multi-Module Project Structure, 2. OpenAPI 3.1 Spec for REST Endpoints, 3. AsyncAPI Spec for WebSocket Endpoints, 4. TypeScript Client Generation, 5. TalibAdapter (Thin Wrapper), 6. HTTP Clients (Interfaces) (+13 more)
 
 ### Community 152 - "Backtesting Engine (16 nodes)"
 Cohesion: 0.24
@@ -1889,16 +1895,16 @@ Cohesion: 0.22
 Nodes (6): LastKnownGoodCache, CacheEntry, Clock, Instant, Optional, String
 
 ### Community 154 - "Guard (16 nodes)"
-Cohesion: 0.15
-Nodes (9): Clock, Instant, MutableClock, Instant, Override, SessionRangeService, SessionRange, ZoneId (+1 more)
+Cohesion: 0.19
+Nodes (8): Clock, AlgorithmicSanityGuardTest, MutableClock, BeforeEach, Instant, Override, ZoneId, ZoneOffset
 
 ### Community 155 - "Weight Optimization (16 nodes)"
 Cohesion: 0.24
 Nodes (5): CalibrationResult, Instant, Scheduled, WeightedWeightStore, ScheduledCalibrationTask
 
 ### Community 156 - "Data Quality (16 nodes)"
-Cohesion: 0.07
-Nodes (27): AtomicBoolean, BulkheadPressureMonitor, IngestionBulkheadConfig, IngestionBulkheadConfigSpec, "given idle bulkhead, when checkPressure, then no pressure alert", "given saturated bulkhead, when checkPressure, then logs pressure alert", "given sustained pressure, when checkPressure twice, then logs once per transition", "given unregistered bulkheads, when checkPressure, then no failure" (+19 more)
+Cohesion: 0.10
+Nodes (14): AtomicBoolean, BulkheadPressureMonitor, IngestionBulkheadConfig, IngestionBulkheadConfigSpec, "given idle bulkhead, when checkPressure, then no pressure alert", "given saturated bulkhead, when checkPressure, then logs pressure alert", "given sustained pressure, when checkPressure twice, then logs once per transition", "given unregistered bulkheads, when checkPressure, then no failure" (+6 more)
 
 ### Community 157 - "Live (16 nodes)"
 Cohesion: 0.19
@@ -1909,8 +1915,8 @@ Cohesion: 0.22
 Nodes (8): DemoConfig, List, ResilienceHealthProbe, ResilienceHealthSnapshot, Scheduled, String, SystemicResilienceMonitor, EvaluationResult
 
 ### Community 159 - "KPI Calculation (16 nodes)"
-Cohesion: 0.11
-Nodes (16): RateSnapshotRepository, String, TickDataRepository, BeforeEach, List, RateSnapshot, String, Test (+8 more)
+Cohesion: 0.27
+Nodes (4): String, CorrelationResult, CorrelationEngine, CorrelationResult
 
 ### Community 160 - "KPI Calculation (16 nodes)"
 Cohesion: 0.27
@@ -1929,8 +1935,8 @@ Cohesion: 0.21
 Nodes (6): Accessors, Construction, MarkovStopCalibrationTest, Validation, MarkovStopCalibration, Test
 
 ### Community 164 - "Tests (16 nodes)"
-Cohesion: 0.14
-Nodes (16): Verify B5 fix: confidence intervals are bootstrap-based, not response*-1.96., test_step22_impulse_response_ci_proper(), test_step22_impulse_response_point_estimates_vs_manual_ols(), compute_impulse_response(), Given 3 time steps, when compute, then returns error., Given valid data, when computing IRF, then output has steps+1 entries per column, Given 2-variable VAR, when computing IRF,     then own-shock response at step 0, Given stationary VAR, when computing IRF over 20 steps,     then response magnit (+8 more)
+Cohesion: 0.17
+Nodes (14): test_step22_impulse_response_point_estimates_vs_manual_ols(), compute_impulse_response(), Given 3 time steps, when compute, then returns error., Given valid data, when computing IRF, then output has steps+1 entries per column, Given 2-variable VAR, when computing IRF,     then own-shock response at step 0, Given stationary VAR, when computing IRF over 20 steps,     then response magnit, Given 100 time steps of 2-variable data, when compute impulse response with 5 st, Given 1-variable data, when computing IRF, then returns error (VAR requires 2+). (+6 more)
 
 ### Community 165 - "Tests (16 nodes)"
 Cohesion: 0.16
@@ -1945,8 +1951,8 @@ Cohesion: 0.19
 Nodes (9): BeforeEach, SuppressWarnings, Test, VolatilityForecast, FindBySymbolAndTimeBetween, FindLatestBySymbol, Save, UpdateRealizedVol (+1 more)
 
 ### Community 168 - "Plan (16 nodes)"
-Cohesion: 0.12
-Nodes (18): Arrow IPC Transport Layer, AIC Lag Selection Loop (Finding 2), AlgorithmicSanityGuard, analytics/ Java Bridge (Deferred), CDM Adapter Layer (Proposal #5), Chronicle Queue (Deferred), FINOS CDM Subset Projection, Pre-Computed KPI Views (TimescaleDB Continuous Aggregates) (+10 more)
+Cohesion: 0.15
+Nodes (14): AlgorithmicSanityGuard, CDM Adapter Layer (Proposal #5), Chronicle Queue (Deferred), FINOS CDM Subset Projection, Pre-Computed KPI Views (TimescaleDB Continuous Aggregates), TimescaleDbWriter (Off-Heap, Batched INSERT), Track 1: Scaffolding & API Contracts, Track 2: Database Schema (+6 more)
 
 ### Community 169 - "Resources (16 nodes)"
 Cohesion: 0.16
@@ -1961,16 +1967,16 @@ Cohesion: 0.19
 Nodes (9): AnalyticsWorkerClient, RestClientAnalyticsWorkerClient, Builder, Map, Object, Override, Retryable, String (+1 more)
 
 ### Community 172 - "Backtesting Engine (15 nodes)"
-Cohesion: 0.24
-Nodes (10): ReproducibilityService, Map, Object, RestClientAnalyticsWorkerClient, String, SuppressWarnings, Override, String (+2 more)
+Cohesion: 0.27
+Nodes (7): ReproducibilityService, Map, Object, RestClientAnalyticsWorkerClient, String, SuppressWarnings, ReproducibilityContext
 
 ### Community 173 - "Repository (15 nodes)"
 Cohesion: 0.25
 Nodes (8): BacktestResultRecord, Instant, List, MapSqlParameterSource, NamedParameterJdbcTemplate, Optional, String, BacktestResultRepository
 
 ### Community 174 - "TA-Lib Integration (15 nodes)"
-Cohesion: 0.30
-Nodes (5): AlgorithmicSanityGuard, Clock, Collection, Instant, SanityBreach
+Cohesion: 0.11
+Nodes (7): Missing Data Policy (gapfill, locf, STALE, DISLOCATED, outlier SUSPECT), Ingestion Observability Metrics (events, latency, errors, buffer, proxy divergence), Production Promotion GitHub Actions Workflow, SignalQualityReport (Daily Hit Rate, False Positive, Benchmark Comparison), Verification Criteria (90 days, 50 trades, 55% hit rate, Sharpe > 0.5), Environment Strategy (dev, demo, staging, prod), Parallel Execution Track Strategy
 
 ### Community 175 - "Caching (15 nodes)"
 Cohesion: 0.13
@@ -1985,8 +1991,8 @@ Cohesion: 0.23
 Nodes (4): String, VotingClassifier, ToggleEnabled, VoteResult
 
 ### Community 178 - "Demo/Virtual Portfolio (15 nodes)"
-Cohesion: 0.21
-Nodes (8): BeforeEach, List, Test, ApplyLeverageRotation, OpenPositionOverload, VirtualPortfolioLeverageRotationTest, Double, VirtualPortfolioPosition
+Cohesion: 0.23
+Nodes (7): BeforeEach, List, Test, ApplyLeverageRotation, OpenPositionOverload, VirtualPortfolioLeverageRotationTest, Double
 
 ### Community 179 - "Equity Strategies (15 nodes)"
 Cohesion: 0.21
@@ -2001,8 +2007,8 @@ Cohesion: 0.23
 Nodes (4): Test, AlgorithmicBehaviorAlignmentTest, ComputeLiquidityAdjustedSlippage, ComputeTimeDecayAlignment
 
 ### Community 182 - "Risk Processing (15 nodes)"
-Cohesion: 0.18
-Nodes (11): Signal Status Taxonomy, FINOS Perspective, SignalGenerator, Next.js Landing Page (tickonomics.io), Next.js Analytics Dashboard (app.tickonomics.io), Behavioural Risk Index (BRI), Broadie-Kou-Glasserman Discrete Monitoring Correction, Liquidity Comovement Monitor (PRIMARY) (+3 more)
+Cohesion: 0.17
+Nodes (13): CompletableFuture, DataQualityResult, AnalyticsWorkerClient, Boolean, Duration, Instant, List, Map (+5 more)
 
 ### Community 183 - "Tests (15 nodes)"
 Cohesion: 0.16
@@ -2033,20 +2039,20 @@ Cohesion: 0.03
 Nodes (65): 10. KpiProcessor, 11. AlertManager, 12. CalculationGuard, 13. GarchRegimeDetector (v4 -- Proposal 03: PRIMARY regime engine), 14. DlRegimeDetector (v4 -- Proposal 03: Alternative A), 15. QEDRegimeDetector (v4 -- Proposal 03: Alternative B), 16. ExogenousShockDetector (v4 -- Proposal 03: Natural Disaster), 17. CrashProbabilityScore (v4 -- Proposal 03: QED crash probability) (+57 more)
 
 ### Community 190 - "Reference Data (15 nodes)"
-Cohesion: 0.23
-Nodes (7): bsm_call_price(), bsm_delta(), bsm_put_price(), Black-Scholes call price. Hull, Options Futures and Other Derivatives, Ch.21., Put price via put-call parity. Hull Ch.21: put = call - S + K*exp(-rT)., BSM delta: N(d1) for call, N(d1)-1 for put. Hull Ch.21., TestBSM
+Cohesion: 0.17
+Nodes (9): bsm_call_price(), bsm_delta(), bsm_gamma(), bsm_put_price(), Black-Scholes call price. Hull, Options Futures and Other Derivatives, Ch.21., Put price via put-call parity. Hull Ch.21: put = call - S + K*exp(-rT)., BSM delta: N(d1) for call, N(d1)-1 for put. Hull Ch.21., BSM gamma: n(d1) / (S * sigma * sqrt(T)). Hull Ch.21. (+1 more)
 
 ### Community 191 - "Writer (15 nodes)"
-Cohesion: 0.13
-Nodes (4): BuildKey, EvictExpired, IdempotencyGuardTest, IsDuplicate
+Cohesion: 0.18
+Nodes (3): BuildKey, IdempotencyGuardTest, IsDuplicate
 
 ### Community 192 - "WebSocket (15 nodes)"
 Cohesion: 0.13
 Nodes (13): FinnhubWsClientSpec, "given api key with special characters, when buildConnectUrl, then url-encoded", "given connected, when subscribe, then symbol is tracked", "given intentional disconnect, when disconnect, then no reconnect", "given malformed JSON, when processTextMessage, then no exception thrown", "given multiple trades in one message, when processTextMessage, then all are dispatched", "given non-trade message, when processTextMessage, then no handler invocation", "given not connected, when isConnected, then return false" (+5 more)
 
 ### Community 194 - "External Validation (14 nodes)"
-Cohesion: 0.20
-Nodes (7): macaulay_duration_exact(), Macaulay duration: sum(t*PV(CF)) / sum(PV(CF)). Fabozzi, Fixed Income Analysis,, Zero-coupon bond duration = t (identity)., Zero-coupon convexity: t*(t+1) / (1+y)^2., zero_coupon_convexity(), zero_coupon_duration(), TestFixedIncome
+Cohesion: 0.16
+Nodes (10): gpd_quantile(), macaulay_duration_exact(), Closed-form reference implementations for T4 known-answer test oracles.  Each fu, GPD quantile: threshold + (beta/xi)*((n_total/n_exceed * p)^(-xi) - 1).     Embr, Macaulay duration: sum(t*PV(CF)) / sum(PV(CF)). Fabozzi, Fixed Income Analysis,, Zero-coupon bond duration = t (identity)., Zero-coupon convexity: t*(t+1) / (1+y)^2., zero_coupon_convexity() (+2 more)
 
 ### Community 195 - "Computation Engine (14 nodes)"
 Cohesion: 0.32
@@ -2093,8 +2099,8 @@ Cohesion: 0.27
 Nodes (6): IliHistory, Instant, List, MapSqlParameterSource, NamedParameterJdbcTemplate, IliHistoryRepository
 
 ### Community 206 - "Repository (14 nodes)"
-Cohesion: 0.23
-Nodes (8): empty(), ExecutionContext, MapSqlParameterSource, ModelArtifact, NamedParameterJdbcTemplate, Optional, String, ModelArtifactRepository
+Cohesion: 0.27
+Nodes (6): MapSqlParameterSource, ModelArtifact, NamedParameterJdbcTemplate, Optional, String, ModelArtifactRepository
 
 ### Community 207 - "Repository (14 nodes)"
 Cohesion: 0.30
@@ -2105,8 +2111,8 @@ Cohesion: 0.25
 Nodes (9): Double, List, LocalDate, Map, NamedParameterJdbcTemplate, Object, Optional, String (+1 more)
 
 ### Community 209 - "Plan (14 nodes)"
-Cohesion: 0.22
-Nodes (9): Architecture, Dependencies, Directory Structure, FinanceToolkit Reference, Graceful Degradation, Modules Used, Objective, Track 3: Python Analytics Worker (+1 more)
+Cohesion: 0.21
+Nodes (8): BeforeEach, List, RateSnapshot, String, Test, ComputeRollingBeta, ComputeRollingCorrelation, CorrelationEngineTest
 
 ### Community 210 - "Plan (14 nodes)"
 Cohesion: 0.20
@@ -2145,8 +2151,8 @@ Cohesion: 0.27
 Nodes (4): Instant, Scheduled, String, IdempotencyGuard
 
 ### Community 219 - "Regime Detection (13 nodes)"
-Cohesion: 0.29
-Nodes (7): Chronicle Queue on Dedicated Storage, De-Rounding Data Filter, Direct FRED/NY Fed Java Clients, Bulkhead Executor Isolation, Track 4: Ingestion and Resilience Layer (v5), Free Data Sources Integration Implementation Report, Zero Paid Data Sources Strategy
+Cohesion: 0.22
+Nodes (11): EquityPriceScheduler, Bulkhead, CdmTick, EquityPriceClient, FinnhubEquityCdmAdapter, List, Scheduled, String (+3 more)
 
 ### Community 220 - "Demo/Virtual Portfolio (13 nodes)"
 Cohesion: 0.26
@@ -2197,8 +2203,8 @@ Cohesion: 0.16
 Nodes (14): IngestionStale Alert, WebSocket Circuit Breaker Pattern, FinnhubEquityClient REST Fallback, Finnhub WebSocket Client, Last Known Good Cache (LKG), AlphaVantageClient, DataHubBackfillClient, FedRSSClient (+6 more)
 
 ### Community 233 - "Adr (12 nodes)"
-Cohesion: 0.16
-Nodes (11): ADR-002: File-Based Overflow Buffer vs. Chronicle Queue, Consequences, Context, Decision, Overflow Buffer Design Rationale — Simplicity Over Microsecond Performance, TieredIngestionBuffer — In-Memory + JSON-Lines File Overflow, Computation Engine — 37 Components Across 6 Phases, Intentionally Deferred Items — OpenBBClient, Chronicle Queue (+3 more)
+Cohesion: 0.12
+Nodes (15): ADR-002: File-Based Overflow Buffer vs. Chronicle Queue, Consequences, Context, Decision, Overflow Buffer Design Rationale — Simplicity Over Microsecond Performance, TieredIngestionBuffer — In-Memory + JSON-Lines File Overflow, PaperTradingEngine — Signal-to-Trade Bridge, SignalQualityAnalyzer — 90-Day Verification with 5 Criteria (+7 more)
 
 ### Community 234 - "Weight Aggregation (12 nodes)"
 Cohesion: 0.41
@@ -2257,8 +2263,8 @@ Cohesion: 0.15
 Nodes (12): ADR-004: Micrometer Observation API for OpenTelemetry Tracing, Consequences, Context, Decision, Micrometer-Tracing-Bridge-OTel — Zero-Instrumentation Auto-Spans, ADR-010: Deployment & Operations — Multi-Stage Docker + Compose, Jaeger All-in-One — OTLP gRPC Tracing on Port 4317, Non-Root Container Users — tickonomics, analytics, dashboard (+4 more)
 
 ### Community 248 - "Risk Processing (11 nodes)"
-Cohesion: 0.29
-Nodes (5): bsm_gamma(), gpd_quantile(), Closed-form reference implementations for T4 known-answer test oracles.  Each fu, BSM gamma: n(d1) / (S * sigma * sqrt(T)). Hull Ch.21., GPD quantile: threshold + (beta/xi)*((n_total/n_exceed * p)^(-xi) - 1).     Embr
+Cohesion: 0.14
+Nodes (15): Arrow IPC Transport Layer, TalibAdapter Thin Wrapper, AIC Lag Selection Loop in Worker (Finding 2), Python FastAPI Analytics Worker, Graceful Degradation Pattern for Analytics Worker Unavailability, ADF Stationarity Check via Analytics Worker, AicLagSelector Thin Client (Finding 2), CalculationGuard (NaN/Infinity Prevention) (+7 more)
 
 ### Community 249 - "Resilience Bulkhead (11 nodes)"
 Cohesion: 0.04
@@ -2309,16 +2315,16 @@ Cohesion: 0.33
 Nodes (6): Double, List, String, PairsTradingEngine, PairsSignal, PairsSignalType
 
 ### Community 261 - "Demo/Virtual Portfolio (11 nodes)"
-Cohesion: 0.24
-Nodes (6): BigDecimal, BeforeEach, Test, ExecutionHandlersTest, PassiveHandler, SniperHandler
+Cohesion: 0.27
+Nodes (5): BeforeEach, Test, ExecutionHandlersTest, PassiveHandler, SniperHandler
 
 ### Community 262 - "Configuration (11 nodes)"
 Cohesion: 0.18
 Nodes (10): MonitorPropertiesSpec, "alpha-vantage permits non-ticker commodity identifiers", "empty symbol list is rejected", "finnhub binding rejects a bad ticker while validating reconnect backoff", "nested ingestion last-known-good staleness is validated", "non-positive duration is rejected", "non-positive poll interval is rejected", "symbol that is not an uppercase ticker is rejected" (+2 more)
 
 ### Community 263 - "Web Layer (11 nodes)"
-Cohesion: 0.33
-Nodes (9): SignalQualityAnalyzer, KillSwitch, LeverageSignaler, MarketPriceLookup, PaperTradingEngine, SignalLogRepository, SystemicResilienceMonitor, VirtualPortfolio (+1 more)
+Cohesion: 0.18
+Nodes (13): ndarray, make_garch_data(), Simulate GARCH(1,1) data with known parameters., Group B: Statistical / econometric external validation tests (Steps 19-25).  Eac, Verify B5 fix: confidence intervals are bootstrap-based, not response*-1.96., Bidirectional coupling => TE > 0 in both directions., Volatility forecast delegates to garch_forecast (B1 fixed)., Verify B1 fix: alpha and beta are now estimated via MLE, not stuck at initial va (+5 more)
 
 ### Community 264 - "Datahub (11 nodes)"
 Cohesion: 0.18
@@ -2349,8 +2355,8 @@ Cohesion: 0.25
 Nodes (11): FederationDataClient Interface, Chronicle Queue Disk-Backed Overflow Buffer (Finding 7), Dedicated Storage for Chronicle Queue (Finding 7), Direct FRED HTTP Client (Finding 5), Direct NY Fed HTTP Client (Finding 5), OpenBB Sidecar Client (Equity Prices Only), Resilience4j Circuit Breakers and Retry Policies, TimescaleDB Writer (Batched INSERT) (+3 more)
 
 ### Community 271 - "Plan (11 nodes)"
-Cohesion: 0.17
-Nodes (13): ILI (Liquidity Index), Dynamic Weighting for Zero-Variance, CalculationGuard, IliCalculator, BacktestEngine, WeightOptimizer, Ambiguity Aversion Bands, Bayesian Weight Optimizer (PRIMARY) (+5 more)
+Cohesion: 0.09
+Nodes (24): ILI (Liquidity Index), Signal Status Taxonomy, Dynamic Weighting for Zero-Variance, FINOS Perspective, CalculationGuard, IliCalculator, SignalGenerator, Next.js Landing Page (tickonomics.io) (+16 more)
 
 ### Community 272 - "Plan (11 nodes)"
 Cohesion: 0.33
@@ -2629,12 +2635,12 @@ Cohesion: 0.33
 Nodes (5): MarkovStopCalibration, NamedParameterJdbcTemplate, Optional, String, MarkovStopCalibrationRepository
 
 ### Community 341 - "Plan (9 nodes)"
-Cohesion: 0.12
-Nodes (16): TimescaleDB Continuous Aggregates (ohlcv_1min/1h/1d, daily_kpi_summary), Real-Time Aggregates (materialized_only=false), TimescaleDB Single Database Architecture, AIC Lag Selection Loop in Worker (Finding 2), Python FastAPI Analytics Worker, Graceful Degradation Pattern for Analytics Worker Unavailability, ADF Stationarity Check via Analytics Worker, AicLagSelector Thin Client (Finding 2) (+8 more)
+Cohesion: 0.20
+Nodes (10): TimescaleDB Continuous Aggregates (ohlcv_1min/1h/1d, daily_kpi_summary), Real-Time Aggregates (materialized_only=false), TimescaleDB Single Database Architecture, Docker Compose Multi-Service Deployment, FINOS TimeBase-CE (Deferred High-Performance Backup), Track 2: Database Schema TimescaleDB (v5), Last Known Good (LKG) Cache, TimescaleDbWriter — Batched INSERT with Idempotency (+2 more)
 
 ### Community 342 - "Plan (9 nodes)"
-Cohesion: 0.25
-Nodes (9): AIC Lag Selection Loop, Apache Arrow IPC, ArrowIpcTransport, AicService, FinanceToolkit, OpenBB SDK, Python Analytics Worker (FastAPI), AicLagSelector (+1 more)
+Cohesion: 0.19
+Nodes (13): AIC Lag Selection Loop, Apache Arrow IPC, Direct FRED/NY Fed Java Clients, ArrowIpcTransport, FederationDataClient, AicService, FinanceToolkit, OpenBB SDK (+5 more)
 
 ### Community 343 - "Realtime Broadcasting (9 nodes)"
 Cohesion: 0.28
@@ -2657,8 +2663,8 @@ Cohesion: 0.32
 Nodes (5): OilPriceCdmAdapter, CdmRateSnapshot, DataHubPriceRow, Override, String
 
 ### Community 348 - "Adr (8 nodes)"
-Cohesion: 0.14
-Nodes (13): PyTorch Autoencoder Anomaly Detection (v4), BSM Closed-Form Greeks + Gamma Exposure Aggregation, Regime Detection — GARCH, CNN-LSTM, QED, RAHF, Sobol Quasi-Random Monte Carlo Option Pricing, Validation Groups A-D — Closed-Form, Statistical, Stochastic, Heuristic, ADR-003: External Validation Methodology, Consequences, Context (+5 more)
+Cohesion: 0.16
+Nodes (13): Validation Groups A-D — Closed-Form, Statistical, Stochastic, Heuristic, ADR-003: External Validation Methodology, Consequences, Context, Decision, Status, Cross-Validation Rationale — Different Algorithms Than Service Under Test, Extended Cost Model — Commissions + Borrow/Shorting (T5) (+5 more)
 
 ### Community 349 - "Documentation (8 nodes)"
 Cohesion: 0.05
@@ -2774,7 +2780,7 @@ Nodes (8): application.yml — centralized config (monitor.<source>.*, resilienc
 
 ### Community 378 - "Adapters (7 nodes)"
 Cohesion: 0.29
-Nodes (6): DataHubAdaptersSpec, "Brent oil adapter maps to COMMODITY_OIL with Brent source", "Gold adapter maps to COMMODITY_GOLD", "Shiller adapter is identity adapter", "VIX adapter maps to EQUITY instrument type", "WTI oil adapter maps to COMMODITY_OIL with WTI source"
+Nodes (5): CdmTick, Test, CdmTickTest, DefensiveCopy, EqualsAndHashCode
 
 ### Community 379 - "Documentation (7 nodes)"
 Cohesion: 0.20
@@ -2893,8 +2899,8 @@ Cohesion: 0.05
 Nodes (40): 1. Multi-Module Project Structure, 2. FINOS CDM Projection Module — v2, 3. AsyncAPI Spec for WebSocket Endpoints, 3. OpenAPI 3.1 Spec for REST Endpoints, 4. TypeScript Client Generation, 4. webflux/ Subproject, 5. analytics/ Java Bridge, 5. TalibAdapter (Thin Wrapper) (+32 more)
 
 ### Community 412 - "Reference Data (7 nodes)"
-Cohesion: 0.50
-Nodes (3): nelson_siegel_rate(), Nelson-Siegel yield curve: b0 + (b1+b2)*(1-exp(-t/tau))/(t/tau) - b2*exp(-t/tau), TestNelsonSiegel
+Cohesion: 0.33
+Nodes (5): nelson_siegel_rate(), Nelson-Siegel yield curve: b0 + (b1+b2)*(1-exp(-t/tau))/(t/tau) - b2*exp(-t/tau), TestNelsonSiegel, Given NS parameters, when evaluating at various t,     then service output match, test_nelson_siegel_matches_reference()
 
 ### Community 413 - "Reviews (7 nodes)"
 Cohesion: 0.24
@@ -2953,8 +2959,8 @@ Cohesion: 0.60
 Nodes (3): Double, List, MarketStabilityGuard
 
 ### Community 427 - "Computation Engine (6 nodes)"
-Cohesion: 0.33
-Nodes (4): amihud_exact(), Amihud illiquidity: mean(|return| / dollar_volume). Amihud (2002), JFM., T4 known-answer tests for the reference formula module.  Each test uses code-lev, TestAmihud
+Cohesion: 0.20
+Nodes (7): amihud_exact(), fdr_bh_corrected(), Benjamini-Hochberg step-up procedure. Benjamini & Hochberg (1995), JRSS-B., Amihud illiquidity: mean(|return| / dollar_volume). Amihud (2002), JFM., T4 known-answer tests for the reference formula module.  Each test uses code-lev, TestAmihud, TestFDR
 
 ### Community 428 - "KPI Calculation (6 nodes)"
 Cohesion: 0.47
@@ -3073,8 +3079,8 @@ Cohesion: 0.33
 Nodes (6): Grafana Dashboard Provisioning (Tickonomics), Grafana Datasource Provisioning, Loki Log Aggregation Service, Prometheus Metrics Scraping Service, Promtail Log Collector Agent, TimescaleDB Prometheus Exporter
 
 ### Community 459 - "Documentation (6 nodes)"
-Cohesion: 0.53
-Nodes (5): Extended Cost Model — Commissions + Borrow/Shorting (T5), ONNX Inference Bridge (D4), PIT Universe Management + Selection Rule (D3/T1), Sharadar PIT Data Source (D5), Validation Gate — Walk-Forward + Bias-Free Regression
+Cohesion: 0.24
+Nodes (6): DisasterAlert, DisasterAlertClient, ParseEdgeCases, HttpClient, ObjectMapper, Scheduled
 
 ### Community 460 - "Drift (6 nodes)"
 Cohesion: 0.47
@@ -3126,7 +3132,7 @@ Nodes (4): formatElapsedTime(), getElapsedMinutes(), parseDataAgeHeader(), Stale
 
 ### Community 472 - "Mappers (6 nodes)"
 Cohesion: 0.08
-Nodes (19): CdmAdapterSpec, "FredCdmAdapter adapts Fred EFFR observation to CdmRateSnapshot", "FredCdmAdapter adapts Fred IORB observation to Iorb instrument type", "FredCdmAdapter adapts Fred RRP observation to Repo instrument type", "NyFedCdmAdapter adapts NyFed BGCR response to Bgcr instrument type", "NyFedCdmAdapter adapts NyFed SOFR response to CdmRateSnapshot", "NyFedCdmAdapter adapts NyFed TGCR response to Tgcr instrument type", InstrumentType (+11 more)
+Nodes (19): DataHubAdaptersSpec, "Brent oil adapter maps to COMMODITY_OIL with Brent source", "Gold adapter maps to COMMODITY_GOLD", "Shiller adapter is identity adapter", "VIX adapter maps to EQUITY instrument type", "WTI oil adapter maps to COMMODITY_OIL with WTI source", InstrumentType, CdmInstrumentMapperSpec (+11 more)
 
 ### Community 473 - "Community 473"
 Cohesion: 0.05
@@ -3245,8 +3251,8 @@ Cohesion: 0.60
 Nodes (4): String, formulaRef(), strategyId(), StrategyType()
 
 ### Community 506 - "Regime Detection (5 nodes)"
-Cohesion: 0.50
-Nodes (3): fdr_bh_corrected(), Benjamini-Hochberg step-up procedure. Benjamini & Hochberg (1995), JRSS-B., TestFDR
+Cohesion: 0.26
+Nodes (7): AnalyticsWorkerClient, Override, ResilienceHealthSnapshot, IngestionBuffer, ProxyDivergenceGuard, ResilienceHealthProbe, CrossModuleResilienceHealthProbe
 
 ### Community 507 - "Risk Processing (5 nodes)"
 Cohesion: 0.40
@@ -3389,8 +3395,8 @@ Cohesion: 0.06
 Nodes (32): 5-Step PDE Transformation, Complementary Additions, Computational Efficiency (Track 8/11), Consolidated Proposal: Fixed Income & Derivatives Analytics Module, Core Proposal: Spectral Bond Engine (SPECTRAL_BOND_ENGINE), Credit/Liquidity Gap Analysis (Track 5), CVA/FVA Valuation Adjustments (CVA_FVA_VALUATION), Greeks as Standardized Risk Primitives (GREEKS_RISK_PRIMITIVE) (+24 more)
 
 ### Community 550 - "Computation Engine (4 nodes)"
-Cohesion: 0.50
-Nodes (4): Econometrics (OpenBB SDK), `POST /api/v1/econometrics/causality`, `POST /api/v1/econometrics/ols`, `POST /api/v1/econometrics/unit-root`
+Cohesion: 0.29
+Nodes (6): DivergenceResult, List, RateSnapshot, RateSnapshotRepository, ProxyDivergenceEventRepository, ProxyDivergenceGuard
 
 ### Community 551 - "Computation Engine (4 nodes)"
 Cohesion: 0.50
@@ -3661,8 +3667,8 @@ Cohesion: 0.07
 Nodes (28): 1.1 Data Silently Lost in `DataHubBackfillClient.backfillShiller()`, 1.2 Finnhub WebSocket Never Authenticates — API Key Not Sent, 1.3 Typo in `FinnhubEquityClient` API Key Property Name, 1.4 `FredClient` and `NyFedClient` Use Wrong Property Namespaces, 1.5 In-Memory Buffer Unbounded Growth → OOM Data Loss, 1. Critical Findings, 2.1 AlgorithmicSanityGuard — Unsynchronized ArrayList, 2.2 FinnhubWsClient — Duplicate Reconnect Storms (+20 more)
 
 ### Community 933 - "Community 933"
-Cohesion: 0.12
-Nodes (16): API Endpoints, Econometrics (OpenBB SDK), Fixed Income (FinanceToolkit), `GET /health`, Health Check, Performance (FinanceToolkit + OpenBB), `POST /api/v1/econometrics/causality`, `POST /api/v1/econometrics/ols` (+8 more)
+Cohesion: 0.07
+Nodes (29): API Endpoints, Architecture, Dependencies, Directory Structure, Econometrics (OpenBB SDK), FinanceToolkit Reference, Fixed Income (FinanceToolkit), `GET /health` (+21 more)
 
 ### Community 934 - "Community 934"
 Cohesion: 0.07
@@ -3693,8 +3699,8 @@ Cohesion: 0.08
 Nodes (23): 1.1 `CdmTick.equals()` Is Broken — Reference Equality for `int[] conditions`, 1.2 `YahooOptionsCdmAdapter` Silently Maps Non-"CALL" Types to PUT, 1.3 `FrenchFactorCdmAdapter` Always Sets stRev/ltRev to NaN, 1. Critical Findings, 2.1 TTM Uses 365.25 but Enum Says ACT/365 FIXED, 2.2 Inverted Bid/Ask Silently Corrected Without Logging, 2.3 `CdmBondSnapshot` — No Validation for Duration ≥ 0 or Convexity ≥ 0, 2.4 Checkstyle `ignoreFailures = true` Disables Quality Enforcement (+15 more)
 
 ### Community 941 - "Community 941"
-Cohesion: 0.09
-Nodes (23): 10. Rollback plan, 11. Risk register, 1. Overview, 2. Prerequisites (Phase 0), 3.1 Version bumps, 3.2 Transitive-dependency audit, 3.3 Verify, 3. Phase 1 — Build & dependency scaffold (compile, don't run) (+15 more)
+Cohesion: 0.06
+Nodes (34): 10. Rollback plan, 11. Risk register, 1. Overview, 2. Prerequisites (Phase 0), 3.1 Version bumps, 3.2 Transitive-dependency audit, 3.3 Verify, 3. Phase 1 — Build & dependency scaffold (compile, don't run) (+26 more)
 
 ### Community 942 - "Community 942"
 Cohesion: 0.09
@@ -3725,8 +3731,8 @@ Cohesion: 0.10
 Nodes (20): Backtesting Framework Assessment for Empirical Validation, Backtrader — DROPPED (Python 3.12 risk, unmaintained), Dependencies to Add, Detailed Assessment, Final Verdict: What Goes Into the Plan, Frameworks Evaluated, Lean / QuantConnect — NOT RECOMMENDED, New dependencies to add (+12 more)
 
 ### Community 949 - "Community 949"
-Cohesion: 0.10
-Nodes (21): 10. Quick Reference, 1. Overview, 2.1 Tooling, 2.2 Credentials, 2.3 Configuration, 2. Prerequisites, 4. Build and Push Container Images, 8.1 Tear down spot resources only (+13 more)
+Cohesion: 0.05
+Nodes (39): 10. Quick Reference, 1. Overview, 2.1 Tooling, 2.2 Credentials, 2.3 Configuration, 2. Prerequisites, 3.1 Option A: Terraform CLI (full stack), 3.2 Option B: CLI one-shot script (+31 more)
 
 ### Community 950 - "Community 950"
 Cohesion: 0.10
@@ -3833,7 +3839,7 @@ Cohesion: 0.11
 Nodes (18): 1. Direct FRED Client (Finding 5), 2. Direct NY Fed Client (Finding 5), 3. OpenBB Client (Equity Prices Only, Finding 5), 4. Polygon WebSocket Client, 5. TimescaleDB Writer, 6. Disk-Backed Ingestion Buffer (Finding 7), 7. Data Quality Checker, 8. Circuit Breakers (Resilience4j) (+10 more)
 
 ### Community 976 - "Community 976"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (18): 1. Hero Section, 2. Problem Section, 3. How It Works Section, 4. Live Demo Section, 5. Signal Showcase, 6. Virtual Portfolio Teaser, 7. Pricing/Access Section, 8. Footer (+10 more)
 
 ### Community 977 - "Community 977"
@@ -3869,12 +3875,12 @@ Cohesion: 0.12
 Nodes (16): 1. Overview, 2. Prerequisites, 3.1 `atlantis.yaml` (repo root), 3.2 Key design decisions, 3. Project Atlantis Configuration, 4.1 Start ngrok, 4.2 Create GitHub webhook, 4.3 Create GitHub Personal Access Token (+8 more)
 
 ### Community 985 - "Community 985"
-Cohesion: 0.50
-Nodes (4): OpenBB SDK Causality Details, OpenBB SDK Functions Used, OpenBB SDK Reference, Version History
+Cohesion: 0.24
+Nodes (10): ndarray, _compute_conditional_variance(), _estimate_garch(), garch_forecast(), Risk metrics service: VaR, CVaR, GARCH volatility forecasting., GARCH(p,q) volatility forecast via maximum likelihood estimation., Given long-horizon GARCH forecast, then forecast should converge to unconditiona, Given highly volatile returns, when GARCH, then persistence is near 1. (+2 more)
 
 ### Community 986 - "Community 986"
-Cohesion: 0.17
-Nodes (12): API Endpoints, Fixed Income (FinanceToolkit), `GET /health`, Health Check, Performance (FinanceToolkit + OpenBB), `POST /api/v1/fixed-income/bond-analytics`, `POST /api/v1/performance/fama-french`, `POST /api/v1/performance/sharpe-ratio` (+4 more)
+Cohesion: 0.12
+Nodes (16): API Endpoints, Econometrics (OpenBB SDK), Fixed Income (FinanceToolkit), `GET /health`, Health Check, Performance (FinanceToolkit + OpenBB), `POST /api/v1/econometrics/causality`, `POST /api/v1/econometrics/ols` (+8 more)
 
 ### Community 987 - "Community 987"
 Cohesion: 0.12
@@ -3925,20 +3931,20 @@ Cohesion: 0.13
 Nodes (15): ADR-011: Plan v5 Gap Elimination, Consequences, Context, Database tables clarification, Date, Decision, Docker Infrastructure, Implementation Summary (+7 more)
 
 ### Community 999 - "Community 999"
-Cohesion: 0.13
-Nodes (15): 2.1 Java Backend — 3 changes, 2.2 Python Analytics Worker — 2 changes, Context, Cost Per 1-Hour Forecast Run, Files Modified/Created Summary, New file: `.github/workflows/forecast-deploy.yml`, New file: `infra/scripts/run-forecast.sh`, Output Design (+7 more)
+Cohesion: 0.09
+Nodes (23): 1.1 Directory Structure, 1.2 `docker-compose.forecast.yml`, 1.3 `shared/scripts/forecast-task.sh` (user_data), 1.4 `compute-spot/user-data.tftpl`, 1.5 AWS Module Details, 1.6 GCP Module Mapping, 1.7 Azure Module Mapping, 2.1 Java Backend — 3 changes (+15 more)
 
 ### Community 1000 - "Community 1000"
-Cohesion: 0.50
-Nodes (4): OpenBB SDK Causality Details, OpenBB SDK Functions Used, OpenBB SDK Reference, Version History
+Cohesion: 0.27
+Nodes (5): BeforeEach, Test, ClosingPrice, ClosingPrices, OhlcvDailyMarketPriceLookupTest
 
 ### Community 1001 - "Community 1001"
 Cohesion: 0.13
 Nodes (15): 1. VirtualPortfolio, 2. PaperTradingEngine, 3. SignalQualityReport, 4. Demo Configuration, 5. Demo Dashboard Page, 6. Landing Page Integration, 7. Verification Criteria, 8. Demo Environment Deployment (+7 more)
 
 ### Community 1002 - "Community 1002"
-Cohesion: 0.10
-Nodes (19): Production Promotion GitHub Actions Workflow, SignalQualityReport (Daily Hit Rate, False Positive, Benchmark Comparison), Verification Criteria (90 days, 50 trades, 55% hit rate, Sharpe > 0.5), Environment Strategy (dev, demo, staging, prod), 1. VirtualPortfolio, 2. PaperTradingEngine, 3. SignalQualityReport, 4. Demo Configuration (+11 more)
+Cohesion: 0.13
+Nodes (15): 1. VirtualPortfolio, 2. PaperTradingEngine, 3. SignalQualityReport, 4. Demo Configuration, 5. Demo Dashboard Page, 6. Landing Page Integration, 7. Verification Criteria, 8. Demo Environment Deployment (+7 more)
 
 ### Community 1003 - "Community 1003"
 Cohesion: 0.15
@@ -3949,8 +3955,8 @@ Cohesion: 0.13
 Nodes (14): 10. AUMF Uncertainty Management Lifecycle (Proposal 06), 11. Stochastic Weight Optimization & Calibration Loop, 12. Deployment & Container Architecture, 13. Dashboard Component Architecture, 1. System Topology & Data Flow (High-Level), 2. Ingestion & Resilience Sequence Diagram, 3. Computation Engine: Core Analytic Pipeline, 4. Signal Generation & v5 Extended Modules (+6 more)
 
 ### Community 1005 - "Community 1005"
-Cohesion: 0.10
-Nodes (19): 10. Dependency Impact, 1. Executive Summary, 2.1 Implemented — Free (Retain As-Is), 2.2 Implemented — Paid (Replace), 2.3 Referenced but Not Implemented (Remove), 2.4 Identified Data Gaps (Fill), 2. Current Data Source Inventory, 6. Free Tier Rate Limit Analysis (+11 more)
+Cohesion: 0.13
+Nodes (14): 10. Dependency Impact, 1. Executive Summary, 6. Free Tier Rate Limit Analysis, 7. Risk Assessment, 8. Environment Variables, Changelog, Docker Compose Changes, Finnhub Free Tier Constraints (+6 more)
 
 ### Community 1006 - "Community 1006"
 Cohesion: 0.13
@@ -3968,9 +3974,9 @@ Nodes (14): 1. Correlated-degradation detector, not single-threshold gating, 2. 
 Cohesion: 0.14
 Nodes (12): Tickonomics REST API Contract (OpenAPI 3.1.0, Phase 0), Spring Boot Application Configuration (application.yml), ADR: Terraform Spot Instance Infrastructure for Forecast Pipeline, Architecture, Consequences, Context, Decision, File Inventory (+4 more)
 
-### Community 1010 - "Community 1010"
-Cohesion: 0.83
-Nodes (4): Direct FRED/NY Fed Java Clients, FederationDataClient, Direct FRED Client, Direct NY Fed Client
+### Community 1011 - "Community 1011"
+Cohesion: 0.36
+Nodes (5): List, MapSqlParameterSource, NamedParameterJdbcTemplate, ProxyDivergenceEvent, ProxyDivergenceEventRepository
 
 ### Community 1012 - "Community 1012"
 Cohesion: 0.14
@@ -3981,8 +3987,8 @@ Cohesion: 0.14
 Nodes (14): All Tracks Complete, Legend, Tickonomics Implementation Plan, Track 10: Demo / Virtual Portfolio (Phase 6), Track 11: Deployment & Operations (Phase 8), Track 1: Project Scaffolding & API Contracts (Phase 0), Track 2: Database Schema - TimescaleDB (Phase 0), Track 3: Python Analytics Worker (Phase 0) (+6 more)
 
 ### Community 1014 - "Community 1014"
-Cohesion: 0.14
-Nodes (14): 2. Track-by-Track Findings, Track 10 — Demo / Virtual Portfolio ✅ ~90% (finalized — see [ADR-017](adr/ADR-017-demo-virtual-portfolio-finalization.md)), Track 11 — Deployment & Operations ✅ ~95% (finalized — see [ADR-018](adr/ADR-018-systemic-resilience-monitor.md)), Track 13 — Terraform Spot/Forecast ✅ ~90% (finalized — see [ADR-019](adr/ADR-019-track13-spot-forecast-finalization.md)), Track 14 — Production Infrastructure ❌ ~0%, Track 1 — Scaffolding & API Contracts ⚠️ ~70%, Track 2 — Database Schema ✅ ~95%, Track 3 — Analytics Worker (Python) ✅ ~85% (with substitutions) (+6 more)
+Cohesion: 0.10
+Nodes (21): 1. Executive Summary, 2. Track-by-Track Findings, 3. Cross-Cutting Themes, 4. Recommended Priority Order, 5. Methodology, Aggregate counts observed in the repo, Per-track scorecard, Plan v6 — Implementation Verification Report (+13 more)
 
 ### Community 1015 - "Community 1015"
 Cohesion: 0.14
@@ -4041,8 +4047,8 @@ Cohesion: 0.15
 Nodes (12): Appendix B: TA-Lib Java Reference, Appendix D: TimescaleDB Reference, Architecture Design Record, Hypertable and Continuous Aggregate Setup, Integration Notes, Key Functions Used, Key TimescaleDB Functions, License (+4 more)
 
 ### Community 1029 - "Community 1029"
-Cohesion: 0.18
-Nodes (9): Architecture, Dependencies, Directory Structure, FinanceToolkit Reference, Graceful Degradation, Modules Used, Objective, Track 3: Python Analytics Worker (+1 more)
+Cohesion: 0.15
+Nodes (13): Architecture, Dependencies, Directory Structure, FinanceToolkit Reference, Graceful Degradation, Modules Used, Objective, OpenBB SDK Causality Details (+5 more)
 
 ### Community 1030 - "Community 1030"
 Cohesion: 0.15
@@ -4081,8 +4087,8 @@ Cohesion: 0.15
 Nodes (12): 3.1 ILI Card, 3.2 Liquidity Stress Index Gauge, 3.3 Repo/Equity Beta Table, 3.4 RRP Drain Velocity Trend, 3.5 Volatility Regime Indicator, 3.6 KPI Data Hook, Acceptance Criteria, Components (+4 more)
 
 ### Community 1039 - "Community 1039"
-Cohesion: 0.18
-Nodes (11): ADR-009: Demo / Virtual Portfolio Architecture, Architecture, Consequences, Context, Database Changes (V27), Decision, Design Trade-offs, REST API (+3 more)
+Cohesion: 0.25
+Nodes (8): ADR-009: Demo / Virtual Portfolio Architecture, Architecture, Consequences, Context, Database Changes (V27), Decision, Design Trade-offs, REST API
 
 ### Community 1040 - "Community 1040"
 Cohesion: 0.17
@@ -4196,6 +4202,10 @@ Nodes (11): ADR-032: Migration to Spring Boot 4.0, Alternatives considered, Cons
 Cohesion: 0.18
 Nodes (10): 1. Router Registry, 2. Service Inventory, 3. Test Inventory, 4. Triangulation Matrix, 5. Assertion Quality, 6. Edge-Case Coverage, 7. GWT Compliance, 8. Gap Prioritization (+2 more)
 
+### Community 1068 - "Community 1068"
+Cohesion: 0.20
+Nodes (10): 1. HistoricalDataReplay, 2. BacktestEngine, 3. WeightOptimizer, 4. Backtest Report Page (Frontend), Components to Implement, Configuration, Module Structure, Objective (+2 more)
+
 ### Community 1069 - "Community 1069"
 Cohesion: 0.18
 Nodes (11): 0.1 Add `pytest-cov` dependency, 0.2 Create audit working directory, 0.3 Verify current test suite passes (baseline), Analytics Test Verification Plan — Final Version, Appendix A: Complete Step Index, Appendix B: File Tree of Artifacts Produced, Appendix C: Known Issues Carried Forward, Assertion Quality Tiers (+3 more)
@@ -4225,8 +4235,8 @@ Cohesion: 0.18
 Nodes (11): Appendix A: OpenBB Platform Reference, `obb.econometrics.causality`, `obb.econometrics.correlation_matrix`, `obb.econometrics.ols_regression`, `obb.econometrics.unit_root`, `obb.fixedincome.government.treasury_rates`, `obb.quantitative.sharpe_ratio` / `sortino_ratio`, `obb.quantitative.unitroot_test` (+3 more)
 
 ### Community 1076 - "Community 1076"
-Cohesion: 0.08
-Nodes (20): AsyncAPI WebSocket Contract, OpenAPI 3.1 REST Contract, Virtual Threads + Spring MVC Primary Runtime, Missing Data Policy (gapfill, locf, STALE, DISLOCATED, outlier SUSPECT), Ingestion Observability Metrics (events, latency, errors, buffer, proxy divergence), Landing Page Next.js 15 Application (tickonomics.io), Analytics Dashboard Next.js 15 Application (app.tickonomics.io), WebSocket Real-Time Updates (/ws/prices, /ws/signals) (+12 more)
+Cohesion: 0.18
+Nodes (11): Deployment Checklist, Directory Structure, Environment Secrets, Objective, Track 9: CI/CD Pipeline (GitHub Actions), Validation, Workflow 1: PR Checks (`.github/workflows/pr-checks.yml`), Workflow 2: Build & Deploy Staging (`.github/workflows/deploy-staging.yml`) (+3 more)
 
 ### Community 1077 - "Community 1077"
 Cohesion: 0.18
@@ -4293,8 +4303,8 @@ Cohesion: 0.20
 Nodes (10): ADR-031: Perspective v4 Upgrade (@finos → @perspective-dev), Alternatives considered, Bundler: webpack, not Turbopack (required), Consequences, Context, `d3fc` → `viewer-charts`, not `viewer-d3fc`, Decision, Dependency mapping (+2 more)
 
 ### Community 1094 - "Community 1094"
-Cohesion: 0.08
-Nodes (20): 1. HistoricalDataReplay, 2. BacktestEngine, 3. WeightOptimizer, 4. Backtest Report Page (Frontend), Components to Implement, Configuration, Module Structure, Objective (+12 more)
+Cohesion: 0.20
+Nodes (10): 1. HistoricalDataReplay, 2. BacktestEngine, 3. WeightOptimizer, 4. Backtest Report Page (Frontend), Components to Implement, Configuration, Module Structure, Objective (+2 more)
 
 ### Community 1095 - "Community 1095"
 Cohesion: 0.20
@@ -4381,8 +4391,8 @@ Cohesion: 0.22
 Nodes (9): CDM adapters, CDM model, Computation module, Files changed (critical path), Indicator/backtest files (read-only BigDecimal → double conversion), Ingestion filters, Persistence entities, Repositories (+1 more)
 
 ### Community 1117 - "Community 1117"
-Cohesion: 0.22
-Nodes (8): 1. Executive Summary, 3. Cross-Cutting Themes, 4. Recommended Priority Order, 5. Methodology, Aggregate counts observed in the repo, Island Components — Built but Not Integrated, Per-track scorecard, Plan v6 — Implementation Verification Report
+Cohesion: 0.25
+Nodes (7): CdmAdapterSpec, "FredCdmAdapter adapts Fred EFFR observation to CdmRateSnapshot", "FredCdmAdapter adapts Fred IORB observation to Iorb instrument type", "FredCdmAdapter adapts Fred RRP observation to Repo instrument type", "NyFedCdmAdapter adapts NyFed BGCR response to Bgcr instrument type", "NyFedCdmAdapter adapts NyFed SOFR response to CdmRateSnapshot", "NyFedCdmAdapter adapts NyFed TGCR response to Tgcr instrument type"
 
 ### Community 1118 - "Community 1118"
 Cohesion: 0.22
@@ -4391,6 +4401,10 @@ Nodes (9): 5.1 Check instance status, 5.2 Watch the bootstrap log, 5.3 Check con
 ### Community 1119 - "Community 1119"
 Cohesion: 0.22
 Nodes (9): 5.1 D1 — Resilience4j scope (prerequisite gate), 5.2 Enable native resilience, 5.3 Retry — `@Retry` → `@Retryable` (inline config), 5.4 Concurrency — `@Bulkhead` → `@ConcurrencyLimit`, 5.5 Programmatic Resilience4j usage, 5.6 Remove Resilience4j config (only after D1 = full migration), 5.7 Metrics, 5.8 Verify (+1 more)
+
+### Community 1120 - "Community 1120"
+Cohesion: 0.36
+Nodes (7): CvarRequest, GarchRequest, Risk metrics router: VaR, CVaR, GARCH., run_cvar(), run_garch(), run_var(), VarRequest
 
 ### Community 1121 - "Community 1121"
 Cohesion: 0.22
@@ -4493,8 +4507,8 @@ Cohesion: 0.25
 Nodes (8): Group B: Statistical Estimation (Steps 19–25), Step 19 (HIGHEST PRIORITY) — `risk_service.garch_forecast` vs `scipy.optimize.minimize`, Step 20 — `value_at_risk`, `conditional_var` vs manual numpy, Step 21 — `evt_risk_service` vs manual GPD MLE, Step 22 — `macro_shock_service` point estimates vs manual VAR(1) OLS, Step 23 — `quantile_regression_service` vs manual LP, Step 24 — `transfer_entropy_service` on known processes, Step 25 — `volatility_forecast_service` (delegates to GARCH)
 
 ### Community 1147 - "Community 1147"
-Cohesion: 0.25
-Nodes (8): 1.1 Directory Structure, 1.2 `docker-compose.forecast.yml`, 1.3 `shared/scripts/forecast-task.sh` (user_data), 1.4 `compute-spot/user-data.tftpl`, 1.5 AWS Module Details, 1.6 GCP Module Mapping, 1.7 Azure Module Mapping, Phase 1: Terraform Foundation and AWS Implementation
+Cohesion: 0.33
+Nodes (4): DisasterAlertClientTest, TriggerExogenousShock, BeforeEach, Queue
 
 ### Community 1148 - "Community 1148"
 Cohesion: 0.25
@@ -4561,8 +4575,8 @@ Cohesion: 0.25
 Nodes (8): 5.1 Equitable Structure of Equity Strategies, 5.2 Consistent Use of Java Records, 5.3 LiquiditySourceClassifier - Poorly Named Method, 5.4 Strategy Package Naming Inconsistency, 5.5 Repeated Null Checks for Input Maps, 5.6 Magic Numbers Throughout, 5.7 IntersubjectiveAuditService - Not Read but Referenced, 5. Code Quality and Clean Code Findings
 
 ### Community 1164 - "Community 1164"
-Cohesion: 0.29
-Nodes (7): ADR-001: v4/v5 Analytics Worker Services, Context, Decision, Dependencies Added, Test Results, v4 Services (5 groups), v5 Services (13 groups)
+Cohesion: 0.17
+Nodes (12): PyTorch Autoencoder Anomaly Detection (v4), BSM Closed-Form Greeks + Gamma Exposure Aggregation, Regime Detection — GARCH, CNN-LSTM, QED, RAHF, Sobol Quasi-Random Monte Carlo Option Pricing, ADR-001: v4/v5 Analytics Worker Services, Context, Decision, Dependencies Added (+4 more)
 
 ### Community 1165 - "Community 1165"
 Cohesion: 0.29
@@ -4586,7 +4600,7 @@ Nodes (6): 1. Analytics Module, 2. Computation Module, 3. Ingestion Module, 4. D
 
 ### Community 1170 - "Community 1170"
 Cohesion: 0.29
-Nodes (7): 7.1 Spot instance never boots, 7.2 Containers fail health checks, 7.3 Ingestion stalls (< 50 rows), 7.4 Results upload fails, 7.5 Graceful shutdown fails, 7.6 Persistent disk issues, 7. Troubleshooting
+Nodes (7): test_step20_cvar_vs_manual(), conditional_var(), Conditional Value at Risk (Expected Shortfall)., Given any return distribution, when computing CVaR, then CVaR >= VaR (monotonici, Given fewer than 20 returns, when CVaR, then error returned., test_cvar_geq_var(), test_cvar_insufficient_data()
 
 ### Community 1171 - "Community 1171"
 Cohesion: 0.29
@@ -4728,9 +4742,17 @@ Nodes (5): ADR-008: CI/CD Pipeline, Consequences, Context, Decision, CI/CD Pipel
 Cohesion: 0.33
 Nodes (6): ADR-023: CI Python Dependency Caching, Alternatives considered, Consequences, Context, Decision, Why the key includes OS, full Python version, and requirements hash
 
+### Community 1207 - "Community 1207"
+Cohesion: 0.47
+Nodes (5): Object, Override, conditions(), equals(), hashCode()
+
 ### Community 1208 - "Community 1208"
 Cohesion: 0.33
 Nodes (5): Assertion Quality Audit, GWT Compliance (Step 1.7), Per-File Results, Summary, Tier Definitions
+
+### Community 1209 - "Community 1209"
+Cohesion: 0.53
+Nodes (4): RateSnapshotRepository, TickDataRepository, CorrelationOutputRepository, TalibAdapter
 
 ### Community 1211 - "Community 1211"
 Cohesion: 0.33
@@ -4738,11 +4760,11 @@ Nodes (6): 0.1 Install data fetching dependencies, 0.2 Create historical data lo
 
 ### Community 1212 - "Community 1212"
 Cohesion: 0.33
-Nodes (6): 6.1 Download results, 6.2 Result archive structure, 6.3 Verify result integrity, 6.4 Key metrics to check, 6.5 Spot-check with SQL (from the dump), 6. Verify Results
+Nodes (5): CdmInstrumentRefSpec, "given null identifier, when construct, then throws", "given null instrument type, when construct, then throws", "given null source, when construct, then throws", "given valid args, when construct, then fields set"
 
 ### Community 1213 - "Community 1213"
 Cohesion: 0.33
-Nodes (6): 7.1 Property renames (driven by the Phase 1 migrator log), 7.2 Flyway (35 migrations), 7.3 Micrometer 2.x + tracing, 7.4 Runtime behavior, 7.5 Verify, 7. Phase 5 — Config & observability
+Nodes (5): ProxyDivergenceGuardSpec, "given constant difference, when computeDivergenceScore, then zero", "given empty input, when computeDivergenceScore, then zero", "given identical series, when computeCorrelation, then one", "given single point, when computeCorrelation, then one"
 
 ### Community 1214 - "Community 1214"
 Cohesion: 0.33
@@ -4761,8 +4783,8 @@ Cohesion: 0.33
 Nodes (5): Affected Environments, Atlantis Verification, Post-Merge, Pre-Merge Verification, Summary
 
 ### Community 1218 - "Community 1218"
-Cohesion: 0.33
-Nodes (6): CdmInstrumentMapperSpec, "maps all RateTypes to correct instruments", "maps Fred series #series to expected instrument", "maps NyFed rate #rate to expected instrument", "throws IllegalArgumentException for unknown Fred series", "throws IllegalArgumentException for unknown NyFed rate"
+Cohesion: 0.50
+Nodes (3): Instant, SessionRangeService, SessionRange
 
 ### Community 1219 - "Community 1219"
 Cohesion: 0.40
@@ -4934,11 +4956,7 @@ Nodes (3): CorrelationMatrix(), CorrelationMatrixProps, CorrelationEntry
 
 ### Community 1261 - "Community 1261"
 Cohesion: 0.40
-Nodes (5): 3.1 Option A: Terraform CLI (full stack), 3.2 Option B: CLI one-shot script, 3.3 Option C: Trigger via API Gateway (scheduled or on-demand), 3.4 Option D: Atlantis (PR-driven), 3. Deploy
-
-### Community 1262 - "Community 1262"
-Cohesion: 0.40
-Nodes (5): 6.1 Spring Security 6 → 7, 6.2 Servlet 6.1 / Jakarta EE 11, 6.3 API versioning (optional), 6.4 Verify, 6. Phase 4 — Security & web
+Nodes (5): 2.1 Implemented — Free (Retain As-Is), 2.2 Implemented — Paid (Replace), 2.3 Referenced but Not Implemented (Remove), 2.4 Identified Data Gaps (Fill), 2. Current Data Source Inventory
 
 ### Community 1263 - "Community 1263"
 Cohesion: 0.40
@@ -5245,22 +5263,22 @@ Nodes (3): 6.1 Backup Strategy, 6.2 Disaster Recovery Runbook, Phase 6: Automate
   docs/plan_v6-verification-report.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **5970 isolated node(s):** `DemoConfigTest`, `String`, `PaperTradingEngine`, `MarkovStopHandler`, `SystemicResilienceMonitor` (+5965 more)
+- **5970 isolated node(s):** `IliHistoryPointResponse`, `LiquidityStressResponse`, `RepoEquityBetaResponse`, `RrpDrainResponse`, `VolatilityRegimeResponse` (+5965 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **194 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **197 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `ADR-001-v4-v5-analytics-services.md` and `ML/Sentiment Shape-Correct but Substance-Substituted`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `toString()` connect `Backtesting Engine (15 nodes)` to `Weight Optimization (40 nodes)`, `Computation Engine (14 nodes)`, `Computation Engine (39 nodes)`, `Configuration (29 nodes)`, `Computation Engine (22 nodes)`, `Audit System (51 nodes)`, `Repository (11 nodes)`, `Database Persistence (49 nodes)`, `Weight Optimization (10 nodes)`, `Computation Engine (13 nodes)`, `Writer (13 nodes)`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `Recommendation` connect `Signal Generation (27 nodes)` to `Execution Analysis (9 nodes)`, `Risk Processing (18 nodes)`, `Execution Analysis (22 nodes)`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `empty()` connect `Repository (14 nodes)` to `Models (35 nodes)`, `Anomaly Detection (28 nodes)`, `Demo/Virtual Portfolio (8 nodes)`, `Backtesting Engine (21 nodes)`, `Repository (15 nodes)`, `Database Persistence (14 nodes)`, `Computation Engine (33 nodes)`, `Demo/Virtual Portfolio (26 nodes)`, `Computation Engine (33 nodes)`, `Controller (26 nodes)`, `Caching (16 nodes)`, `Database Persistence (20 nodes)`, `Computation Engine (44 nodes)`, `Demo/Virtual Portfolio (31 nodes)`?**
+- **Why does `toString()` connect `Computation Engine (22 nodes)` to `Weight Optimization (40 nodes)`, `Computation Engine (14 nodes)`, `Computation Engine (39 nodes)`, `Configuration (29 nodes)`, `Audit System (51 nodes)`, `Backtesting Engine (15 nodes)`, `Repository (11 nodes)`, `Weight Optimization (10 nodes)`, `Computation Engine (13 nodes)`, `Community 1172`, `Writer (13 nodes)`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `ZoneOffset` connect `Guard (16 nodes)` to `Regime Detection (41 nodes)`, `Computation Engine (30 nodes)`, `Community 1218`, `Signal Generation (23 nodes)`, `Demo/Virtual Portfolio (22 nodes)`, `Signal Generation (6 nodes)`, `Datahub (28 nodes)`, `Alphavantage (27 nodes)`, `Demo/Virtual Portfolio (26 nodes)`, `Demo/Virtual Portfolio (31 nodes)`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `RateType` connect `Common Data Model (32 nodes)` to `Computation Engine (22 nodes)`, `Data Ingestion (24 nodes)`, `Repository (20 nodes)`, `Mappers (6 nodes)`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **What connects `DemoConfigTest`, `String`, `PaperTradingEngine` to the rest of the system?**
+- **What connects `IliHistoryPointResponse`, `LiquidityStressResponse`, `RepoEquityBetaResponse` to the rest of the system?**
   _6496 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Frontend Charts (87 nodes)` be split into smaller, more focused modules?**
   _Cohesion score 0.03686405337781484 - nodes in this community are weakly interconnected._
