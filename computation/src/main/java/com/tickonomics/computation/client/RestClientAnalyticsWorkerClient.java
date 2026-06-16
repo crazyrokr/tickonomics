@@ -1,7 +1,8 @@
 package com.tickonomics.computation.client;
 
 import com.tickonomics.contracts.client.AnalyticsWorkerClient;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ public class RestClientAnalyticsWorkerClient implements AnalyticsWorkerClient {
     }
 
     @Override
-    @Retry(name = "analyticsWorker")
+    @Retryable(includes = RestClientException.class, maxRetries = 1, delay = 500)
     @SuppressWarnings("unchecked")
     public Map<String, Object> sendAnalysisRequest(String function, Map<String, Object> payload) {
         try {

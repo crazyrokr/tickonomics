@@ -1,12 +1,12 @@
 package com.tickonomics.ingestion.news;
 
 import com.tickonomics.cdm.adapter.raw.NewsArticle;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -45,7 +45,7 @@ public class FedRSSClient implements NewsIngestionClient {
   }
 
   @Override
-  @Retry(name = "fedRssApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 2000, multiplier = 2)
   public List<NewsArticle> fetchNews() {
     List<NewsArticle> articles = new ArrayList<>();
     articles.addAll(fetchFeed(speechesUrl, "FED_SPEECH"));

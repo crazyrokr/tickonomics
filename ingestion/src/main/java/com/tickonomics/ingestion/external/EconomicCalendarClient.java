@@ -1,6 +1,7 @@
 package com.tickonomics.ingestion.external;
 
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,7 @@ public class EconomicCalendarClient {
     }
 
     @Scheduled(fixedDelayString = "${monitor.ingestion.economic-calendar.poll-interval-ms:3600000}")
-    @Retry(name = "fredApi")
+    @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 1000, multiplier = 2)
     public void pollUpcomingEvents() {
         try {
             var events = fetchCalendarEvents();
