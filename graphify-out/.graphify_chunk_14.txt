@@ -1,0 +1,5 @@
+/home/crazyrock/github/tickonomics/monitoring/loki.yml
+/home/crazyrock/github/tickonomics/monitoring/prometheus.yml
+/home/crazyrock/github/tickonomics/monitoring/promtail.yml
+/home/crazyrock/github/tickonomics/monitoring/grafana/dashboards/dashboards.yml
+/home/crazyrock/github/tickonomics/monitoring/grafana/datasources/datasources.yml
