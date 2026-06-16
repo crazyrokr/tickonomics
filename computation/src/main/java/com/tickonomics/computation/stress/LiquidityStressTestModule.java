@@ -1,6 +1,5 @@
 package com.tickonomics.computation.stress;
 
-import java.time.Instant;
 import java.util.Arrays;
 
 import org.slf4j.Logger;

@@ -1,6 +1,5 @@
 package com.tickonomics.computation.backtest;
 
-import com.tickonomics.computation.scenario.AumfScenarioEngine;
 import com.tickonomics.computation.scenario.AumfStatus;
 import com.tickonomics.computation.scenario.CrisisProfile;
 import java.util.LinkedHashMap;

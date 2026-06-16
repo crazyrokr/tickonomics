@@ -19,7 +19,7 @@ class LegMatchServiceSpec extends Specification {
   @Subject
   LegMatchService service = new LegMatchService()
 
-  private static CdmOptionSnapshot option(double strike, OptionType type, LocalDate expiry = EXPIRY) {
+  static CdmOptionSnapshot option(double strike, OptionType type, LocalDate expiry = EXPIRY) {
     return new CdmOptionSnapshot(
         UUID.randomUUID(), "SPY", strike as BigDecimal, expiry, type,
         DayCountConvention.ACT_365_FIXED, 0.5d, 0.1d, -0.02d, 0.15d, 0.01d,

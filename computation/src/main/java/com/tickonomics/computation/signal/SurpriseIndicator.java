@@ -128,8 +128,12 @@ public class SurpriseIndicator {
         double min = historicalIliValues[0];
         double max = historicalIliValues[0];
         for (double v : historicalIliValues) {
-            if (v < min) min = v;
-            if (v > max) max = v;
+            if (v < min) {
+                min = v;
+            }
+            if (v > max) {
+                max = v;
+            }
         }
 
         if (min == max) {

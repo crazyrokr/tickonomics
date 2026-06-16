@@ -183,7 +183,7 @@ class TalibAdapterSpec extends Specification {
 
   def "compute RSI for monotonically increasing data is high"() {
     given:
-        double[] data = (1..30).collect { it as double }
+        double[] data = (1..30) as double[]
 
     when:
         double[] rsi = adapter.computeRsi(data, 14)
@@ -195,7 +195,7 @@ class TalibAdapterSpec extends Specification {
 
   def "compute RSI for monotonically decreasing data is low"() {
     given:
-        double[] data = (30..1).collect { it as double }
+        double[] data = (30..1) as double[]
 
     when:
         double[] rsi = adapter.computeRsi(data, 14)

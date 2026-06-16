@@ -11,8 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @ConditionalOnBean(TalibAdapter.class)
@@ -83,7 +81,9 @@ public class CorrelationEngine {
     }
 
     public void persistCorrelation(CorrelationResult result) {
-        if (!result.valid()) return;
+        if (!result.valid()) {
+            return;
+        }
         correlationRepository.save(new CorrelationOutput(
                 Instant.now(), result.symbolX(), result.metric(),
                 result.latest(), null, result.window(), null, null));
@@ -111,7 +111,9 @@ public class CorrelationEngine {
     }
 
     private double[] lastN(double[] values, int n) {
-        if (values.length <= n) return values;
+        if (values.length <= n) {
+            return values;
+        }
         double[] result = new double[n];
         System.arraycopy(values, values.length - n, result, 0, n);
         return result;
