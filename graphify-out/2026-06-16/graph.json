@@ -590,24 +590,14 @@
   },
   "nodes": [
     {
-      "label": "graphify-report.md",
-      "file_type": "document",
-      "source_file": "docs/graphify-report.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "docs_graphify_report",
-      "community": 439,
-      "norm_label": "graphify-report.md"
-    },
-    {
       "label": "The Berkshire Hathaway Reports.md",
       "file_type": "document",
       "source_file": "docs/The Berkshire Hathaway Reports.md",
       "source_location": "L1",
       "_origin": "ast",
+      "id": "docs_the_berkshire_hathaway_reports",
       "community": 381,
-      "norm_label": "the berkshire hathaway reports.md",
-      "id": "docs_the_berkshire_hathaway_reports"
+      "norm_label": "the berkshire hathaway reports.md"
     },
     {
       "label": "00-progress.md",
@@ -615,9 +605,9 @@
       "source_file": "docs/reviews/00-progress.md",
       "source_location": "L1",
       "_origin": "ast",
+      "id": "reviews_00_progress",
       "community": 429,
-      "norm_label": "00-progress.md",
-      "id": "reviews_00_progress"
+      "norm_label": "00-progress.md"
     },
     {
       "label": "lighthouserc.js",
@@ -244085,5 +244075,5 @@
       "source_file": "integration-tests/src/test/resources/application-test.yml"
     }
   ],
-  "built_at_commit": "8be4ac49c738ea8b98591ba3d0cee8505ad7b108"
+  "built_at_commit": "869ca22d8454b72c3c829172553309994e9af14a"
 }

@@ -1,16 +1,16 @@
-# Graph Report - tickonomics  (2026-06-16)
+# Graph Report - tickonomics  (2026-06-17)
 
 ## Corpus Check
 - 1220 files · ~691,101 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8962 nodes · 14315 edges · 925 communities (733 shown, 192 thin omitted)
+- 8961 nodes · 14315 edges · 924 communities (732 shown, 192 thin omitted)
 - Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 1516 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8be4ac49`
+- Built from commit: `869ca22d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -859,7 +859,7 @@
 - **Landing Next.js Documentation Bundle** — landing_agents, landing_claude, landing_readme [EXTRACTED 1.00]
 - **Integration Test Disabled Feature Set** — resources_application_test_auth_disabled, resources_application_test_oauth2_exclusion, resources_application_test_tracing_disabled, resources_application_test_demo_disabled [EXTRACTED 1.00]
 
-## Communities (925 total, 192 thin omitted)
+## Communities (924 total, 192 thin omitted)
 
 ### Community 0 - "Frontend Charts (87 nodes)"
 Cohesion: 0.05
@@ -3208,9 +3208,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `ML/Sentiment Shape-Correct but Substance-Substituted` and `ADR-001: v4/v5 Analytics Worker Services (18 Groups)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `toString()` connect `Computation Engine (22 nodes)` to `Weight Optimization (40 nodes)`, `Computation Engine (14 nodes)`, `Computation Engine (39 nodes)`, `Configuration (29 nodes)`, `Audit System (51 nodes)`, `Backtesting Engine (15 nodes)`, `Repository (11 nodes)`, `Database Persistence (49 nodes)`, `Weight Optimization (10 nodes)`, `Computation Engine (13 nodes)`, `Writer (13 nodes)`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
-- **Why does `neutral()` connect `Computation Engine (15 nodes)` to `Equity Strategies (19 nodes)`, `Computation Engine (11 nodes)`, `Computation Engine (19 nodes)`, `Audit System (51 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Options Strategies (26 nodes)`, `Computation Engine (11 nodes)`?**
   _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `neutral()` connect `Computation Engine (15 nodes)` to `Equity Strategies (19 nodes)`, `Computation Engine (11 nodes)`, `Computation Engine (19 nodes)`, `Audit System (51 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Computation Engine (10 nodes)`, `Options Strategies (26 nodes)`, `Computation Engine (11 nodes)`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Why does `BaseOptionStrategy` connect `Options Strategies (26 nodes)` to `Options Strategies (7 nodes)`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Are the 28 inferred relationships involving `neutral()` (e.g. with `.computeButterflySignal()` and `.computeSignal()`) actually correct?**
