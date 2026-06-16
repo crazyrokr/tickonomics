@@ -11,6 +11,7 @@ import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.SignalLogRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class DemoController {
     body.put("initialBalance", summary.initialBalance());
     body.put("realizedPnl", summary.realizedPnl());
     body.put("unrealizedPnl", summary.unrealizedPnl());
-    body.put("totalPnl", summary.realizedPnl() + summary.unrealizedPnl());
+    body.put("totalPnl", summary.realizedPnl().add(summary.unrealizedPnl()));
     body.put("openPositions", summary.openPositions());
     body.put("totalTrades", summary.totalTrades());
     body.put("winRate", summary.winRate());
@@ -126,7 +127,7 @@ public class DemoController {
   @PostMapping("/close-position/{positionId}")
   public ResponseEntity<Map<String, Object>> closePosition(
       @PathVariable long positionId,
-      @RequestParam double price) {
+      @RequestParam BigDecimal price) {
     VirtualPortfolioTrade trade = portfolio.closePosition(positionId, price);
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("tradeId", trade.id());
@@ -138,7 +139,7 @@ public class DemoController {
 
   @PostMapping("/kill-switch/activate")
   public ResponseEntity<Map<String, Object>> activateKillSwitch(
-      @RequestBody(required = false) Map<String, Double> prices) {
+      @RequestBody(required = false) Map<String, BigDecimal> prices) {
     killSwitch.activate();
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("active", true);
@@ -189,7 +190,7 @@ public class DemoController {
 
   @PostMapping("/leverage-rotation/evaluate")
   public ResponseEntity<Map<String, Object>> evaluateLeverageRotation(
-      @RequestBody(required = false) Map<String, Double> prices) {
+      @RequestBody(required = false) Map<String, BigDecimal> prices) {
     VirtualPortfolio.LeverageRotationOutcome outcome = portfolio.applyLeverageRotation(
         priceLookup, leverageSignaler, prices);
     Map<String, Object> body = new LinkedHashMap<>();

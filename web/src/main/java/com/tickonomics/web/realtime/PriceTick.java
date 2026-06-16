@@ -1,5 +1,6 @@
 package com.tickonomics.web.realtime;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -9,13 +10,13 @@ import java.util.List;
  */
 public record PriceTick(
     String symbol,
-    double price,
+    BigDecimal price,
     double volume,
     Instant timestamp,
     List<String> conditions,
     String source) {
 
-  public static PriceTick of(String symbol, double price, Instant timestamp) {
+  public static PriceTick of(String symbol, BigDecimal price, Instant timestamp) {
     return new PriceTick(symbol, price, 0.0, timestamp, List.of(), "tickonomics");
   }
 }
