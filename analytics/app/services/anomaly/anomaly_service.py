@@ -2,6 +2,7 @@
 
 import base64
 import io
+import json
 
 import numpy as np
 import torch
@@ -42,9 +43,11 @@ def train_autoencoder(
 
     threshold = float(np.mean(errors) + 2.0 * np.std(errors))
 
-    buffer = io.BytesIO()
-    torch.save(model.state_dict(), buffer)
-    model_state = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    serialized_state = {
+        k: v.detach().cpu().tolist() for k, v in model.state_dict().items()
+    }
+    model_state_json = json.dumps(serialized_state, separators=(",", ":"))
+    model_state = base64.b64encode(model_state_json.encode("utf-8")).decode("utf-8")
 
     return {
         "status": "TRAINED",
@@ -67,7 +70,12 @@ def detect_anomalies(
 
     try:
         raw = base64.b64decode(model_state)
-        state_dict = torch.load(io.BytesIO(raw), weights_only=True)
+        parsed = json.loads(raw.decode("utf-8"))
+        if not isinstance(parsed, dict):
+            return {"error": "Invalid model state"}
+        state_dict = {
+            k: torch.tensor(v, dtype=torch.float32) for k, v in parsed.items()
+        }
     except Exception:
         return {"error": "Invalid model state"}
 
