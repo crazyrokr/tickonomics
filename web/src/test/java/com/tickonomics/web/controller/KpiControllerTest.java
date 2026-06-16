@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -38,12 +39,17 @@ class KpiControllerTest {
     @Mock
     private CorrelationEngine correlationEngine;
 
+    @Mock
+    private ObjectProvider<CorrelationEngine> correlationEngineProvider;
+
     private KpiController controller;
 
     @BeforeEach
     void setUp() {
+        Mockito.lenient().when(correlationEngineProvider.getIfAvailable())
+                .thenReturn(correlationEngine);
         controller = new KpiController(kpiProcessor, iliHistoryRepository,
-                regimeDetector, correlationEngine);
+                regimeDetector, correlationEngineProvider);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

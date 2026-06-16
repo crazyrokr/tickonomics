@@ -9,6 +9,7 @@ import com.tickonomics.persistence.repository.IliHistoryRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,12 +24,12 @@ public class KpiController {
     private final KpiProcessor kpiProcessor;
     private final IliHistoryRepository iliHistoryRepository;
     private final RegimeDetector regimeDetector;
-    private final CorrelationEngine correlationEngine;
+    private final ObjectProvider<CorrelationEngine> correlationEngine;
 
     public KpiController(KpiProcessor kpiProcessor,
                          IliHistoryRepository iliHistoryRepository,
                          RegimeDetector regimeDetector,
-                         CorrelationEngine correlationEngine) {
+                         ObjectProvider<CorrelationEngine> correlationEngine) {
         this.kpiProcessor = kpiProcessor;
         this.iliHistoryRepository = iliHistoryRepository;
         this.regimeDetector = regimeDetector;
@@ -89,8 +90,11 @@ public class KpiController {
     @GetMapping("/repo-equity-beta")
     public ResponseEntity<List<RepoEquityBetaResponse>> getRepoEquityBeta(
             @RequestParam(required = false) String symbol) {
-        var result = kpiProcessor.computeRepoEquityBeta(
-                correlationEngine);
+        var engine = correlationEngine.getIfAvailable();
+        if (engine == null) {
+            return ResponseEntity.ok(List.of());
+        }
+        var result = kpiProcessor.computeRepoEquityBeta(engine);
         if (result.status().equals(KpiResult.STATUS_UNKNOWN)) {
             return ResponseEntity.ok(List.of());
         }
