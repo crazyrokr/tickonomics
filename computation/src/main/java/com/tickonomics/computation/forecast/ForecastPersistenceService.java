@@ -1,6 +1,5 @@
 package com.tickonomics.computation.forecast;
 
-import com.tickonomics.contracts.client.AnalyticsWorkerClient;
 import com.tickonomics.persistence.entity.TickData;
 import com.tickonomics.persistence.entity.VolatilityForecast;
 import com.tickonomics.persistence.repository.TickDataRepository;

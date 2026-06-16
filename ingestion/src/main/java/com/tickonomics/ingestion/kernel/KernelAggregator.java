@@ -39,8 +39,9 @@ public class KernelAggregator {
   double computeAutocovariance(double[] data, int lag) {
     int n = data.length;
     double mean = 0.0;
-    for (double v : data)
+    for (double v : data) {
       mean += v;
+    }
     mean /= n;
 
     double sum = 0.0;

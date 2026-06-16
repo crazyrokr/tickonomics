@@ -67,7 +67,9 @@ public class DataHubBackfillClient {
   public void backfillShiller() {
     String url = baseUrl + "/core/s-and-p-500/_r/-/data/data.csv";
     byte[] csv = fetchCsv(url);
-    if (csv == null) return;
+    if (csv == null) {
+      return;
+    }
 
     writeShillerRows(parseShillerCsv(csv));
   }
@@ -103,7 +105,9 @@ public class DataHubBackfillClient {
 
   private void backfillPriceCsv(String url, String rateType, Object adapter) {
     byte[] csv = fetchCsv(url);
-    if (csv == null) return;
+    if (csv == null) {
+      return;
+    }
 
     List<DataHubPriceRow> rows = parsePriceCsv(csv, rateType);
     for (DataHubPriceRow row : rows) {
@@ -141,16 +145,24 @@ public class DataHubBackfillClient {
 
       while ((line = reader.readLine()) != null) {
         line = line.trim();
-        if (line.isEmpty()) continue;
+        if (line.isEmpty()) {
+          continue;
+        }
 
         String[] parts = line.split(",", -1);
-        if (parts.length < 5) continue;
+        if (parts.length < 5) {
+          continue;
+        }
 
         Instant time = parseShillerDate(parts[0].trim());
-        if (time == null) continue;
+        if (time == null) {
+          continue;
+        }
 
         double price = parseDouble(parts[1]);
-        if (Double.isNaN(price) || price <= 0) continue;
+        if (Double.isNaN(price) || price <= 0) {
+          continue;
+        }
 
         rows.add(new ShillerSp500Row(
             time, price,
@@ -179,17 +191,25 @@ public class DataHubBackfillClient {
 
       while ((line = reader.readLine()) != null) {
         line = line.trim();
-        if (line.isEmpty()) continue;
+        if (line.isEmpty()) {
+          continue;
+        }
 
         String[] parts = line.split(",", -1);
-        if (parts.length < 2) continue;
+        if (parts.length < 2) {
+          continue;
+        }
 
         String dateStr = parts[0].trim();
         double value = parseDouble(parts[1]);
-        if (Double.isNaN(value) || value <= 0) continue;
+        if (Double.isNaN(value) || value <= 0) {
+          continue;
+        }
 
         Instant time = parseDate(dateStr);
-        if (time == null) continue;
+        if (time == null) {
+          continue;
+        }
 
         rows.add(new DataHubPriceRow(time, value));
       }

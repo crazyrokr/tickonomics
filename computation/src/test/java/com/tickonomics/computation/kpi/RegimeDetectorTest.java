@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RegimeDetectorTest {
 
@@ -41,8 +42,12 @@ class RegimeDetectorTest {
         @Test
         void givenHighVolatility_whenDetect_thenHighVol() {
             var returns = new ArrayList<Double>();
-            for (int i = 0; i < 60; i++) returns.add(0.0001 + (Math.random() - 0.5) * 0.001);
-            for (int i = 0; i < 40; i++) returns.add(0.0001 + (Math.random() - 0.5) * 0.05);
+            for (int i = 0; i < 60; i++) {
+                returns.add(0.0001 + (Math.random() - 0.5) * 0.001);
+            }
+            for (int i = 0; i < 40; i++) {
+                returns.add(0.0001 + (Math.random() - 0.5) * 0.05);
+            }
             var result = detector.detect(returns);
             assertTrue(result.regime() == RegimeType.HIGH_VOL || result.regime() == RegimeType.UNSTABLE || result.regime() == RegimeType.METASTABLE);
         }
@@ -99,7 +104,9 @@ class RegimeDetectorTest {
         @Test
         void givenZeroReturns_whenCompute_thenZeroVol() {
             var returns = new ArrayList<Double>();
-            for (int i = 0; i < 30; i++) returns.add(0.001);
+            for (int i = 0; i < 30; i++) {
+                returns.add(0.001);
+            }
             double[] vols = detector.computeRollingVol(returns, 20);
             for (double v : vols) {
                 assertEquals(0.0, v, 1e-9);

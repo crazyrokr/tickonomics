@@ -98,12 +98,12 @@ dependencies {
   implementation project(':persistence')
   implementation 'org.springframework.boot:spring-boot-starter'
   implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-restclient'
   implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
   implementation 'org.apache.arrow:arrow-vector:19.0.0'
   implementation 'org.apache.arrow:arrow-memory-unsafe:19.0.0'
-  implementation 'io.github.resilience4j:resilience4j-retry:2.4.0'
   implementation 'io.github.resilience4j:resilience4j-bulkhead:2.4.0'
-  implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.4.0'
+  implementation 'io.github.resilience4j:resilience4j-spring-boot4:2.4.0'
   implementation 'io.micrometer:micrometer-observation'
   implementation 'io.micrometer:micrometer-tracing-bridge-otel'
 

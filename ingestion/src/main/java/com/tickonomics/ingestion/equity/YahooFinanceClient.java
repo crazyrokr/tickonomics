@@ -1,9 +1,11 @@
 package com.tickonomics.ingestion.equity;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tickonomics.cdm.adapter.raw.FinnhubQuote;
 import com.tickonomics.cdm.adapter.raw.YahooOhlcv;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +13,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,12 @@ public class YahooFinanceClient implements EquityPriceClient {
   private static final Logger log = LoggerFactory.getLogger(YahooFinanceClient.class);
 
   private final RestClient restClient;
+  private final RetryTemplate retryTemplate = new RetryTemplate(RetryPolicy.builder()
+      .includes(RestClientException.class)
+      .maxRetries(2)
+      .delay(Duration.ofMillis(2000))
+      .multiplier(2)
+      .build());
 
   @Value("${monitor.yahoo-finance.base-url:https://query1.finance.yahoo.com}")
   private String baseUrl;
@@ -37,8 +44,15 @@ public class YahooFinanceClient implements EquityPriceClient {
   }
 
   @Override
-  @Retry(name = "yahooFinanceApi", fallbackMethod = "fetchHistoricalOhlcvFallback")
   public List<YahooOhlcv> fetchHistoricalOhlcv(String symbol, String interval) {
+    try {
+      return retryTemplate.execute(() -> doFetchHistoricalOhlcv(symbol, interval));
+    } catch (Exception e) {
+      return fetchHistoricalOhlcvFallback(symbol, interval, e);
+    }
+  }
+
+  private List<YahooOhlcv> doFetchHistoricalOhlcv(String symbol, String interval) {
     String url = baseUrl + "/v8/finance/chart/{symbol}?interval={interval}&range=5d";
     var requestHeadersUriSpec = restClient.get();
     var requestHeadersSpec = requestHeadersUriSpec

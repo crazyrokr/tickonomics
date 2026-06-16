@@ -67,7 +67,7 @@ class DelayDExecutorTest {
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(0.5);
       when(slippageModel.adjustReturn(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
-          .thenAnswer(inv -> (double) inv.getArgument(0));
+          .thenAnswer(inv -> (Double) inv.getArgument(0));
       when(slippageModel.isLiquidityFragile(anyDouble(), anyDouble())).thenReturn(false);
 
       List<BacktestResult> results = executor.compareDelays("TEST", signals, prices);
@@ -130,7 +130,7 @@ class DelayDExecutorTest {
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(1.0);
       when(slippageModel.adjustReturn(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
-          .thenAnswer(inv -> (double) inv.getArgument(0));
+          .thenAnswer(inv -> (Double) inv.getArgument(0));
       when(slippageModel.isLiquidityFragile(anyDouble(), anyDouble())).thenReturn(false);
 
       List<BacktestResult> results = executor.compareDelays("TEST", signals, prices);
@@ -164,7 +164,7 @@ class DelayDExecutorTest {
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(1.0);
       when(slippageModel.adjustReturn(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
-          .thenAnswer(inv -> (double) inv.getArgument(0));
+          .thenAnswer(inv -> (Double) inv.getArgument(0));
       when(slippageModel.isLiquidityFragile(anyDouble(), anyDouble())).thenReturn(false);
 
       List<BacktestResult> results = executor.compareDelays("TEST", signals, prices);
@@ -202,7 +202,7 @@ class DelayDExecutorTest {
       when(slippageModel.calculateSlippageBps(anyDouble(), anyDouble(), anyDouble()))
           .thenReturn(0.0);
       when(slippageModel.adjustReturn(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
-          .thenAnswer(inv -> (double) inv.getArgument(0));
+          .thenAnswer(inv -> (Double) inv.getArgument(0));
       when(slippageModel.isLiquidityFragile(anyDouble(), anyDouble())).thenReturn(false);
 
       List<BacktestResult> results = executor.compareDelays("TEST", signals, prices);

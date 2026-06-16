@@ -1,0 +1,6 @@
+<FindBugsFilter>
+  <Match>
+    <Class name="~.*\$__spock_feature.*" />
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+</FindBugsFilter>

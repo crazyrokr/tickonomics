@@ -16,9 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -92,7 +89,6 @@ class ModelArtifactServiceTest {
     @Test
     void givenValidInputs_whenPersistModel_thenSaveAndPrune() {
       String trainingData = "[0.01, 0.02, 0.03]";
-      String expectedHash = service.computeSha256(trainingData);
       when(repository.save(any(ModelArtifact.class))).thenReturn(42L);
 
       long id = service.persistModel(

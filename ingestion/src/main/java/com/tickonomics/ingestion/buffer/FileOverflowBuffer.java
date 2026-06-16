@@ -1,7 +1,7 @@
 package com.tickonomics.ingestion.buffer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class FileOverflowBuffer<T> {
     public FileOverflowBuffer(Path overflowPath, Class<T> itemClass) {
         this.overflowPath = overflowPath;
         this.itemClass = itemClass;
-        this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        this.objectMapper = JsonMapper.builder().build();
     }
 
     public void append(T item) {

@@ -68,13 +68,17 @@ public class RegimeDetector {
     }
 
     public RegimeResult withExogenousShock(RegimeResult current, boolean shockDetected) {
-        if (!shockDetected) return current;
+        if (!shockDetected) {
+      return current;
+    }
         return new RegimeResult(RegimeType.EXOGENOUS_SHOCK, 0.95, "EXOGENOUS_OVERRIDE",
                 Instant.now(), "External shock detected - overriding regime to EXOGENOUS_SHOCK");
     }
 
     double[] computeRollingVol(List<Double> returns, int window) {
-        if (returns.size() < window) return new double[0];
+        if (returns.size() < window) {
+      return new double[0];
+    }
 
         int numWindows = returns.size() - window + 1;
         double[] vols = new double[numWindows];
@@ -97,13 +101,17 @@ public class RegimeDetector {
 
     double mean(double[] values) {
         double sum = 0;
-        for (double v : values) sum += v;
+        for (double v : values) {
+            sum += v;
+        }
         return sum / values.length;
     }
 
     double std(double[] values, double mean) {
         double sumSq = 0;
-        for (double v : values) sumSq += Math.pow(v - mean, 2);
+        for (double v : values) {
+            sumSq += Math.pow(v - mean, 2);
+        }
         return Math.sqrt(sumSq / values.length);
     }
 

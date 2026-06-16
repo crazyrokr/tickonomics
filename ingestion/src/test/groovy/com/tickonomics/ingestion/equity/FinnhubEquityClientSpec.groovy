@@ -1,6 +1,6 @@
 package com.tickonomics.ingestion.equity
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
@@ -45,7 +45,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, "SPY", "test-key") >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       result != null
       result.currentPrice() == 503.5
@@ -65,7 +65,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       result != null
       result.currentPrice() == 503.5
@@ -91,7 +91,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       result == null
   }
@@ -109,7 +109,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> null
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> null
 
       result == null
   }
@@ -128,7 +128,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 2
       results[0].symbol() == "SPY"
@@ -150,7 +150,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.isEmpty()
   }

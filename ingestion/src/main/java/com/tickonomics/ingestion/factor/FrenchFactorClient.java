@@ -140,14 +140,18 @@ public class FrenchFactorClient {
   }
 
   private FrenchFactorRow parse3FactorRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
-    if (parts.length < 4) return null;
+    if (parts.length < 4) {
+      return null;
+    }
     return new FrenchFactorRow(time, factorSet, frequency,
         parseDouble(parts[1]), parseDouble(parts[2]), parseDouble(parts[3]),
         Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
   }
 
   private FrenchFactorRow parse5FactorRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
-    if (parts.length < 6) return null;
+    if (parts.length < 6) {
+      return null;
+    }
     return new FrenchFactorRow(time, factorSet, frequency,
         parseDouble(parts[1]), parseDouble(parts[2]), parseDouble(parts[3]),
         parseDouble(parts[4]), parseDouble(parts[5]),
@@ -156,7 +160,9 @@ public class FrenchFactorClient {
   }
 
   private FrenchFactorRow parseMomentumRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
-    if (parts.length < 2) return null;
+    if (parts.length < 2) {
+      return null;
+    }
     return new FrenchFactorRow(time, factorSet, frequency,
         Double.NaN, Double.NaN, Double.NaN,
         Double.NaN, Double.NaN, Double.NaN, parseDouble(parts[1]),
@@ -164,7 +170,9 @@ public class FrenchFactorClient {
   }
 
   private FrenchFactorRow parseStReversalRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
-    if (parts.length < 2) return null;
+    if (parts.length < 2) {
+      return null;
+    }
     return new FrenchFactorRow(time, factorSet, frequency,
         Double.NaN, Double.NaN, Double.NaN,
         Double.NaN, Double.NaN, Double.NaN, Double.NaN,
@@ -172,7 +180,9 @@ public class FrenchFactorClient {
   }
 
   private FrenchFactorRow parseLtReversalRow(Instant time, FactorSet factorSet, String frequency, String[] parts) {
-    if (parts.length < 2) return null;
+    if (parts.length < 2) {
+      return null;
+    }
     return new FrenchFactorRow(time, factorSet, frequency,
         Double.NaN, Double.NaN, Double.NaN,
         Double.NaN, Double.NaN, Double.NaN, Double.NaN,

@@ -1,6 +1,6 @@
 package com.tickonomics.web.realtime;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 /** Broadcasts {@link PriceTick} messages to subscribers of the {@code /ws/prices} channel. */

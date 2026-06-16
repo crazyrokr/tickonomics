@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class KpiProcessor {
@@ -81,10 +83,15 @@ public class KpiProcessor {
         double vol = stdDev(returns) * Math.sqrt(252) * 100;
 
         String regime;
-        if (vol < 25) regime = "LOW_VOL";
-        else if (vol < 50) regime = "NORMAL";
-        else if (vol < 75) regime = "HIGH_VOL";
-        else regime = "EXTREME";
+        if (vol < 25) {
+            regime = "LOW_VOL";
+        } else if (vol < 50) {
+            regime = "NORMAL";
+        } else if (vol < 75) {
+            regime = "HIGH_VOL";
+        } else {
+            regime = "EXTREME";
+        }
 
         return new KpiResult("Volatility Regime", round(vol), regime, "%",
                 "Annualized rate volatility regime");
@@ -115,9 +122,15 @@ public class KpiProcessor {
         var effr = getRecentRates("EFFR", 20);
 
         int signals = 0;
-        if (!rrp.isEmpty() && isStressed(rrp)) signals++;
-        if (!sofr.isEmpty() && isStressed(sofr)) signals++;
-        if (!effr.isEmpty() && isStressed(effr)) signals++;
+        if (!rrp.isEmpty() && isStressed(rrp)) {
+            signals++;
+        }
+        if (!sofr.isEmpty() && isStressed(sofr)) {
+            signals++;
+        }
+        if (!effr.isEmpty() && isStressed(effr)) {
+            signals++;
+        }
 
         double score = signals / 3.0 * 100;
         String status = score > 66 ? KpiResult.STATUS_STRESSED
@@ -160,7 +173,9 @@ public class KpiProcessor {
     }
 
     double computeDrainVelocity(List<Double> rates) {
-        if (rates.size() < 2) return 0.0;
+        if (rates.size() < 2) {
+            return 0.0;
+        }
         int n = rates.size();
         double firstHalf = mean(rates.subList(0, n / 2));
         double secondHalf = mean(rates.subList(n / 2, n));
@@ -176,10 +191,14 @@ public class KpiProcessor {
     }
 
     boolean isStressed(List<Double> rates) {
-        if (rates.size() < 5) return false;
+        if (rates.size() < 5) {
+            return false;
+        }
         double m = mean(rates);
         double s = stdDev(rates, m);
-        if (s == 0) return false;
+        if (s == 0) {
+            return false;
+        }
         double latest = rates.get(rates.size() - 1);
         double z = (latest - m) / s;
         return Math.abs(z) > 2.0;
@@ -198,21 +217,31 @@ public class KpiProcessor {
 
     double stdDev(double[] values) {
         double mean = 0;
-        for (double v : values) mean += v;
+        for (double v : values) {
+            mean += v;
+        }
         mean /= values.length;
         double variance = 0;
-        for (double v : values) variance += Math.pow(v - mean, 2);
+        for (double v : values) {
+            variance += Math.pow(v - mean, 2);
+        }
         return Math.sqrt(variance / values.length);
     }
 
     double lastChange(List<Double> values) {
-        if (values.size() < 2) return 0.0;
+        if (values.size() < 2) {
+            return 0.0;
+        }
         return (values.get(values.size() - 1) - values.get(values.size() - 2)) * 10000;
     }
 
     String classifyStress(double index) {
-        if (index > 1.5) return KpiResult.STATUS_STRESSED;
-        if (index > 0.5) return KpiResult.STATUS_ELEVATED;
+        if (index > 1.5) {
+            return KpiResult.STATUS_STRESSED;
+        }
+        if (index > 0.5) {
+            return KpiResult.STATUS_ELEVATED;
+        }
         return KpiResult.STATUS_NORMAL;
     }
 

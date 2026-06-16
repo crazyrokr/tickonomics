@@ -120,8 +120,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenMixedOrders_whenGetCancellationRatio_thenReturnsCorrectRatio() {
             // Given - 3 canceled out of 10
-            for (int i = 0; i < 3; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 7; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 3; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 7; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             double ratio = monitor.getCancellationRatio("AAPL");
@@ -148,8 +152,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenHighCancellationRateWithSufficientSample_whenIsHighCancellationRate_thenReturnTrue() {
             // Given - 40 canceled out of 50 = 0.8 ratio
-            for (int i = 0; i < 40; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 10; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 40; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 10; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             boolean result = monitor.isHighCancellationRate("AAPL");
@@ -161,8 +169,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenHighRateButInsufficientSample_whenIsHighCancellationRate_thenReturnFalse() {
             // Given - 8 canceled out of 10 = 0.8 ratio but below minimum 50
-            for (int i = 0; i < 8; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 2; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 8; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 2; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             boolean result = monitor.isHighCancellationRate("AAPL");
@@ -174,8 +186,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenLowCancellationRateWithSufficientSample_whenIsHighCancellationRate_thenReturnFalse() {
             // Given - 10 canceled out of 100 = 0.1 ratio
-            for (int i = 0; i < 10; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 90; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 10; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 90; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             boolean result = monitor.isHighCancellationRate("AAPL");
@@ -187,8 +203,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenExactlySeventyPercent_whenIsHighCancellationRate_thenReturnFalse() {
             // Given - exactly 0.7 ratio (35 canceled, 15 filled, total 50)
-            for (int i = 0; i < 35; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 15; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 35; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 15; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             boolean result = monitor.isHighCancellationRate("AAPL");
@@ -215,8 +235,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenRecordedStats_whenResetHourlyStats_thenAllStatsCleared() {
             // Given
-            for (int i = 0; i < 60; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 30; i++) monitor.recordOrder("GOOG", false);
+            for (int i = 0; i < 60; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 30; i++) {
+                monitor.recordOrder("GOOG", false);
+            }
             assertThat(monitor.getAllStats()).hasSize(2);
 
             // When
@@ -251,12 +275,24 @@ class OrderCancellationMonitorTest {
         @Test
         void givenMultipleSymbols_whenGetHighCancellationSymbols_thenReturnsOnlyAboveThreshold() {
             // Given - AAPL: 40/50 = 0.8, GOOG: 10/50 = 0.2, MSFT: 45/50 = 0.9
-            for (int i = 0; i < 40; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 10; i++) monitor.recordOrder("AAPL", false);
-            for (int i = 0; i < 10; i++) monitor.recordOrder("GOOG", true);
-            for (int i = 0; i < 40; i++) monitor.recordOrder("GOOG", false);
-            for (int i = 0; i < 45; i++) monitor.recordOrder("MSFT", true);
-            for (int i = 0; i < 5; i++) monitor.recordOrder("MSFT", false);
+            for (int i = 0; i < 40; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 10; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
+            for (int i = 0; i < 10; i++) {
+                monitor.recordOrder("GOOG", true);
+            }
+            for (int i = 0; i < 40; i++) {
+                monitor.recordOrder("GOOG", false);
+            }
+            for (int i = 0; i < 45; i++) {
+                monitor.recordOrder("MSFT", true);
+            }
+            for (int i = 0; i < 5; i++) {
+                monitor.recordOrder("MSFT", false);
+            }
 
             // When
             List<String> result = monitor.getHighCancellationSymbols(0.7);
@@ -269,7 +305,9 @@ class OrderCancellationMonitorTest {
         @Test
         void givenNoSymbolsAboveThreshold_whenGetHighCancellationSymbols_thenReturnsEmpty() {
             // Given - all below threshold
-            for (int i = 0; i < 50; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 50; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             List<String> result = monitor.getHighCancellationSymbols(0.7);
@@ -281,8 +319,12 @@ class OrderCancellationMonitorTest {
         @Test
         void givenCustomThreshold_whenGetHighCancellationSymbols_thenAppliesThreshold() {
             // Given - 30/50 = 0.6
-            for (int i = 0; i < 30; i++) monitor.recordOrder("AAPL", true);
-            for (int i = 0; i < 20; i++) monitor.recordOrder("AAPL", false);
+            for (int i = 0; i < 30; i++) {
+                monitor.recordOrder("AAPL", true);
+            }
+            for (int i = 0; i < 20; i++) {
+                monitor.recordOrder("AAPL", false);
+            }
 
             // When
             List<String> strictResult = monitor.getHighCancellationSymbols(0.7);

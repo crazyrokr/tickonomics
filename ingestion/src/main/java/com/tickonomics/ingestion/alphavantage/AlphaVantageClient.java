@@ -1,12 +1,13 @@
 package com.tickonomics.ingestion.alphavantage;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tickonomics.cdm.adapter.AlphaVantageCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.AlphaVantageDailyBar;
 import com.tickonomics.cdm.model.CdmTick;
 import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.TickData;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +62,7 @@ public class AlphaVantageClient {
     this.writer = writer;
   }
 
-  @Retry(name = "alphaVantageApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 12000, multiplier = 2)
   public List<AlphaVantageDailyBar> fetchAdjustedDaily(String symbol, boolean fullOutput) {
     String outputSize = fullOutput ? "full" : "compact";
     String url = baseUrl + "?function=TIME_SERIES_DAILY_ADJUSTED&symbol={symbol}&outputsize={size}&apikey={key}";
@@ -85,7 +86,7 @@ public class AlphaVantageClient {
     }
 
     List<AlphaVantageDailyBar> bars = new ArrayList<>();
-    timeSeries.fields().forEachRemaining(entry -> {
+    timeSeries.properties().forEach(entry -> {
       String dateStr = entry.getKey();
       JsonNode fields = entry.getValue();
 
@@ -113,7 +114,7 @@ public class AlphaVantageClient {
     return bars;
   }
 
-  @Retry(name = "alphaVantageApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 12000, multiplier = 2)
   public List<AlphaVantageDailyBar> fetchCommodity(String commodity) {
     String url = baseUrl + "?function={function}&interval=daily&apikey={key}";
     String function = switch (commodity.toUpperCase()) {

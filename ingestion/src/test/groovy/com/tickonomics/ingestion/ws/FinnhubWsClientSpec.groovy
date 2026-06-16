@@ -1,6 +1,6 @@
 package com.tickonomics.ingestion.ws
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.tickonomics.cdm.adapter.raw.FinnhubTrade
 import spock.lang.Specification
 import spock.lang.Subject

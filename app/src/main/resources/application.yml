@@ -192,55 +192,6 @@ monitor:
     poll-interval-ms: 300000
 
 resilience4j:
-  retry:
-    instances:
-      fredApi:
-        max-attempts: 3
-        wait-duration: 1s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      nyfedApi:
-        max-attempts: 3
-        wait-duration: 1s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      yahooFinanceApi:
-        max-attempts: 3
-        wait-duration: 2s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      finnhubApi:
-        max-attempts: 3
-        wait-duration: 1s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      fedRssApi:
-        max-attempts: 3
-        wait-duration: 2s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      alphaVantageApi:
-        max-attempts: 3
-        wait-duration: 12s
-        enable-exponential-backoff: true
-        exponential-backoff-multiplier: 2
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-      analyticsWorker:
-        max-attempts: 2
-        wait-duration: 500ms
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
   bulkhead:
     instances:
       criticalIngestion:

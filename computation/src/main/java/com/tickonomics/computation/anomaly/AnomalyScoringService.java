@@ -7,8 +7,6 @@ import com.tickonomics.persistence.entity.ModelArtifact;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import com.tickonomics.persistence.repository.IliHistoryRepository;
 import com.tickonomics.persistence.repository.RateSnapshotRepository;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

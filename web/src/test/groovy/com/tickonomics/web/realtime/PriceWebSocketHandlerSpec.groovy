@@ -1,6 +1,7 @@
 package com.tickonomics.web.realtime
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -10,7 +11,7 @@ import java.time.Instant
 
 class PriceWebSocketHandlerSpec extends Specification {
 
-  private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
+  private ObjectMapper mapper = JsonMapper.builder().build()
 
   def "broadcast sends serialized tick to each open subscriber"() {
     given: "a handler with one open subscriber"

@@ -1,8 +1,9 @@
 package com.tickonomics.ingestion.news;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tickonomics.cdm.adapter.raw.NewsArticle;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class FinnhubNewsClient implements NewsIngestionClient {
   }
 
   @Override
-  @Retry(name = "finnhubApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 1000, multiplier = 2)
   public List<NewsArticle> fetchNews() {
     String url = restUrl + "/news?category=general&token={token}";
     var response = restClient.get()

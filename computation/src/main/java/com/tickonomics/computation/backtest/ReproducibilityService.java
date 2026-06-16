@@ -77,7 +77,9 @@ public class ReproducibilityService {
     StringBuilder sb = new StringBuilder("{");
     boolean first = true;
     for (Map.Entry<String, Object> entry : hyperparams.entrySet()) {
-      if (!first) sb.append(",");
+      if (!first) {
+        sb.append(",");
+      }
       sb.append("\"").append(entry.getKey()).append("\":");
       if (entry.getValue() instanceof String) {
         sb.append("\"").append(entry.getValue()).append("\"");

@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,8 +91,7 @@ class ScheduledCalibrationTaskTest {
                     .thenReturn(new double[]{0.4, 0.35, 0.25});
 
             // When: calibration runs
-            ScheduledCalibrationTask.CalibrationResult result =
-                    task.runCalibrationWithHistory(history);
+            task.runCalibrationWithHistory(history);
 
             // Then: applyDelta is never called because improvement is below threshold
             verify(weightStore, never()).applyDelta(any());

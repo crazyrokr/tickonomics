@@ -8,7 +8,8 @@ import com.tickonomics.ingestion.tracing.IngestionTracingConfig;
 import com.tickonomics.ingestion.writer.TimescaleDbWriter;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -62,7 +63,7 @@ public class NyFedClient {
     }
   }
 
-  @Retry(name = "nyfedApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 1000, multiplier = 2)
   public List<NyFedRateResponse> fetchRates(String rateType) {
     NyFedRatesApiResponse response;
     try (var scope = tracer.span(IngestionTracingConfig.SPAN_NYFED_FETCH)) {

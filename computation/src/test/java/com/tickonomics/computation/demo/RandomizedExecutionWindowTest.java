@@ -26,23 +26,18 @@ class RandomizedExecutionWindowTest {
 
     @Test
     void givenAvoidFalse_whenDelaySeconds_thenRawRandomValue() {
-      Random random = new Random(7);
-      int expected = random.nextInt(61);
-
       long delay = window.delaySeconds(new Random(7), 60, false);
 
-      assertEquals(expected, delay);
+      assertEquals(53L, delay);
       assertTrue(delay >= 0 && delay <= 60);
     }
 
     @Test
     void givenAvoidTrueAndResultOutsideZone_whenDelaySeconds_thenUnchanged() {
-      Random first = new Random(123);
-      int raw = first.nextInt(61);
       long delay = window.delaySeconds(new Random(123), 60, true);
 
-      if (!isInDangerZone(raw, 10, 1)) {
-        assertEquals(raw, delay);
+      if (!isInDangerZone(48, 10, 1)) {
+        assertEquals(48L, delay);
       }
     }
   }

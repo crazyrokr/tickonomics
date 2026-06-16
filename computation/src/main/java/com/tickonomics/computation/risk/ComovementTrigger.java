@@ -1,7 +1,6 @@
 package com.tickonomics.computation.risk;
 
 import com.tickonomics.computation.client.RestClientAnalyticsWorkerClient;
-import java.util.Arrays;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
