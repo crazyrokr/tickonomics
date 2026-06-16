@@ -1,11 +1,10 @@
 package com.tickonomics.ingestion.options;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tickonomics.cdm.adapter.YahooOptionsCdmAdapter;
 import com.tickonomics.cdm.adapter.raw.YahooOptionContract;
-import com.tickonomics.cdm.model.CdmOptionSnapshot;
-import com.tickonomics.ingestion.writer.TimescaleDbWriter;
-import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.web.client.RestClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +45,7 @@ public class YahooOptionsClient {
   }
 
   @Scheduled(fixedDelayString = "${monitor.yahoo-finance.options-poll-interval-ms:3600000}")
-  @Retry(name = "yahooFinanceApi")
+  @Retryable(includes = RestClientException.class, maxRetries = 2, delay = 2000, multiplier = 2)
   public void pollOptionsSnapshots() {
     for (String symbol : optionsSymbols) {
       try {

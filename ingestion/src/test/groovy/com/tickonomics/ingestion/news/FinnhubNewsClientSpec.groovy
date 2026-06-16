@@ -1,6 +1,6 @@
 package com.tickonomics.ingestion.news
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
@@ -45,7 +45,7 @@ class FinnhubNewsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, "test-key") >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
   }
 
   def "given valid news response, when fetchNews, then return articles"() {
@@ -65,7 +65,7 @@ class FinnhubNewsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 2
       results[0].title() == "Fed signals rate pause"
@@ -90,7 +90,7 @@ class FinnhubNewsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 1
       results[0].title() == "Valid headline"
@@ -109,7 +109,7 @@ class FinnhubNewsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> null
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> null
 
       results.isEmpty()
   }

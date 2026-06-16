@@ -1,8 +1,8 @@
 package com.tickonomics.ingestion.ws;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.tickonomics.cdm.adapter.raw.FinnhubTrade;
 import com.tickonomics.contracts.client.EquityWsClient;
 import org.slf4j.Logger;
@@ -188,7 +188,7 @@ public class FinnhubWsClient implements EquityWsClient {
         trades.add(parseTrade(trade));
       }
       return trades;
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("Failed to parse Finnhub message: {}", e.getMessage());
       return List.of();
     }

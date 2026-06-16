@@ -1,6 +1,6 @@
 package com.tickonomics.ingestion.alphavantage
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.tickonomics.cdm.adapter.AlphaVantageCdmAdapter
 import com.tickonomics.ingestion.writer.TimescaleDbWriter
 import org.springframework.web.client.RestClient
@@ -66,7 +66,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 2
       results[0].symbol() == "SPY"
@@ -88,7 +88,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> null
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> null
 
       results.isEmpty()
   }
@@ -107,7 +107,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.isEmpty()
   }
@@ -136,7 +136,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.isEmpty()
   }
@@ -163,7 +163,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 2
       results[0].symbol() == "GOLD"
@@ -191,7 +191,7 @@ class AlphaVantageClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersSpec
       1 * requestHeadersSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 1
       results[0].adjustedClose() == 2338.20

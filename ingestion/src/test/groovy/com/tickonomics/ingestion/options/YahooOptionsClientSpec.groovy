@@ -1,6 +1,6 @@
 package com.tickonomics.ingestion.options
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.tickonomics.cdm.adapter.YahooOptionsCdmAdapter
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
@@ -53,7 +53,7 @@ class YahooOptionsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.size() == 2
       results[0].underlying() == "SPY"
@@ -74,7 +74,7 @@ class YahooOptionsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> null
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> null
 
       results.isEmpty()
   }
@@ -106,7 +106,7 @@ class YahooOptionsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.isEmpty()
   }
@@ -124,7 +124,7 @@ class YahooOptionsClientSpec extends Specification {
       1 * restClient.get() >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.uri(_ as String, _ as Object[]) >> requestHeadersUriSpec
       1 * requestHeadersUriSpec.retrieve() >> responseSpec
-      1 * responseSpec.body(com.fasterxml.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
+      1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
       results.isEmpty()
   }

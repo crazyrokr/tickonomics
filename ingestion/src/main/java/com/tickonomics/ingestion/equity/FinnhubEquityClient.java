@@ -1,18 +1,20 @@
 package com.tickonomics.ingestion.equity;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tickonomics.cdm.adapter.raw.FinnhubQuote;
 import com.tickonomics.cdm.adapter.raw.YahooOhlcv;
-import io.github.resilience4j.retry.annotation.Retry;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-
-import java.time.Instant;
-import java.util.List;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Fallback equity price client using Finnhub REST API. Provides real-time quotes and daily candle
@@ -25,6 +27,12 @@ public class FinnhubEquityClient implements EquityPriceClient {
   private static final Logger log = LoggerFactory.getLogger(FinnhubEquityClient.class);
 
   private final RestClient restClient;
+  private final RetryTemplate retryTemplate = new RetryTemplate(RetryPolicy.builder()
+      .includes(RestClientException.class)
+      .maxRetries(2)
+      .delay(Duration.ofMillis(1000))
+      .multiplier(2)
+      .build());
 
   @Value("${monitor.finnhub.rest-url:https://finnhub.io/api/v1}")
   private String restUrl;
@@ -39,8 +47,15 @@ public class FinnhubEquityClient implements EquityPriceClient {
   }
 
   @Override
-  @Retry(name = "finnhubApi", fallbackMethod = "fetchHistoricalOhlcvFallback")
   public List<YahooOhlcv> fetchHistoricalOhlcv(String symbol, String interval) {
+    try {
+      return retryTemplate.execute(() -> doFetchHistoricalOhlcv(symbol, interval));
+    } catch (Exception e) {
+      return fetchHistoricalOhlcvFallback(symbol, interval, e);
+    }
+  }
+
+  private List<YahooOhlcv> doFetchHistoricalOhlcv(String symbol, String interval) {
     long now = Instant.now().getEpochSecond();
     long from = now - 5 * 86400;
     String url = restUrl + "/stock/candle?symbol={symbol}&resolution=D&from={from}&to={to}&token={token}";
@@ -80,8 +95,15 @@ public class FinnhubEquityClient implements EquityPriceClient {
   }
 
   @Override
-  @Retry(name = "finnhubApi", fallbackMethod = "fetchQuoteFallback")
   public FinnhubQuote fetchQuote(String symbol) {
+    try {
+      return retryTemplate.execute(() -> doFetchQuote(symbol));
+    } catch (Exception e) {
+      return fetchQuoteFallback(symbol, e);
+    }
+  }
+
+  private FinnhubQuote doFetchQuote(String symbol) {
     String url = restUrl + "/quote?symbol={symbol}&token={token}";
     var response = restClient.get()
         .uri(url, symbol, apiKey)
