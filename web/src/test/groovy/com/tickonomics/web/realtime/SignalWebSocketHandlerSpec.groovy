@@ -1,13 +1,14 @@
 package com.tickonomics.web.realtime
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import spock.lang.Specification
 
 class SignalWebSocketHandlerSpec extends Specification {
 
-  private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
+  private ObjectMapper mapper = JsonMapper.builder().build()
 
   def "broadcast sends serialized signal notification to each open subscriber"() {
     given: "a handler with one open subscriber"

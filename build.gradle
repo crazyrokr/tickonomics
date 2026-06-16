@@ -2,7 +2,7 @@ plugins {
   id 'java'
   id 'io.tickonomics.git-hooks'
   id 'io.spring.dependency-management' version '1.1.7' apply false
-  id 'org.springframework.boot' version '3.5.0' apply false
+  id 'org.springframework.boot' version '4.0.0' apply false
   id 'com.github.spotbugs' version '6.5.6' apply false
 }
 
@@ -25,7 +25,8 @@ subprojects {
 
   dependencyManagement {
     imports {
-      mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.0"
+      mavenBom "org.springframework.boot:spring-boot-dependencies:4.0.0"
+      mavenBom "org.testcontainers:testcontainers-bom:2.0.2"
       mavenBom "org.spockframework:spock-bom:2.4-groovy-5.0"
     }
     dependencies {
@@ -63,6 +64,7 @@ subprojects {
 
   spotbugs {
     ignoreFailures = true
+    excludeFilter = file("${project.rootDir}/config/spotbugs/spotbugs-exclude.xml")
   }
 
   tasks.named('spotbugsMain').configure {

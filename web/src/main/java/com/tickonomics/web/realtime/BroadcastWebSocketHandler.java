@@ -1,7 +1,7 @@
 package com.tickonomics.web.realtime;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,7 +52,7 @@ public abstract class BroadcastWebSocketHandler<T> extends TextWebSocketHandler 
   private String serialize(T payload) {
     try {
       return objectMapper.writeValueAsString(payload);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to serialize broadcast payload", e);
     }
   }

@@ -7,8 +7,12 @@ dependencies {
   implementation project(':ingestion')
   implementation 'org.springframework.boot:spring-boot-starter'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-micrometer-observation'
+  implementation 'org.springframework.boot:spring-boot-micrometer-tracing-opentelemetry'
+  implementation 'io.micrometer:micrometer-tracing-bridge-otel'
   runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'io.opentelemetry:opentelemetry-exporter-otlp'
+  implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure'
 }
 
 bootJar {
