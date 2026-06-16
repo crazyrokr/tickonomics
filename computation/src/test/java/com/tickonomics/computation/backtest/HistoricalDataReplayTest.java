@@ -16,6 +16,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import java.math.BigDecimal;
 
 @ExtendWith(MockitoExtension.class)
 class HistoricalDataReplayTest {
@@ -42,8 +43,8 @@ class HistoricalDataReplayTest {
     @Test
     void givenSymbolAndRange_whenReplay_thenReturnTicks() {
       List<TickData> ticks = List.of(
-          new TickData(T0, "SPY", 100.0, 1000, new int[]{}),
-          new TickData(T1, "SPY", 101.0, 1500, new int[]{}));
+          new TickData(T0, "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}),
+          new TickData(T1, "SPY", BigDecimal.valueOf(101.0), 1500, new int[]{}));
       when(tickDataRepository.findBySymbolAndTimeBetween("SPY", T0, T4))
           .thenReturn(ticks);
 
@@ -69,9 +70,9 @@ class HistoricalDataReplayTest {
     @Test
     void givenMultipleSymbols_whenReplay_thenReturnMap() {
       List<TickData> spyTicks = List.of(
-          new TickData(T0, "SPY", 100.0, 1000, new int[]{}));
+          new TickData(T0, "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}));
       List<TickData> qqqTicks = List.of(
-          new TickData(T0, "QQQ", 200.0, 2000, new int[]{}));
+          new TickData(T0, "QQQ", BigDecimal.valueOf(200.0), 2000, new int[]{}));
 
       when(tickDataRepository.findBySymbolAndTimeBetween("SPY", T0, T4))
           .thenReturn(spyTicks);
@@ -92,10 +93,10 @@ class HistoricalDataReplayTest {
     @Test
     void givenMultiDayTicks_whenComputeDailyReturns_thenReturnReturns() {
       List<TickData> ticks = List.of(
-          new TickData(T0, "SPY", 100.0, 1000, new int[]{}),
-          new TickData(T1, "SPY", 102.0, 1500, new int[]{}),
-          new TickData(T2, "SPY", 105.0, 1200, new int[]{}),
-          new TickData(T4, "SPY", 99.0, 800, new int[]{}));
+          new TickData(T0, "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}),
+          new TickData(T1, "SPY", BigDecimal.valueOf(102.0), 1500, new int[]{}),
+          new TickData(T2, "SPY", BigDecimal.valueOf(105.0), 1200, new int[]{}),
+          new TickData(T4, "SPY", BigDecimal.valueOf(99.0), 800, new int[]{}));
 
       List<Double> returns = replay.computeDailyReturns(ticks);
 
@@ -107,7 +108,7 @@ class HistoricalDataReplayTest {
     @Test
     void givenSingleTick_whenComputeDailyReturns_thenReturnEmpty() {
       List<TickData> ticks = List.of(
-          new TickData(T0, "SPY", 100.0, 1000, new int[]{}));
+          new TickData(T0, "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}));
 
       List<Double> returns = replay.computeDailyReturns(ticks);
 
@@ -131,8 +132,8 @@ class HistoricalDataReplayTest {
     @Test
     void givenSameDayTicksOnly_whenComputeDailyReturns_thenReturnEmpty() {
       List<TickData> ticks = List.of(
-          new TickData(T0, "SPY", 100.0, 1000, new int[]{}),
-          new TickData(T1, "SPY", 102.0, 1500, new int[]{}));
+          new TickData(T0, "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}),
+          new TickData(T1, "SPY", BigDecimal.valueOf(102.0), 1500, new int[]{}));
 
       List<Double> returns = replay.computeDailyReturns(ticks);
 

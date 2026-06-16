@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import java.math.BigDecimal;
 
 @ExtendWith(MockitoExtension.class)
 class BacktestEngineTest {
@@ -68,10 +69,10 @@ class BacktestEngineTest {
     @Test
     void givenValidData_whenRun_thenResultHasMetrics() {
       List<TickData> ticks = List.of(
-          new TickData(Instant.parse("2025-01-01T10:00:00Z"), "SPY", 100.0, 1000, new int[]{}),
-          new TickData(Instant.parse("2025-01-01T16:00:00Z"), "SPY", 102.0, 1500, new int[]{}),
-          new TickData(Instant.parse("2025-01-02T10:00:00Z"), "SPY", 105.0, 1200, new int[]{}),
-          new TickData(Instant.parse("2025-01-03T10:00:00Z"), "SPY", 103.0, 800, new int[]{}));
+          new TickData(Instant.parse("2025-01-01T10:00:00Z"), "SPY", BigDecimal.valueOf(100.0), 1000, new int[]{}),
+          new TickData(Instant.parse("2025-01-01T16:00:00Z"), "SPY", BigDecimal.valueOf(102.0), 1500, new int[]{}),
+          new TickData(Instant.parse("2025-01-02T10:00:00Z"), "SPY", BigDecimal.valueOf(105.0), 1200, new int[]{}),
+          new TickData(Instant.parse("2025-01-03T10:00:00Z"), "SPY", BigDecimal.valueOf(103.0), 800, new int[]{}));
 
       when(equityRegistry.get("RSI_OSCILLATOR")).thenReturn(Optional.of(strategy));
       when(dataReplay.replay("SPY", FROM, TO)).thenReturn(ticks);
@@ -119,7 +120,7 @@ class BacktestEngineTest {
       for (int i = 0; i < 30; i++) {
         price *= 1.01;
         ticks.add(new TickData(Instant.parse("2025-01-01T10:00:00Z").plusSeconds((long) i * 86400),
-            "SPY", price, 1000, new int[]{}));
+            "SPY", BigDecimal.valueOf(price), 1000, new int[]{}));
       }
 
       when(equityRegistry.get("RSI_OSCILLATOR"))

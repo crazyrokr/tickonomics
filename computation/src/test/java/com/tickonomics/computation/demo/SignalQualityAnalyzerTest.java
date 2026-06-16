@@ -1,4 +1,5 @@
 package com.tickonomics.computation.demo;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,16 +45,14 @@ class SignalQualityAnalyzerTest {
   @BeforeEach
   void setUp() {
     DemoConfig config = DemoConfig.core(
-        true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
+        true, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
     analyzer = new SignalQualityAnalyzer(signalLogRepository, tradeRepository, reportRepository,
         priceLookup, new ReturnGapCalculator(), config);
   }
 
   private List<VirtualPortfolioTrade> trades(double... pnls) {
     return IntStream.range(0, pnls.length)
-        .mapToObj(i -> new VirtualPortfolioTrade(
-            (long) i + 1, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0,
-            pnls[i], (long) i + 1, null, "PAPER"))
+        .mapToObj(i -> new VirtualPortfolioTrade((long) i + 1, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO, pnls[i], (long) i + 1, null, "PAPER"))
         .toList();
   }
 
@@ -68,8 +67,7 @@ class SignalQualityAnalyzerTest {
     @Test
     void givenNullRealizedPnls_whenComputePortfolioPnl_thenSkipped() {
       List<VirtualPortfolioTrade> trades = List.of(
-          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", 10.0, 500.0, 0, 0,
-              null, 1L, null, "PAPER"));
+          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO, null, 1L, null, "PAPER"));
       assertEquals(0.0, analyzer.computePortfolioPnl(trades));
     }
   }

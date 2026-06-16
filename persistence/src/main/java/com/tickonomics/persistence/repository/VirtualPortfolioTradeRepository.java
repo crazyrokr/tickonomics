@@ -1,6 +1,7 @@
 package com.tickonomics.persistence.repository;
 
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,16 @@ public class VirtualPortfolioTradeRepository {
   public long save(VirtualPortfolioTrade trade) {
     var keyHolder = new GeneratedKeyHolder();
     jdbc.update(
-        "INSERT INTO virtual_portfolio_trades (executed_at, symbol, direction, quantity, fill_price, "
-            + "commission, slippage, realized_pnl, position_id, signal_id, trade_type) "
-            + "VALUES (:executedAt, :symbol, :direction, :quantity, :fillPrice, :commission, "
-            + ":slippage, :realizedPnl, :positionId, :signalId, :tradeType)",
+        "INSERT INTO virtual_portfolio_trades (executed_at, symbol, direction, "
+            + "quantity, quantity_num, fill_price, fill_price_num, "
+            + "commission, commission_num, slippage, slippage_num, "
+            + "realized_pnl, realized_pnl_num, "
+            + "position_id, signal_id, trade_type) "
+            + "VALUES (:executedAt, :symbol, :direction, "
+            + ":quantity, :quantity, :fillPrice, :fillPrice, "
+            + ":commission, :commission, :slippage, :slippage, "
+            + ":realizedPnl, :realizedPnl, "
+            + ":positionId, :signalId, :tradeType)",
         toParams(trade),
         keyHolder,
         new String[]{"id"});
@@ -33,8 +40,9 @@ public class VirtualPortfolioTradeRepository {
 
   public List<VirtualPortfolioTrade> findByPositionId(long positionId) {
     return jdbc.query(
-        "SELECT id, executed_at, symbol, direction, quantity, fill_price, commission, slippage, "
-            + "realized_pnl, position_id, signal_id, trade_type "
+        "SELECT id, executed_at, symbol, direction, "
+            + "quantity_num, fill_price_num, commission_num, slippage_num, "
+            + "realized_pnl_num, position_id, signal_id, trade_type "
             + "FROM virtual_portfolio_trades WHERE position_id = :positionId ORDER BY executed_at",
         Map.of("positionId", positionId),
         rowMapper());
@@ -42,8 +50,9 @@ public class VirtualPortfolioTradeRepository {
 
   public List<VirtualPortfolioTrade> findLatest(int limit, int offset) {
     return jdbc.query(
-        "SELECT id, executed_at, symbol, direction, quantity, fill_price, commission, slippage, "
-            + "realized_pnl, position_id, signal_id, trade_type "
+        "SELECT id, executed_at, symbol, direction, "
+            + "quantity_num, fill_price_num, commission_num, slippage_num, "
+            + "realized_pnl_num, position_id, signal_id, trade_type "
             + "FROM virtual_portfolio_trades ORDER BY executed_at DESC LIMIT :limit OFFSET :offset",
         Map.of("limit", limit, "offset", offset),
         rowMapper());
@@ -63,11 +72,11 @@ public class VirtualPortfolioTradeRepository {
         rs.getTimestamp("executed_at").toInstant(),
         rs.getString("symbol"),
         rs.getString("direction"),
-        rs.getDouble("quantity"),
-        rs.getDouble("fill_price"),
-        rs.getDouble("commission"),
-        rs.getDouble("slippage"),
-        rs.getObject("realized_pnl") != null ? rs.getDouble("realized_pnl") : null,
+        rs.getBigDecimal("quantity_num"),
+        rs.getBigDecimal("fill_price_num"),
+        rs.getBigDecimal("commission_num"),
+        rs.getBigDecimal("slippage_num"),
+        rs.getObject("realized_pnl_num") != null ? rs.getBigDecimal("realized_pnl_num") : null,
         rs.getObject("position_id") != null ? rs.getLong("position_id") : null,
         rs.getObject("signal_id") != null ? rs.getLong("signal_id") : null,
         rs.getString("trade_type"));

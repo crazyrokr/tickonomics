@@ -1,6 +1,7 @@
 package com.tickonomics.computation.demo;
 
 import com.tickonomics.computation.kpi.SignalResult;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +13,6 @@ import org.springframework.stereotype.Component;
 public class PassiveExecutionHandler {
 
   public FillEstimate fill(SignalResult signal, double fairPrice) {
-    return new FillEstimate("PASSIVE", fairPrice, 0.0, true);
+    return new FillEstimate("PASSIVE", BigDecimal.valueOf(fairPrice), 0.0, true);
   }
 }

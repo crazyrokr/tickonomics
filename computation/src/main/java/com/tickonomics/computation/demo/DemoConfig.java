@@ -1,11 +1,12 @@
 package com.tickonomics.computation.demo;
 
+import java.math.BigDecimal;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "monitor.demo")
 public record DemoConfig(
     boolean enabled,
-    double virtualBalance,
+    BigDecimal virtualBalance,
     double positionSizePct,
     double stopLossPct,
     double takeProfitPct,
@@ -25,7 +26,7 @@ public record DemoConfig(
     GlobalSafeMode globalSafeMode) {
 
   public DemoConfig {
-    if (virtualBalance <= 0) {
+    if (virtualBalance == null || virtualBalance.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("virtualBalance must be positive");
     }
     if (positionSizePct <= 0 || positionSizePct > 100) {
@@ -49,7 +50,7 @@ public record DemoConfig(
    * keeps direct call sites (tests, {@link #defaults()}) concise without introducing a second
    * constructor, which would conflict with record property binding.
    */
-  public static DemoConfig core(boolean enabled, double virtualBalance, double positionSizePct,
+  public static DemoConfig core(boolean enabled, BigDecimal virtualBalance, double positionSizePct,
       double stopLossPct, double takeProfitPct, boolean autoExecuteSignals,
       boolean executeDegradedSignals, boolean skipDislocatedSignals, double defaultAddv) {
     return new DemoConfig(enabled, virtualBalance, positionSizePct, stopLossPct, takeProfitPct,
@@ -61,7 +62,7 @@ public record DemoConfig(
   }
 
   public static DemoConfig defaults() {
-    return core(false, 100_000.0, 5.0, 5.0, 10.0, false, true, true, 10_000_000.0);
+    return core(false, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, false, true, true, 10_000_000.0);
   }
 
   public record AdvancedCostModel(

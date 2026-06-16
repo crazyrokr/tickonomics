@@ -48,7 +48,7 @@ class ExecutionHandlersTest {
       FillEstimate estimate = sniper.fill(buy, 500.0, 10.0);
 
       assertEquals("SNIPER", estimate.type());
-      assertEquals(500.5, estimate.fillPrice(), 0.0001);
+      assertEquals(0, new BigDecimal("500.5").compareTo(estimate.fillPrice()));
       assertEquals(10.0, estimate.slippageBps());
     }
 
@@ -56,7 +56,7 @@ class ExecutionHandlersTest {
     void givenSellSignal_whenFill_thenFillPriceBelowReference() {
       FillEstimate estimate = sniper.fill(sell, 500.0, 10.0);
 
-      assertEquals(499.5, estimate.fillPrice(), 0.0001);
+      assertEquals(0, new BigDecimal("499.5").compareTo(estimate.fillPrice()));
     }
 
     @Test

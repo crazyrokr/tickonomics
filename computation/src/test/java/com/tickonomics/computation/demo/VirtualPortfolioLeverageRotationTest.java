@@ -1,4 +1,5 @@
 package com.tickonomics.computation.demo;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,7 +44,7 @@ class VirtualPortfolioLeverageRotationTest {
   @BeforeEach
   void setUp() {
     DemoConfig config = DemoConfig.core(
-        true, 100_000.0, 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
+        true, new BigDecimal("100000.00"), 5.0, 5.0, 10.0, true, true, true, 10_000_000.0);
     portfolio = new VirtualPortfolio(positionRepository, tradeRepository, config);
   }
 
@@ -71,7 +72,7 @@ class VirtualPortfolioLeverageRotationTest {
     void givenTwoArgOverload_whenOpenPosition_thenConfigStopsUsedByDefault() {
       when(positionRepository.save(any())).thenReturn(1L);
 
-      portfolio.openPosition(buySignal, 500.0);
+      portfolio.openPosition(buySignal, new BigDecimal("500.0"));
 
       verify(positionRepository).save(any());
     }
@@ -84,13 +85,12 @@ class VirtualPortfolioLeverageRotationTest {
     void givenPriceBelowSma_whenApplyLeverageRotation_thenPositionsFlattened() {
       when(priceLookup.closingPrices(eq("SPY"), any(), any()))
           .thenReturn(flatHistory(200, 100.0));
-      VirtualPortfolioPosition open = new VirtualPortfolioPosition(
-          1L, Instant.now(), "SPY", "BUY", 10.0, 100.0, null, null, 95.0, 110.0, null, null);
+      VirtualPortfolioPosition open = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(open));
       when(tradeRepository.save(any())).thenReturn(2L);
 
       VirtualPortfolio.LeverageRotationOutcome outcome = portfolio.applyLeverageRotation(
-          priceLookup, leverageSignaler, Map.of("SPY", 90.0));
+          priceLookup, leverageSignaler, Map.of("SPY", new BigDecimal("90.0")));
 
       assertEquals(LeverageSignaler.Signal.LEVERAGE_OFF, outcome.signal().signal());
       assertEquals(1, outcome.closedTrades().size());
@@ -103,7 +103,7 @@ class VirtualPortfolioLeverageRotationTest {
           .thenReturn(flatHistory(200, 100.0));
 
       VirtualPortfolio.LeverageRotationOutcome outcome = portfolio.applyLeverageRotation(
-          priceLookup, leverageSignaler, Map.of("SPY", 110.0));
+          priceLookup, leverageSignaler, Map.of("SPY", new BigDecimal("110.0")));
 
       assertEquals(LeverageSignaler.Signal.LEVERAGE_ON, outcome.signal().signal());
       assertTrue(outcome.closedTrades().isEmpty());

@@ -6,6 +6,9 @@ import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.VirtualPortfolioPositionRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class VirtualPortfolio {
+
+  private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
 
   private final VirtualPortfolioPositionRepository positionRepository;
   private final VirtualPortfolioTradeRepository tradeRepository;
@@ -40,16 +45,23 @@ public class VirtualPortfolio {
     return positionRepository.findOpenPositions();
   }
 
-  public VirtualPortfolioPosition openPosition(SignalResult signal, double fillPrice) {
-    return openPosition(signal, fillPrice, config.stopLossPct(), config.takeProfitPct(), 0.0);
+  public VirtualPortfolioPosition openPosition(SignalResult signal, BigDecimal fillPrice) {
+    return openPosition(signal, fillPrice, config.stopLossPct(), config.takeProfitPct(),
+        BigDecimal.ZERO);
   }
 
-  public VirtualPortfolioPosition openPosition(SignalResult signal, double fillPrice,
-      double stopLossPct, double takeProfitPct, double commission) {
-    double positionSize = config.virtualBalance() * config.positionSizePct() / 100.0;
-    double quantity = positionSize / fillPrice;
-    double stopLossPrice = fillPrice * (1 - stopLossPct / 100.0);
-    double takeProfitPrice = fillPrice * (1 + takeProfitPct / 100.0);
+  public VirtualPortfolioPosition openPosition(SignalResult signal, BigDecimal fillPrice,
+      double stopLossPct, double takeProfitPct, BigDecimal commission) {
+    BigDecimal positionSize = config.virtualBalance()
+        .multiply(BigDecimal.valueOf(config.positionSizePct()))
+        .divide(ONE_HUNDRED, MathContext.DECIMAL64);
+    BigDecimal quantity = positionSize.divide(fillPrice, 4, RoundingMode.HALF_UP);
+    BigDecimal stopFactor = BigDecimal.ONE.subtract(
+        BigDecimal.valueOf(stopLossPct).divide(ONE_HUNDRED, MathContext.DECIMAL64));
+    BigDecimal takeFactor = BigDecimal.ONE.add(
+        BigDecimal.valueOf(takeProfitPct).divide(ONE_HUNDRED, MathContext.DECIMAL64));
+    BigDecimal stopLossPrice = fillPrice.multiply(stopFactor);
+    BigDecimal takeProfitPrice = fillPrice.multiply(takeFactor);
 
     VirtualPortfolioPosition position = new VirtualPortfolioPosition(
         null, Instant.now(), signal.symbol(), signal.direction(), quantity, fillPrice,
@@ -58,7 +70,7 @@ public class VirtualPortfolio {
 
     VirtualPortfolioTrade openTrade = new VirtualPortfolioTrade(
         null, Instant.now(), signal.symbol(), signal.direction(), quantity, fillPrice,
-        commission, 0.0, null, positionId, null, "PAPER");
+        commission, BigDecimal.ZERO, null, positionId, null, "PAPER");
     tradeRepository.save(openTrade);
 
     return new VirtualPortfolioPosition(
@@ -68,49 +80,54 @@ public class VirtualPortfolio {
         position.signalId(), position.closedAt());
   }
 
-  public VirtualPortfolioTrade closePosition(long positionId, double exitPrice) {
+  public VirtualPortfolioTrade closePosition(long positionId, BigDecimal exitPrice) {
     VirtualPortfolioPosition position = positionRepository.findOpenPositions().stream()
         .filter(p -> p.id().longValue() == positionId)
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("No open position with id: " + positionId));
 
-    double realizedPnl = computeRealizedPnl(position, exitPrice);
+    BigDecimal realizedPnl = computeRealizedPnl(position, exitPrice);
     String closeDirection = SignalResult.DIR_BUY.equals(position.direction()) ? "SELL" : "BUY";
 
     VirtualPortfolioTrade closeTrade = new VirtualPortfolioTrade(
         null, Instant.now(), position.symbol(), closeDirection, position.quantity(),
-        exitPrice, 0.0, 0.0, realizedPnl, positionId, null, "PAPER");
+        exitPrice, BigDecimal.ZERO, BigDecimal.ZERO, realizedPnl, positionId, null, "PAPER");
     tradeRepository.save(closeTrade);
 
     positionRepository.close(positionId, Instant.now(), exitPrice);
     return closeTrade;
   }
 
-  public void markToMarket(Map<String, Double> currentPrices) {
+  public void markToMarket(Map<String, BigDecimal> currentPrices) {
     List<VirtualPortfolioPosition> openPositions = positionRepository.findOpenPositions();
     for (VirtualPortfolioPosition position : openPositions) {
-      Double price = currentPrices.get(position.symbol());
+      BigDecimal price = currentPrices.get(position.symbol());
       if (price != null) {
-        double unrealizedPnl = computeRealizedPnl(position, price);
+        BigDecimal unrealizedPnl = computeRealizedPnl(position, price);
         positionRepository.updateMarkToMarket(position.id(), price, unrealizedPnl);
       }
     }
   }
 
-  public List<VirtualPortfolioPosition> checkStopLossTakeProfit(Map<String, Double> currentPrices) {
+  public List<VirtualPortfolioPosition> checkStopLossTakeProfit(
+      Map<String, BigDecimal> currentPrices) {
     List<VirtualPortfolioPosition> openPositions = positionRepository.findOpenPositions();
     List<VirtualPortfolioPosition> breached = new ArrayList<>();
     for (VirtualPortfolioPosition position : openPositions) {
-      Double price = currentPrices.get(position.symbol());
+      BigDecimal price = currentPrices.get(position.symbol());
       if (price == null) {
         continue;
       }
-      boolean stopBreach = position.stopLossPrice() != null && price <= position.stopLossPrice();
-      boolean targetBreach = position.takeProfitPrice() != null && price >= position.takeProfitPrice();
+      boolean stopBreach = position.stopLossPrice() != null
+          && price.compareTo(position.stopLossPrice()) <= 0;
+      boolean targetBreach = position.takeProfitPrice() != null
+          && price.compareTo(position.takeProfitPrice()) >= 0;
 
       if (SignalResult.DIR_SELL.equals(position.direction())) {
-        stopBreach = position.stopLossPrice() != null && price >= position.stopLossPrice();
-        targetBreach = position.takeProfitPrice() != null && price <= position.takeProfitPrice();
+        stopBreach = position.stopLossPrice() != null
+            && price.compareTo(position.stopLossPrice()) >= 0;
+        targetBreach = position.takeProfitPrice() != null
+            && price.compareTo(position.takeProfitPrice()) <= 0;
       }
 
       if (stopBreach || targetBreach) {
@@ -126,14 +143,17 @@ public class VirtualPortfolio {
    * Treasuries), truncating tail risk; on {@code LEVERAGE_ON} take no action.
    */
   public LeverageRotationOutcome applyLeverageRotation(MarketPriceLookup priceLookup,
-      LeverageSignaler leverageSignaler, Map<String, Double> currentPrices) {
+      LeverageSignaler leverageSignaler, Map<String, BigDecimal> currentPrices) {
     DemoConfig.LeverageRotation rotation = config.leverageRotation();
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
     List<Double> history = priceLookup.closingPrices(
         rotation.benchmarkSymbol(), today.minusDays(rotation.maWindowDays()), today);
 
-    Double live = currentPrices != null ? currentPrices.get(rotation.benchmarkSymbol()) : null;
-    double currentPrice = live != null ? live : (history.isEmpty() ? 0.0 : history.getLast());
+    BigDecimal live = currentPrices != null
+        ? currentPrices.get(rotation.benchmarkSymbol()) : null;
+    double currentPrice = live != null
+        ? live.doubleValue()
+        : (history.isEmpty() ? 0.0 : history.getLast());
 
     LeverageSignaler.LeverageSignal signal = leverageSignaler.evaluate(history, currentPrice);
 
@@ -151,17 +171,17 @@ public class VirtualPortfolio {
     List<VirtualPortfolioPosition> openPositions = positionRepository.findOpenPositions();
     int totalTrades = tradeRepository.countByTradeType("PAPER");
 
-    double unrealizedPnl = openPositions.stream()
-        .mapToDouble(p -> p.unrealizedPnl() != null ? p.unrealizedPnl() : 0.0)
-        .sum();
+    BigDecimal unrealizedPnl = openPositions.stream()
+        .map(p -> p.unrealizedPnl() != null ? p.unrealizedPnl() : BigDecimal.ZERO)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    double realizedPnl = 0.0;
+    BigDecimal realizedPnl = BigDecimal.ZERO;
     int wins = 0;
     List<VirtualPortfolioTrade> trades = tradeRepository.findLatest(totalTrades, 0);
     for (VirtualPortfolioTrade trade : trades) {
       if (trade.realizedPnl() != null) {
-        realizedPnl += trade.realizedPnl();
-        if (trade.realizedPnl() > 0) {
+        realizedPnl = realizedPnl.add(trade.realizedPnl());
+        if (trade.realizedPnl().compareTo(BigDecimal.ZERO) > 0) {
           wins++;
         }
       }
@@ -174,7 +194,7 @@ public class VirtualPortfolio {
 
     return new PortfolioSummary(
         config.virtualBalance(),
-        config.virtualBalance() + realizedPnl + unrealizedPnl,
+        config.virtualBalance().add(realizedPnl).add(unrealizedPnl),
         realizedPnl,
         unrealizedPnl,
         openPositions.size(),
@@ -183,18 +203,18 @@ public class VirtualPortfolio {
         config.enabled());
   }
 
-  private double computeRealizedPnl(VirtualPortfolioPosition position, double exitPrice) {
+  private BigDecimal computeRealizedPnl(VirtualPortfolioPosition position, BigDecimal exitPrice) {
     if (SignalResult.DIR_BUY.equals(position.direction())) {
-      return (exitPrice - position.entryPrice()) * position.quantity();
+      return exitPrice.subtract(position.entryPrice()).multiply(position.quantity());
     }
-    return (position.entryPrice() - exitPrice) * position.quantity();
+    return position.entryPrice().subtract(exitPrice).multiply(position.quantity());
   }
 
   public record PortfolioSummary(
-      double initialBalance,
-      double currentBalance,
-      double realizedPnl,
-      double unrealizedPnl,
+      BigDecimal initialBalance,
+      BigDecimal currentBalance,
+      BigDecimal realizedPnl,
+      BigDecimal unrealizedPnl,
       int openPositions,
       int totalTrades,
       double winRate,
