@@ -10,6 +10,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-micrometer-observation'
   implementation 'org.springframework.boot:spring-boot-micrometer-tracing-opentelemetry'
   implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+  implementation 'io.micrometer:micrometer-registry-prometheus'
   runtimeOnly 'org.postgresql:postgresql'
   runtimeOnly 'io.opentelemetry:opentelemetry-exporter-otlp'
   implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure'

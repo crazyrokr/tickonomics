@@ -4,10 +4,12 @@ import com.tickonomics.cdm.adapter.FredCdmAdapter
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter
 import com.tickonomics.ingestion.fred.FredClient
 import com.tickonomics.ingestion.nyfed.NyFedClient
+import com.tickonomics.ingestion.tracing.IngestionMetrics
 import com.tickonomics.ingestion.tracing.IngestionTracer
 import com.tickonomics.persistence.entity.RateSnapshot
 import com.tickonomics.persistence.repository.RateSnapshotRepository
 import com.tickonomics.persistence.repository.TickDataRepository
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.springframework.web.client.RestClient
 import spock.lang.Specification
 import spock.lang.Subject
@@ -30,10 +32,11 @@ class IdempotencyRoutingSpec extends Specification {
     RestClient.Builder restClientBuilder = Mock()
     RestClient restClient = Mock()
     IngestionTracer tracer = new IngestionTracer(null, false)
+    IngestionMetrics metrics = new IngestionMetrics(new SimpleMeterRegistry())
 
     def setup() {
         restClientBuilder.build() >> restClient
-        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer, 500, 500)
+        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer, metrics, 500, 500)
     }
 
     def "given FredClient writes same observation twice, when routed through writer, then no duplicate"() {

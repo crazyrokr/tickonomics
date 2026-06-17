@@ -1,9 +1,11 @@
 package com.tickonomics.ingestion.writer
 
+import com.tickonomics.ingestion.tracing.IngestionMetrics
 import com.tickonomics.ingestion.tracing.IngestionTracer
 import com.tickonomics.persistence.entity.TickData
 import com.tickonomics.persistence.repository.RateSnapshotRepository
 import com.tickonomics.persistence.repository.TickDataRepository
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -15,6 +17,7 @@ class TimescaleDbWriterSpec extends Specification {
     TickDataRepository tickRepository = Mock()
     RateSnapshotRepository rateRepository = Mock()
     IngestionTracer tracer = new IngestionTracer(null, false)
+    IngestionMetrics metrics = new IngestionMetrics(new SimpleMeterRegistry())
 
     @Subject
     IdempotencyGuard guard = new IdempotencyGuard()
@@ -23,7 +26,7 @@ class TimescaleDbWriterSpec extends Specification {
     TimescaleDbWriter writer
 
     def setup() {
-        writer = new TimescaleDbWriter(tickRepository, rateRepository, guard, tracer, 2, 500)
+        writer = new TimescaleDbWriter(tickRepository, rateRepository, guard, tracer, metrics, 2, 500)
     }
 
     private static TickData tick(String symbol, Instant time) {

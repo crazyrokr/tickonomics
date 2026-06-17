@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
  *   <li><b>Analytics worker</b> — reported unhealthy, or its probe latency is at or above the
  *       threshold.</li>
  *   <li><b>Proxy divergence</b> — an intraday proxy dislocation is currently active.</li>
+ *   <li><b>WebSocket health</b> — the Finnhub WS client reports recent IO errors on an
+ *       active session (3+ consecutive send failures within 120s).</li>
  * </ul>
  *
  * <p>State is in-memory and volatile, mirroring {@link KillSwitch}'s ADR-017 trade-off: demo
@@ -106,7 +108,7 @@ public class SystemicResilienceMonitor {
   }
 
   private List<String> degradedReasons(ResilienceHealthSnapshot reading) {
-    List<String> reasons = new ArrayList<>(3);
+    List<String> reasons = new ArrayList<>(4);
     if (isOverflowDegraded(reading)) {
       reasons.add("overflow_utilization_exceeded");
     }
@@ -115,6 +117,9 @@ public class SystemicResilienceMonitor {
     }
     if (reading.proxyDivergenceActive()) {
       reasons.add("proxy_divergence_active");
+    }
+    if (!reading.wsHealthy()) {
+      reasons.add("websocket_degraded");
     }
     return reasons;
   }

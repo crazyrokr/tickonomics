@@ -11,13 +11,14 @@ public record ResilienceHealthSnapshot(
     double overflowUtilizationPct,
     long workerLatencyMs,
     boolean workerHealthy,
-    boolean proxyDivergenceActive) {
+    boolean proxyDivergenceActive,
+    boolean wsHealthy) {
 
   public static final double UNKNOWN_UTILIZATION = -1.0;
   public static final long UNKNOWN_LATENCY = -1L;
 
   /** Neutral snapshot with no degraded indicators; used when health data is unavailable. */
   public static ResilienceHealthSnapshot unknown() {
-    return new ResilienceHealthSnapshot(UNKNOWN_UTILIZATION, UNKNOWN_LATENCY, true, false);
+    return new ResilienceHealthSnapshot(UNKNOWN_UTILIZATION, UNKNOWN_LATENCY, true, false, true);
   }
 }

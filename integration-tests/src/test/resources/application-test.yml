@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:tc:timescaledb:///tickonomics_test
+    url: jdbc:postgresql://localhost:5432/tickonomics_test
     username: tickonomics
     password: tickonomics
   flyway:
