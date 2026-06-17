@@ -54,4 +54,4 @@ frontend/tsconfig.tsbuildinfo
 /.actrc.local
 /.secrets
 
-graphify-out/cache/
+graphify-out/
