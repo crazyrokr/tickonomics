@@ -32,8 +32,7 @@ for backtesting; a standalone Python FastAPI worker handles research and model t
 - **Realtime broadcast**: WebSocket support (Finnhub trades + generated signals → dashboard).
 - **Security**: Updated security configurations with refined access control and tested controllers.
 - **Documentation**: Includes Java best practice reviews and ADR-034 licensing strategy.
-- **Automated Infrastructure**: `graphify` knowledge graph updates configured via Git hooks
-  (`post-checkout`, `post-merge`) for seamless synchronization.
+- **Automated Infrastructure**: `graphify` knowledge graph updates configured via Git hooks (`post-checkout`, `post-merge`) for seamless synchronization. The installation process (`make install-hooks`) will automatically check for and install `graphify` if it is missing.
 - **Local GitHub-Actions verification** with `act` + `actionlint`, enforced by git hooks
   (see [ADR-026](docs/adr/ADR-026-local-github-actions-verification.md)).
 
