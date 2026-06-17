@@ -6255,8 +6255,8 @@
     "semantic_hash": ""
   },
   "docs/reviews/00-progress.md": {
-    "mtime": 1781711379.043874,
-    "ast_hash": "8ac72d8d8ad8bef1624b16356ee7d554",
+    "mtime": 1781713967.7309568,
+    "ast_hash": "7a36b9acccba1a97c1faa1e3221f4b78",
     "semantic_hash": ""
   },
   "docs/adr/ADR-034-licensing-strategy.md": {
@@ -6297,6 +6297,11 @@
   "scripts/bootstrap-graphify.sh": {
     "mtime": 1781712855.7715254,
     "ast_hash": "abd65978812852928d0caea9d0f47647",
+    "semantic_hash": ""
+  },
+  "persistence/src/main/resources/db/migration/V38__add_retention_policies.sql": {
+    "mtime": 1781713632.0618114,
+    "ast_hash": "7c54208d490be5dd8b0ce941bb96a58d",
     "semantic_hash": ""
   }
 }
