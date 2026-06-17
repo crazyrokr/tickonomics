@@ -12,7 +12,7 @@ Overall progress is modest — most gaps remain open. Two days after the elimina
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P0 (silent correctness & security)                  │ 17          │ 16    │ 0       │ 1    │ 94% ✅  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ P1 (data integrity, money precision, observability) │ ~19         │ 3     │ 1       │ 15   │ 16% ❌  │
+│ P1 (data integrity, money precision, observability) │ ~19         │ 8     │ 1       │ 10   │ 42% ❌  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P2 (robustness, validation, API typing)             │ ~22         │ 1     │ 1       │ 20   │ 5% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
@@ -20,7 +20,7 @@ Overall progress is modest — most gaps remain open. Two days after the elimina
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ ADR-021 (remediation architecture ADR)              │ 1           │ 0     │ —       │ 1    │ 0% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ Total                                               │ ~74         │ 21    │ 3       │ 50   │ 28%     │
+│ Total                                               │ ~74         │ 26    │ 3       │ 45   │ 35%     │
 └─────────────────────────────────────────────────────┴─────────────┴───────┴─────────┴──────┴─────────┘
 
 ---
@@ -87,21 +87,21 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ P-C4       │ Retention on only 2/28 hypertables                                  │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H4       │ strike DOUBLE PRECISION in PK                                       │ ❌     │
+│ P-H4       │ strike DOUBLE PRECISION in PK                                       │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H5       │ Unguarded keyHolder.getKey().longValue() in 6 repos                 │ ❌     │
+│ P-H5       │ Unguarded keyHolder.getKey().longValue() in 6 repos                 │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H6       │ CREATE VIEW not CREATE OR REPLACE VIEW                              │ ❌     │
+│ P-H6       │ CREATE VIEW not CREATE OR REPLACE VIEW                              │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H1       │ breaches is ArrayList, not CopyOnWriteArrayList                     │ ❌     │
+│ I-H1       │ breaches is ArrayList, not CopyOnWriteArrayList                     │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H2       │ IOException swallowed, no health indicator                          │ ❌     │
+│ I-H2       │ IOException swallowed, no health indicator                          │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H3       │ HttpClient.newHttpClient() no timeouts                              │ ❌     │
+│ I-H3       │ HttpClient.newHttpClient() no timeouts                              │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H3       │ micrometer-registry-prometheus absent from build                    │ ❌     │
+│ I-H3       │ micrometer-registry-prometheus absent from build                    │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H4       │ Zero custom metric instrumentation                                  │ ❌     │
+│ I-H4       │ Zero custom metric instrumentation                                  │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ I-M1       │ Alertmanager has no receivers / undefined                           │ ❌     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
