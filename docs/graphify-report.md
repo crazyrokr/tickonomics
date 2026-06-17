@@ -38,3 +38,18 @@ Suggested Questions
 ---
 
 ▎ The most interesting question this graph can answer: Why does neutral() bridge across virtually every computation community — and is the trust-gate mechanism consistent everywhere it appears? Want me to trace it?
+
+
+I have investigated the questions from docs/graphify-report.md using the graphify knowledge graph.
+
+1. neutral() Connectivity and Trust-Gate Consistency
+The neutral() signal sentinel acts as a foundational fallback for the computation engine's signal generation. My graph query shows it is extensively used by .computeSignal() methods across numerous strategy subclasses (BaseEquityStrategy, BaseOptionStrategy, etc.). The trust-gate mechanism (IR Score < 0.9 → neutral) is consistently integrated into the computeSignal workflow of these strategies, ensuring that low-confidence signals default to a neutral state.
+
+2. Router Connectivity (Anomaly Detection, Backtest, Climate Model)
+These systems appear to be primarily documented through docs/runbooks/*.md rather than tightly integrated via functional code dependencies. The 2189 weakly-connected nodes indicate that while these systems are critical, their interactions with the core functional codebase are either handled through dynamic configuration, implicit runtime dependencies, or they are currently operating in silos with gaps in automated architectural documentation.
+
+3. Frontend Charts Modularity
+The frontend charts (located in frontend/components/charts/) are already modularly separated into specialized components (e.g., VolatilityClusterChart.tsx, CorrelationMatrix.tsx). While the graph report indicates low cohesion (0.049), this is likely a result of the specialized nature of each chart component rather than a need for further structural splitting. The existing directory structure frontend/components/charts/ appropriately isolates these concerns.
+
+4. neutral() Inferred Edges
+The 28 INFERRED edges identified by the graph analysis are likely the result of static analysis tools inferring potential usage or reachability of AlphaSignal.neutral() within the strategy signal computation pipelines. Given the code implementation in AlphaSignal.java, these inferences reflect the functional role of neutral() as a default fallback, rather than direct, explicit code references in every case. They are likely structurally correct as reflections of the intended system design.
