@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableResilientMethods(proxyTargetClass = true)
 public class TickonomicsApplication {
-  static void main(String[] args) {
+  public static void main(String[] args) {
     SpringApplication.run(TickonomicsApplication.class, args);
   }
 }

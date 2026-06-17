@@ -1,7 +1,6 @@
 package com.tickonomics.persistence.repository;
 
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
