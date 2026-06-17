@@ -60,7 +60,10 @@ class PaperTradingEngineTest {
       15.0, 1.5, 0.02, 5.0, 0.7);
 
   private VirtualPortfolioPosition openedPosition(long id, String direction, BigDecimal fillPrice) {
-    return new VirtualPortfolioPosition(id, Instant.now(), "SPY", direction, new BigDecimal("9.6"), fillPrice, null, null, fillPrice.multiply(new BigDecimal("0.95")), fillPrice.multiply(new BigDecimal("1.10")), null, null);
+    return new VirtualPortfolioPosition(id, Instant.now(), "SPY", direction,
+        new BigDecimal("9.6"), fillPrice, null, null,
+        fillPrice.multiply(new BigDecimal("0.95")),
+        fillPrice.multiply(new BigDecimal("1.10")), null, null);
   }
 
   private PaperTradingEngine buildEngine(DemoConfig config) {
@@ -379,7 +382,9 @@ class PaperTradingEngineTest {
       PaperTradingEngine engine = buildEngine(activeConfig());
       when(portfolio.checkStopLossTakeProfit(any())).thenReturn(List.of(pos));
       when(portfolio.closePosition(1L, new BigDecimal("94.0"))).thenReturn(
-          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("94.0"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("-60.0"), 1L, null, "PAPER"));
+          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL",
+              new BigDecimal("10.0"), new BigDecimal("94.0"), BigDecimal.ZERO, BigDecimal.ZERO,
+              new BigDecimal("-60.0"), 1L, null, "PAPER"));
 
       List<VirtualPortfolioTrade> closed = engine.evaluateExits(Map.of("SPY", new BigDecimal("94.0")));
 

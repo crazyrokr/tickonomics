@@ -9,7 +9,7 @@ public class VotingClassifier {
 
     private static final Logger log = LoggerFactory.getLogger(VotingClassifier.class);
 
-    private boolean enabled;
+    private volatile boolean enabled;
 
     public record VoteResult(
             String actionable,

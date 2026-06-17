@@ -55,13 +55,21 @@ class KillSwitchTest {
 
     @Test
     void givenPositionsAndPrices_whenLiquidateAll_thenAllClosed() {
-      VirtualPortfolioPosition spy = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
-      VirtualPortfolioPosition aapl = new VirtualPortfolioPosition(2L, Instant.now(), "AAPL", "BUY", new BigDecimal("5.0"), new BigDecimal("180.0"), null, null, new BigDecimal("170.0"), new BigDecimal("200.0"), null, null);
+      VirtualPortfolioPosition spy = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null,
+          new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
+      VirtualPortfolioPosition aapl = new VirtualPortfolioPosition(2L, Instant.now(), "AAPL", "BUY",
+          new BigDecimal("5.0"), new BigDecimal("180.0"), null, null,
+          new BigDecimal("170.0"), new BigDecimal("200.0"), null, null);
       when(portfolio.findOpenPositions()).thenReturn(List.of(spy, aapl));
       when(portfolio.closePosition(1L, new BigDecimal("510.0"))).thenReturn(
-          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("510.0"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("100.0"), 1L, null, "PAPER"));
+          new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL",
+              new BigDecimal("10.0"), new BigDecimal("510.0"), BigDecimal.ZERO, BigDecimal.ZERO,
+              new BigDecimal("100.0"), 1L, null, "PAPER"));
       when(portfolio.closePosition(2L, new BigDecimal("190.0"))).thenReturn(
-          new VirtualPortfolioTrade(2L, Instant.now(), "AAPL", "SELL", new BigDecimal("5.0"), new BigDecimal("190.0"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("50.0"), 2L, null, "PAPER"));
+          new VirtualPortfolioTrade(2L, Instant.now(), "AAPL", "SELL",
+              new BigDecimal("5.0"), new BigDecimal("190.0"), BigDecimal.ZERO, BigDecimal.ZERO,
+              new BigDecimal("50.0"), 2L, null, "PAPER"));
 
       List<VirtualPortfolioTrade> trades = killSwitch.liquidateAll(
           portfolio, Map.of("SPY", new BigDecimal("510.0"), "AAPL", new BigDecimal("190.0")));
@@ -73,7 +81,9 @@ class KillSwitchTest {
 
     @Test
     void givenPositionWithoutPrice_whenLiquidateAll_thenSkipped() {
-      VirtualPortfolioPosition spy = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
+      VirtualPortfolioPosition spy = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null,
+          new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
       when(portfolio.findOpenPositions()).thenReturn(List.of(spy));
 
       List<VirtualPortfolioTrade> trades = killSwitch.liquidateAll(portfolio, Map.of());

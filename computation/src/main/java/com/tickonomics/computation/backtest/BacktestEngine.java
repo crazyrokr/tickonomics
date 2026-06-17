@@ -124,8 +124,9 @@ public class BacktestEngine {
     BacktestResultRecord record = new BacktestResultRecord(
         null,
         Instant.now(),
-        "{\"strategy\":\"" + result.strategyName() + "\"}",
-        "[" + from + "," + to + "]",
+        """
+            {"strategy":"%s"}""".formatted(result.strategyName()),
+        "[%s,%s]".formatted(from, to),
         result.sharpeRatio(),
         result.maxDrawdown(),
         result.winRate(),

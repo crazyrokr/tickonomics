@@ -5,6 +5,7 @@ import com.tickonomics.computation.strategy.AlphaSignal;
 import com.tickonomics.computation.strategy.BaseStrategy;
 import com.tickonomics.computation.strategy.StrategyContext;
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ public abstract class BaseOptionStrategy implements BaseStrategy<LegGroup> {
   protected BaseOptionStrategy(StrategyType strategyType) {
     this.id = UUID.nameUUIDFromBytes(strategyType
         .name()
-        .getBytes());
+        .getBytes(StandardCharsets.UTF_8));
     this.strategyType = strategyType;
   }
 

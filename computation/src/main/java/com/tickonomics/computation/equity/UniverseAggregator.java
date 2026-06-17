@@ -1,9 +1,12 @@
 package com.tickonomics.computation.equity;
 
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Component
 public class UniverseAggregator {
 
   private static final int MAX_SYMBOLS = 1000;
