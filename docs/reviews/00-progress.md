@@ -79,11 +79,11 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 ┌────────────┬─────────────────────────────────────────────────────────────────────┬────────┐
 │     ID     │                               Finding                               │ Status │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC │ ❌     │
+│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C2       │ Zero @Transactional across 17 repositories                          │ ❌     │
+│ P-C2       │ Zero @Transactional across 17 repositories — FALSE POSITIVE (raw JDBC, single-stmt)                          │ ❌     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C3       │ Compression on only 3/28 hypertables                                │ ❌     │
+│ P-C3       │ Compression on only 3/28 hypertables                                │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ P-C4       │ Retention on only 2/28 hypertables                                  │ ❌     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
@@ -117,6 +117,8 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ C-H4       │ Checkstyle/SpotBugs ignoreFailures = true                           │ ❌     │
 └────────────┴─────────────────────────────────────────────────────────────────────┴────────┘
+
+| P-C2 | @Transactional unnecessary: raw NamedParameterJdbcTemplate, single-statement-per-method; PostgreSQL auto-commits atomically | ❌     |
 
 Partial:
 | A-H4 | GARCH init improved (proper unconditional variance) | 🟡 Partial → accepted as adequate |
