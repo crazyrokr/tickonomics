@@ -12,7 +12,7 @@ Overall progress is modest — most gaps remain open. Two days after the elimina
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P0 (silent correctness & security)                  │ 17          │ 16    │ 0       │ 1    │ 94% ✅  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ P1 (data integrity, money precision, observability) │ ~19         │ 2     │ 1       │ 16   │ 11% ❌  │
+│ P1 (data integrity, money precision, observability) │ ~19         │ 3     │ 1       │ 15   │ 16% ❌  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P2 (robustness, validation, API typing)             │ ~22         │ 1     │ 1       │ 20   │ 5% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
@@ -20,7 +20,7 @@ Overall progress is modest — most gaps remain open. Two days after the elimina
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ ADR-021 (remediation architecture ADR)              │ 1           │ 0     │ —       │ 1    │ 0% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ Total                                               │ ~74         │ 20    │ 3       │ 51   │ 27%     │
+│ Total                                               │ ~74         │ 21    │ 3       │ 50   │ 28%     │
 └─────────────────────────────────────────────────────┴─────────────┴───────┴─────────┴──────┴─────────┘
 
 ---
@@ -79,13 +79,13 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 ┌────────────┬─────────────────────────────────────────────────────────────────────┬────────┐
 │     ID     │                               Finding                               │ Status │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC │ ❌     │
+│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C2       │ Zero @Transactional across 17 repositories                          │ ❌     │
+│ P-C2       │ Zero @Transactional across 17 repositories — FALSE POSITIVE (raw JDBC, single-stmt)                          │ ❌     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C3       │ Compression on only 3/28 hypertables                                │ ❌     │
+│ P-C3       │ Compression on only 3/28 hypertables                                │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C4       │ Retention on only 2/28 hypertables                                  │ ❌     │
+│ P-C4       │ Retention on only 2/28 hypertables                                  │ ✅     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ P-H4       │ strike DOUBLE PRECISION in PK                                       │ ❌     │
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
@@ -117,6 +117,8 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 ├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
 │ C-H4       │ Checkstyle/SpotBugs ignoreFailures = true                           │ ❌     │
 └────────────┴─────────────────────────────────────────────────────────────────────┴────────┘
+
+| P-C2 | @Transactional unnecessary: raw NamedParameterJdbcTemplate, single-statement-per-method; PostgreSQL auto-commits atomically | ❌     |
 
 Partial:
 | A-H4 | GARCH init improved (proper unconditional variance) | 🟡 Partial → accepted as adequate |

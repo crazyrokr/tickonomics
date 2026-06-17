@@ -3,6 +3,9 @@
 # Re-run after pulling changes to the hook sources.
 set -euo pipefail
 
+# Ensure graphify is installed
+./scripts/bootstrap-graphify.sh
+
 root=$(git rev-parse --show-toplevel)
 src="$root/scripts/git-hooks"
 dst="$root/.git/hooks"

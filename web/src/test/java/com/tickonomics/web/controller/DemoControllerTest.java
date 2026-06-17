@@ -2,6 +2,7 @@ package com.tickonomics.web.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -144,9 +145,11 @@ class DemoControllerTest {
       ResponseEntity<Map<String, Object>> response =
           controller.closePosition(1L, new BigDecimal("550.0"));
 
-      assertEquals(2L, response.getBody().get("tradeId"));
+      Map<String, Object> body = response.getBody();
+      assertNotNull(body);
+      assertEquals(2L, body.get("tradeId"));
       assertEquals(0, new BigDecimal("500.0")
-          .compareTo((BigDecimal) response.getBody().get("realizedPnl")));
+          .compareTo((BigDecimal) body.get("realizedPnl")));
     }
   }
 

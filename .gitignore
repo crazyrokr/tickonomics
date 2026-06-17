@@ -55,4 +55,3 @@ frontend/tsconfig.tsbuildinfo
 /.secrets
 
 graphify-out/cache/
-graphify-out/.rebuild.lock
