@@ -1,0 +1,14 @@
+plugins {
+  id 'jacoco-report-aggregation'
+}
+
+dependencies {
+  jacocoAggregation project(':api-contracts')
+  jacocoAggregation project(':cdm')
+  jacocoAggregation project(':ingestion')
+  jacocoAggregation project(':computation')
+  jacocoAggregation project(':persistence')
+  jacocoAggregation project(':web')
+  jacocoAggregation project(':app')
+  jacocoAggregation project(':integration-tests')
+}
