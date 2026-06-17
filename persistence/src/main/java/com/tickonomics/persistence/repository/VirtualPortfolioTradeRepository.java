@@ -34,7 +34,7 @@ public class VirtualPortfolioTradeRepository {
         toParams(trade),
         keyHolder,
         new String[]{"id"});
-    return keyHolder.getKey().longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public List<VirtualPortfolioTrade> findByPositionId(long positionId) {

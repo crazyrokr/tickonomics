@@ -4,7 +4,7 @@
 -- with the plan so that RiskPremiumResidualMonitor and EVT-based services can query
 -- evt_risk_metrics directly.
 
-CREATE VIEW evt_risk_metrics AS
+CREATE OR REPLACE VIEW evt_risk_metrics AS
 SELECT time,
        symbol,
        shape_xi,

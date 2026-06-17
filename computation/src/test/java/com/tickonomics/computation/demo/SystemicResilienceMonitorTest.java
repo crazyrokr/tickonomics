@@ -27,7 +27,13 @@ class SystemicResilienceMonitorTest {
 
   private static ResilienceHealthSnapshot snapshot(double overflowPct, long latencyMs,
       boolean workerHealthy, boolean proxyDivergence) {
-    return new ResilienceHealthSnapshot(overflowPct, latencyMs, workerHealthy, proxyDivergence);
+    return snapshot(overflowPct, latencyMs, workerHealthy, proxyDivergence, true);
+  }
+
+  private static ResilienceHealthSnapshot snapshot(double overflowPct, long latencyMs,
+      boolean workerHealthy, boolean proxyDivergence, boolean wsHealthy) {
+    return new ResilienceHealthSnapshot(overflowPct, latencyMs, workerHealthy, proxyDivergence,
+        wsHealthy);
   }
 
   @Nested

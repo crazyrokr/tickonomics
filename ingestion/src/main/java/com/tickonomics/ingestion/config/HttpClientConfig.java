@@ -9,15 +9,21 @@ import com.tickonomics.cdm.adapter.NyFedCdmAdapter;
 import com.tickonomics.cdm.adapter.YahooEquityCdmAdapter;
 import com.tickonomics.cdm.adapter.YahooOptionsCdmAdapter;
 import java.net.http.HttpClient;
+import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class HttpClientConfig {
 
+  private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+
   @Bean
   public HttpClient httpClient() {
-    return HttpClient.newHttpClient();
+    return HttpClient.newBuilder()
+        .connectTimeout(CONNECT_TIMEOUT)
+        .build();
   }
 
   // Stateless CDM (Canonical Data Model) adapters that map vendor-specific raw

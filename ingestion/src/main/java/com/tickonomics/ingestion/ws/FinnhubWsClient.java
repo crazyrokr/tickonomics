@@ -5,9 +5,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import com.tickonomics.cdm.adapter.raw.FinnhubTrade;
 import com.tickonomics.contracts.client.EquityWsClient;
+import com.tickonomics.ingestion.tracing.IngestionMetrics;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -50,22 +56,42 @@ public class FinnhubWsClient implements EquityWsClient {
   private final int reconnectBackoffMaxMs;
   private final ExecutorService asyncExecutor;
   private final ScheduledExecutorService reconnectScheduler;
+  private final IngestionMetrics metrics;
 
   private volatile WebSocketSession session;
   private volatile int reconnectDelayMs = 1000;
   private volatile boolean intentionalDisconnect = false;
 
+  private final AtomicReference<Instant> lastIoErrorAt = new AtomicReference<>();
+  private final AtomicInteger consecutiveIoErrors = new AtomicInteger(0);
+
+  private final Clock clock;
+
   private final Set<Consumer<FinnhubTrade>> handlers = new CopyOnWriteArraySet<>();
   private final Set<String> subscribedSymbols = ConcurrentHashMap.newKeySet();
 
+  @Autowired
   public FinnhubWsClient(
       ObjectMapper objectMapper,
+      IngestionMetrics metrics,
       @Value("${monitor.finnhub.ws-url:wss://ws.finnhub.io}") String wsUrl,
       @Value("${monitor.finnhub.ws-reconnect-backoff-max:60000}") int reconnectBackoffMaxMs) {
+    this(objectMapper, metrics, wsUrl, reconnectBackoffMaxMs, Clock.systemUTC());
+  }
+
+  /** Package-private for testing with a controlled clock. */
+  FinnhubWsClient(
+      ObjectMapper objectMapper,
+      IngestionMetrics metrics,
+      String wsUrl,
+      int reconnectBackoffMaxMs,
+      Clock clock) {
     this.wsClient = new StandardWebSocketClient();
     this.objectMapper = objectMapper;
+    this.metrics = metrics;
     this.wsUrl = wsUrl;
     this.reconnectBackoffMaxMs = reconnectBackoffMaxMs;
+    this.clock = clock;
     this.asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
     this.reconnectScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
       var t = new Thread(r, "finnhub-ws-reconnect");
@@ -141,6 +167,7 @@ public class FinnhubWsClient implements EquityWsClient {
       try {
         session.close(CloseStatus.NORMAL);
       } catch (IOException e) {
+        recordIoError(e);
         log.error("Error closing Finnhub WebSocket: {}", e.getMessage());
       }
     }
@@ -149,6 +176,17 @@ public class FinnhubWsClient implements EquityWsClient {
   @Override
   public boolean isConnected() {
     return session != null && session.isOpen();
+  }
+
+  /**
+   * Returns {@code true} when the WebSocket has experienced IO errors on the active session
+   * within the last 120 seconds. A session that appears open but silently drops messages
+   * (sends fail with IOException) is considered unhealthy.
+   */
+  public boolean hasRecentIoErrors() {
+    return consecutiveIoErrors.get() >= 3
+        && lastIoErrorAt.get() != null
+        && Duration.between(lastIoErrorAt.get(), clock.instant()).toSeconds() < 120;
   }
 
   private void sendSubscribe(String symbol) {
@@ -165,10 +203,18 @@ public class FinnhubWsClient implements EquityWsClient {
     if (session != null && session.isOpen()) {
       try {
         session.sendMessage(new TextMessage(message));
+        consecutiveIoErrors.set(0);
       } catch (IOException e) {
+        recordIoError(e);
         log.error("Failed to send Finnhub WebSocket message: {}", e.getMessage());
       }
     }
+  }
+
+  private void recordIoError(IOException e) {
+    lastIoErrorAt.set(clock.instant());
+    consecutiveIoErrors.incrementAndGet();
+    metrics.recordWsIoError();
   }
 
   private void processTextMessage(String payload) {
@@ -242,6 +288,7 @@ public class FinnhubWsClient implements EquityWsClient {
     public void afterConnectionEstablished(WebSocketSession webSocketSession) {
       session = webSocketSession;
       reconnectDelayMs = 1000;
+      metrics.setWsConnected(true);
       log.info("Finnhub WebSocket connected");
       for (String symbol : subscribedSymbols) {
         sendSubscribe(symbol);
@@ -250,11 +297,13 @@ public class FinnhubWsClient implements EquityWsClient {
 
     @Override
     protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) {
+      metrics.recordWsMessage();
       processTextMessage(message.getPayload());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus status) {
+      metrics.setWsConnected(false);
       log.warn("Finnhub WebSocket closed: {}", status);
       session = null;
       scheduleReconnect(apiKey);
@@ -262,6 +311,9 @@ public class FinnhubWsClient implements EquityWsClient {
 
     @Override
     public void handleTransportError(WebSocketSession webSocketSession, Throwable exception) {
+      if (exception instanceof IOException ioException) {
+        recordIoError(ioException);
+      }
       log.error("Finnhub WebSocket transport error: {}", exception.getMessage());
     }
   }

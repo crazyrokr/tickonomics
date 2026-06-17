@@ -1,5 +1,0 @@
-/home/crazyrock/github/tickonomics/infra/terraform/shared/docker-compose.forecast.yml
-/home/crazyrock/github/tickonomics/integration-tests/src/test/resources/application-test.yml
-/home/crazyrock/github/tickonomics/landing/AGENTS.md
-/home/crazyrock/github/tickonomics/landing/CLAUDE.md
-/home/crazyrock/github/tickonomics/landing/README.md

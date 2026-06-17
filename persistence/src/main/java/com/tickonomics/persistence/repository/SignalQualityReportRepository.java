@@ -48,7 +48,7 @@ public class SignalQualityReportRepository {
         params,
         keyHolder,
         new String[]{"id"});
-    return keyHolder.getKey().longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public Optional<Map<String, Object>> findLatest() {

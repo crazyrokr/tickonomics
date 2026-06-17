@@ -40,9 +40,7 @@ public class SignalLogRepository {
         toParams(signal),
         keyHolder,
         new String[]{"id"});
-    return keyHolder
-        .getKey()
-        .longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public List<SignalLog> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {

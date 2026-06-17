@@ -5,6 +5,7 @@ import com.tickonomics.persistence.entity.RateSnapshot;
 import com.tickonomics.persistence.entity.TickData;
 import com.tickonomics.persistence.repository.RateSnapshotRepository;
 import com.tickonomics.persistence.repository.TickDataRepository;
+import com.tickonomics.ingestion.tracing.IngestionMetrics;
 import com.tickonomics.ingestion.tracing.IngestionTracer;
 import com.tickonomics.ingestion.tracing.IngestionTracingConfig;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,7 @@ public class TimescaleDbWriter {
   private final RateSnapshotRepository rateSnapshotRepository;
   private final IdempotencyGuard idempotencyGuard;
   private final IngestionTracer tracer;
+  private final IngestionMetrics metrics;
 
   private final ConcurrentLinkedQueue<IdempotentRow<TickData>> tickBuffer = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<IdempotentRow<RateSnapshot>> rateBuffer = new ConcurrentLinkedQueue<>();
@@ -40,12 +42,14 @@ public class TimescaleDbWriter {
       RateSnapshotRepository rateSnapshotRepository,
       IdempotencyGuard idempotencyGuard,
       IngestionTracer tracer,
+      IngestionMetrics metrics,
       @Value("${writer.batch-size:500}") int batchSize,
       @Value("${writer.flush-interval-ms:500}") int flushIntervalMs) {
     this.tickDataRepository = tickDataRepository;
     this.rateSnapshotRepository = rateSnapshotRepository;
     this.idempotencyGuard = idempotencyGuard;
     this.tracer = tracer;
+    this.metrics = metrics;
     this.batchSize = batchSize;
     this.flushIntervalMs = flushIntervalMs;
   }
@@ -53,10 +57,12 @@ public class TimescaleDbWriter {
   public void writeTick(TickData tick) {
     String key = idempotencyGuard.buildKey("TICK", tick.symbol(), tick.time());
     if (idempotencyGuard.isDuplicate(key)) {
+      metrics.recordDuplicateTick();
       log.debug("Skipping duplicate tick: {}", key);
       return;
     }
     tickBuffer.add(new IdempotentRow<>(deterministicUuid(key), tick));
+    metrics.setTickBufferSize(tickBuffer.size());
     if (tickBuffer.size() >= batchSize) {
       flushTicks();
     }
@@ -65,10 +71,12 @@ public class TimescaleDbWriter {
   public void writeRate(RateSnapshot snapshot) {
     String key = idempotencyGuard.buildKey("RATE", snapshot.rateType(), snapshot.time());
     if (idempotencyGuard.isDuplicate(key)) {
+      metrics.recordDuplicateRate();
       log.debug("Skipping duplicate rate: {}", key);
       return;
     }
     rateBuffer.add(new IdempotentRow<>(deterministicUuid(key), snapshot));
+    metrics.setRateBufferSize(rateBuffer.size());
     if (rateBuffer.size() >= batchSize) {
       flushRates();
     }
@@ -84,14 +92,19 @@ public class TimescaleDbWriter {
 
   void flushTicks() {
     List<IdempotentRow<TickData>> batch = drainBuffer(tickBuffer);
+    metrics.setTickBufferSize(tickBuffer.size());
     if (batch.isEmpty()) {
       return;
     }
 
+    long start = System.nanoTime();
     try {
       int[] affected = tickDataRepository.saveAllIdempotent(batch);
+      metrics.recordWriteSuccessTick();
+      metrics.recordFlushDuration(System.nanoTime() - start);
       log.debug("Flushed {} tick records ({} new)", batch.size(), countNew(affected));
     } catch (Exception e) {
+      metrics.recordWriteFailureTick();
       log.error("Failed to flush {} tick records: {}", batch.size(), e.getMessage());
       tickBuffer.addAll(batch);
     }
@@ -99,14 +112,19 @@ public class TimescaleDbWriter {
 
   void flushRates() {
     List<IdempotentRow<RateSnapshot>> batch = drainBuffer(rateBuffer);
+    metrics.setRateBufferSize(rateBuffer.size());
     if (batch.isEmpty()) {
       return;
     }
 
+    long start = System.nanoTime();
     try {
       int[] affected = rateSnapshotRepository.saveAllIdempotent(batch);
+      metrics.recordWriteSuccessRate();
+      metrics.recordFlushDuration(System.nanoTime() - start);
       log.debug("Flushed {} rate records ({} new)", batch.size(), countNew(affected));
     } catch (Exception e) {
+      metrics.recordWriteFailureRate();
       log.error("Failed to flush {} rate records: {}", batch.size(), e.getMessage());
       rateBuffer.addAll(batch);
     }

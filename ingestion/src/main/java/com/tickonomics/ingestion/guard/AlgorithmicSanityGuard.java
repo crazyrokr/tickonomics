@@ -1,5 +1,6 @@
 package com.tickonomics.ingestion.guard;
 
+import com.tickonomics.ingestion.tracing.IngestionMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,16 +27,22 @@ public class AlgorithmicSanityGuard {
     static final long BREACH_RETENTION_MS = 60_000;
 
     private final Clock clock;
+    private final IngestionMetrics metrics;
     private final Map<String, PriceTracker> priceTrackers = new ConcurrentHashMap<>();
     private final Map<String, RateTracker> rateTrackers = new ConcurrentHashMap<>();
     private final Deque<SanityBreach> breaches = new ConcurrentLinkedDeque<>();
 
     AlgorithmicSanityGuard() {
-        this(Clock.systemUTC());
+        this(Clock.systemUTC(), null);
     }
 
     AlgorithmicSanityGuard(Clock clock) {
+        this(clock, null);
+    }
+
+    public AlgorithmicSanityGuard(Clock clock, IngestionMetrics metrics) {
         this.clock = clock;
+        this.metrics = metrics;
     }
 
     Instant now() {
@@ -102,6 +109,9 @@ public class AlgorithmicSanityGuard {
 
     private void recordBreach(SanityBreach breach) {
         breaches.add(breach);
+        if (metrics != null) {
+            metrics.recordBreach(breach.breachType().name());
+        }
         log.warn("ALGORITHMIC_SANITY_BREACH symbol={} type={} value={} threshold={}",
                 breach.symbol(), breach.breachType(),
                 String.format("%.4f", breach.value()),

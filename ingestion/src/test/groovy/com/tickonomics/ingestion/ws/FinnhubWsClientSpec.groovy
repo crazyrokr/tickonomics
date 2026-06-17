@@ -2,6 +2,8 @@ package com.tickonomics.ingestion.ws
 
 import tools.jackson.databind.ObjectMapper
 import com.tickonomics.cdm.adapter.raw.FinnhubTrade
+import com.tickonomics.ingestion.tracing.IngestionMetrics
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -12,12 +14,13 @@ import java.util.function.Consumer
 class FinnhubWsClientSpec extends Specification {
 
   ObjectMapper objectMapper = new ObjectMapper()
+  IngestionMetrics metrics = new IngestionMetrics(new SimpleMeterRegistry())
 
   @Subject
   FinnhubWsClient client
 
   def setup() {
-    client = new FinnhubWsClient(objectMapper, "wss://ws.finnhub.io", 60000)
+    client = new FinnhubWsClient(objectMapper, metrics, "wss://ws.finnhub.io", 60000)
   }
 
   def "given connected, when subscribe, then symbol is tracked"() {
