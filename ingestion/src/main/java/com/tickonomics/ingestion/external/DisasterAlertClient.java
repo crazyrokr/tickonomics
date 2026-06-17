@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class DisasterAlertClient {
@@ -30,8 +31,8 @@ public class DisasterAlertClient {
     private final ObjectMapper objectMapper;
 
     private final Queue<DisasterAlert> alertQueue = new ConcurrentLinkedQueue<>();
-    private int consecutiveFailures = 0;
-    private Instant circuitOpenUntil = Instant.MIN;
+    private final AtomicInteger consecutiveFailures = new AtomicInteger(0);
+    private volatile Instant circuitOpenUntil = Instant.MIN;
 
     public DisasterAlertClient(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
@@ -60,7 +61,7 @@ public class DisasterAlertClient {
             }
 
             parseAndStoreAlerts(response.body());
-            consecutiveFailures = 0;
+            consecutiveFailures.set(0);
         } catch (Exception e) {
             handleFailure(e.getMessage());
         }
@@ -80,21 +81,21 @@ public class DisasterAlertClient {
     }
 
     Queue<DisasterAlert> getAlertQueue() {
-        return alertQueue;
+        return new ConcurrentLinkedQueue<>(alertQueue);
     }
 
     boolean isCircuitBreakerOpen() {
-        if (consecutiveFailures >= FAILURE_THRESHOLD) {
+        if (consecutiveFailures.get() >= FAILURE_THRESHOLD) {
             if (Instant.now().isBefore(circuitOpenUntil)) {
                 return true;
             }
-            consecutiveFailures = 0;
+            consecutiveFailures.set(0);
         }
         return false;
     }
 
     int getConsecutiveFailures() {
-        return consecutiveFailures;
+        return consecutiveFailures.get();
     }
 
     void parseAndStoreAlerts(String responseBody) {
@@ -127,10 +128,10 @@ public class DisasterAlertClient {
     }
 
     void handleFailure(String reason) {
-        consecutiveFailures++;
-        log.warn("Disaster feed poll failed ({}/{}): {}", consecutiveFailures, FAILURE_THRESHOLD, reason);
+        int failures = consecutiveFailures.incrementAndGet();
+        log.warn("Disaster feed poll failed ({}/{}): {}", failures, FAILURE_THRESHOLD, reason);
 
-        if (consecutiveFailures >= FAILURE_THRESHOLD) {
+        if (failures >= FAILURE_THRESHOLD) {
             circuitOpenUntil = Instant.now().plus(CIRCUIT_OPEN_DURATION);
             log.error("Circuit breaker OPEN for {}s after {} consecutive failures", CIRCUIT_OPEN_DURATION.getSeconds(), FAILURE_THRESHOLD);
         }

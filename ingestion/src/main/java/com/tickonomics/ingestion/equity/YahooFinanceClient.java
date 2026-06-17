@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Primary equity price client using Yahoo Finance v8 chart API. Fetches historical OHLCV bars via
@@ -29,6 +30,7 @@ public class YahooFinanceClient implements EquityPriceClient {
   private static final Logger log = LoggerFactory.getLogger(YahooFinanceClient.class);
 
   private final RestClient restClient;
+  private final String baseUrl;
   private final RetryTemplate retryTemplate = new RetryTemplate(RetryPolicy.builder()
       .includes(RestClientException.class)
       .maxRetries(2)
@@ -36,11 +38,11 @@ public class YahooFinanceClient implements EquityPriceClient {
       .multiplier(2)
       .build());
 
-  @Value("${monitor.yahoo-finance.base-url:https://query1.finance.yahoo.com}")
-  private String baseUrl;
-
-  public YahooFinanceClient(RestClient.Builder restClientBuilder) {
+  public YahooFinanceClient(
+      RestClient.Builder restClientBuilder,
+      @Value("${monitor.yahoo-finance.base-url:https://query1.finance.yahoo.com}") String baseUrl) {
     this.restClient = restClientBuilder.build();
+    this.baseUrl = baseUrl;
   }
 
   @Override
@@ -69,14 +71,14 @@ public class YahooFinanceClient implements EquityPriceClient {
   }
 
   @Override
-  public FinnhubQuote fetchQuote(String symbol) {
+  public Optional<FinnhubQuote> fetchQuote(String symbol) {
     List<YahooOhlcv> bars = fetchHistoricalOhlcv(symbol, "1m");
     if (bars.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
     YahooOhlcv latest = bars.get(0);
-    return new FinnhubQuote(latest.time(), latest.symbol(), latest.close(),
-        latest.high(), latest.low(), latest.open(), latest.close(), latest.volume());
+    return Optional.of(new FinnhubQuote(latest.time(), latest.symbol(), latest.close(),
+        latest.high(), latest.low(), latest.open(), latest.close(), latest.volume()));
   }
 
   @Override

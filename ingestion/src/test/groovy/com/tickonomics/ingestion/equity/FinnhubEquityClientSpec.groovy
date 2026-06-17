@@ -16,14 +16,13 @@ class FinnhubEquityClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new FinnhubEquityClient(restClientBuilder, "test-key")
-    client.restUrl = "https://finnhub.io/api/v1"
+    client = new FinnhubEquityClient(restClientBuilder, "https://finnhub.io/api/v1", "test-key")
   }
 
   def "given apiKey parameter, when constructed, then it binds to the finnhub property"() {
     given: "the api-key constructor parameter"
-      def ctor = FinnhubEquityClient.constructors.find { it.parameterCount == 2 }
-      def paramAnnotations = ctor.parameterAnnotations[1]
+      def ctor = FinnhubEquityClient.constructors.find { it.parameterCount == 3 }
+      def paramAnnotations = ctor.parameterAnnotations[2]
       def valueAnno = paramAnnotations.find { it instanceof Value } as Value
 
     expect: "the property name matches application.yml (guards the finnub typo regression)"
@@ -47,8 +46,8 @@ class FinnhubEquityClientSpec extends Specification {
       1 * requestHeadersSpec.retrieve() >> responseSpec
       1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
-      result != null
-      result.currentPrice() == 503.5
+      result.present
+      result.get().currentPrice() == 503.5
   }
 
   def "given valid quote response, when fetchQuote, then return quote"() {
@@ -67,17 +66,17 @@ class FinnhubEquityClientSpec extends Specification {
       1 * requestHeadersSpec.retrieve() >> responseSpec
       1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
-      result != null
-      result.currentPrice() == 503.5
-      result.symbol() == "SPY"
-      result.high() == 508.0
-      result.low() == 500.0
-      result.open() == 501.0
-      result.previousClose() == 499.0
-      result.volume() == 150000L
+      result.present
+      result.get().currentPrice() == 503.5
+      result.get().symbol() == "SPY"
+      result.get().high() == 508.0
+      result.get().low() == 500.0
+      result.get().open() == 501.0
+      result.get().previousClose() == 499.0
+      result.get().volume() == 150000L
   }
 
-  def "given zero price in response, when fetchQuote, then return null"() {
+  def "given zero price in response, when fetchQuote, then return empty"() {
     given:
       def json = '{"c":0.0,"h":0.0,"l":0.0,"o":0.0,"pc":0.0,"v":0}'
       def requestHeadersUriSpec = Mock(RestClient.RequestHeadersUriSpec)
@@ -93,10 +92,10 @@ class FinnhubEquityClientSpec extends Specification {
       1 * requestHeadersSpec.retrieve() >> responseSpec
       1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> new ObjectMapper().readTree(json)
 
-      result == null
+      result.empty
   }
 
-  def "given null response, when fetchQuote, then return null"() {
+  def "given null response, when fetchQuote, then return empty"() {
     given:
       def requestHeadersUriSpec = Mock(RestClient.RequestHeadersUriSpec)
       def requestHeadersSpec = Mock(RestClient.RequestHeadersSpec)
@@ -111,7 +110,7 @@ class FinnhubEquityClientSpec extends Specification {
       1 * requestHeadersSpec.retrieve() >> responseSpec
       1 * responseSpec.body(tools.jackson.databind.JsonNode.class) >> null
 
-      result == null
+      result.empty
   }
 
   def "given valid candle response, when fetchHistoricalOhlcv, then return bars"() {

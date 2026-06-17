@@ -16,7 +16,7 @@ class YahooFinanceClientSpec extends Specification {
 
   def setup() {
     restClientBuilder.build() >> restClient
-    client = new YahooFinanceClient(restClientBuilder)
+    client = new YahooFinanceClient(restClientBuilder, "https://query1.finance.yahoo.com")
   }
 
   def "given valid chart response, when fetchHistoricalOhlcv, then return OHLCV bars"() {

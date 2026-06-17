@@ -31,21 +31,23 @@ public class TimescaleDbWriter {
   private final ConcurrentLinkedQueue<IdempotentRow<TickData>> tickBuffer = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<IdempotentRow<RateSnapshot>> rateBuffer = new ConcurrentLinkedQueue<>();
 
-  @Value("${writer.batch-size:500}")
-  int batchSize;
+  private final int batchSize;
 
-  @Value("${writer.flush-interval-ms:500}")
-  private int flushIntervalMs;
+  private final int flushIntervalMs;
 
   public TimescaleDbWriter(
       TickDataRepository tickDataRepository,
       RateSnapshotRepository rateSnapshotRepository,
       IdempotencyGuard idempotencyGuard,
-      IngestionTracer tracer) {
+      IngestionTracer tracer,
+      @Value("${writer.batch-size:500}") int batchSize,
+      @Value("${writer.flush-interval-ms:500}") int flushIntervalMs) {
     this.tickDataRepository = tickDataRepository;
     this.rateSnapshotRepository = rateSnapshotRepository;
     this.idempotencyGuard = idempotencyGuard;
     this.tracer = tracer;
+    this.batchSize = batchSize;
+    this.flushIntervalMs = flushIntervalMs;
   }
 
   public void writeTick(TickData tick) {
