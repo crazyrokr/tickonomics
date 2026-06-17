@@ -815,9 +815,9 @@
     "semantic_hash": "4be2b8ed2418495a778324d68a8a8209"
   },
   "app/src/main/java/com/tickonomics/TickonomicsApplication.java": {
-    "mtime": 1781617425.5495493,
-    "ast_hash": "c66bcebcc8b9fe668af3f797eae61239",
-    "semantic_hash": "c66bcebcc8b9fe668af3f797eae61239"
+    "mtime": 1781694417.6024077,
+    "ast_hash": "b9300997949b9088a5cfac0c2e8bb0c6",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/tickonomics/config/OpenTelemetryConfig.java": {
     "mtime": 1781617425.5495493,
@@ -1140,9 +1140,9 @@
     "semantic_hash": "1962f7df9bee94b6beeba21aa03dd6b6"
   },
   "computation/src/main/java/com/tickonomics/computation/backtest/BacktestEngine.java": {
-    "mtime": 1781651718.720207,
-    "ast_hash": "c51ee46956db524a45271b1f23f743c2",
-    "semantic_hash": "c51ee46956db524a45271b1f23f743c2"
+    "mtime": 1781694411.4013317,
+    "ast_hash": "8a9e07002f30e4a16782e4ce6eadf1dd",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/backtest/BacktestResult.java": {
     "mtime": 1780522044.0,
@@ -1330,9 +1330,9 @@
     "semantic_hash": "13fed53932d20a0100acbe3870aabe29"
   },
   "computation/src/main/java/com/tickonomics/computation/equity/BaseEquityStrategy.java": {
-    "mtime": 1780522044.0,
-    "ast_hash": "bfdf77c13a5b07c27e4c3ae9f42f3db3",
-    "semantic_hash": "bfdf77c13a5b07c27e4c3ae9f42f3db3"
+    "mtime": 1781694401.0152044,
+    "ast_hash": "32f306d5175a3907399c472e2728dd21",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/equity/BollingerWidthStrategy.java": {
     "mtime": 1780522044.0,
@@ -1365,9 +1365,9 @@
     "semantic_hash": "83555d54308cdef09dd425026a0af295"
   },
   "computation/src/main/java/com/tickonomics/computation/equity/EquityStrategyRegistry.java": {
-    "mtime": 1780522056.0,
-    "ast_hash": "3e5975072a410773a174935a53315ac0",
-    "semantic_hash": "3e5975072a410773a174935a53315ac0"
+    "mtime": 1781694415.1403775,
+    "ast_hash": "69fcbae4f9e22e7775e126a99198a4bb",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/equity/EquityStrategyType.java": {
     "mtime": 1780522044.0,
@@ -1440,9 +1440,9 @@
     "semantic_hash": "3585816aaeb768e49fc2fdbeb0aef329"
   },
   "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java": {
-    "mtime": 1780522044.0,
-    "ast_hash": "cc6ca0e47119ae1004787c0d5816e987",
-    "semantic_hash": "cc6ca0e47119ae1004787c0d5816e987"
+    "mtime": 1781696417.9778082,
+    "ast_hash": "9e2b7d4e1b2dedae8ab7c536668b35f4",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/equity/UniverseContext.java": {
     "mtime": 1780522044.0,
@@ -1685,9 +1685,9 @@
     "semantic_hash": "d736f536bb58872f1666bd3a884e220f"
   },
   "computation/src/main/java/com/tickonomics/computation/options/BaseOptionStrategy.java": {
-    "mtime": 1780522044.0,
-    "ast_hash": "0c51059a303b5334a7f95bb209a994cc",
-    "semantic_hash": "0c51059a303b5334a7f95bb209a994cc"
+    "mtime": 1781694402.1422184,
+    "ast_hash": "560968d00f5951eddc43da32fd71f74a",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/options/BearCallSpreadStrategy.java": {
     "mtime": 1780522044.0,
@@ -1960,9 +1960,9 @@
     "semantic_hash": "e8119d36fb5f70cf4b2503b1c192015a"
   },
   "computation/src/main/java/com/tickonomics/computation/signal/VotingClassifier.java": {
-    "mtime": 1780522054.0,
-    "ast_hash": "4823e013189ca7aec9e9eb35b1ec10e6",
-    "semantic_hash": "4823e013189ca7aec9e9eb35b1ec10e6"
+    "mtime": 1781694318.6021948,
+    "ast_hash": "ae5c5cc3cda42a6b67da61a6d6829b61",
+    "semantic_hash": ""
   },
   "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java": {
     "mtime": 1780522044.0,
@@ -2200,9 +2200,9 @@
     "semantic_hash": "7c1529844dfa826b8d3e1fcbe4675407"
   },
   "computation/src/test/java/com/tickonomics/computation/demo/KillSwitchTest.java": {
-    "mtime": 1781651718.722207,
-    "ast_hash": "ffb39535450660fa37b2236625185e9b",
-    "semantic_hash": "ffb39535450660fa37b2236625185e9b"
+    "mtime": 1781695683.3478634,
+    "ast_hash": "b5325f3df253642a54335977c59cbdd7",
+    "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/demo/MarketMakerExecutionModelTest.java": {
     "mtime": 1781440903.4226794,
@@ -2230,8 +2230,8 @@
     "semantic_hash": "75ae5e1380301a7dcbe16e58961487ca"
   },
   "computation/src/test/java/com/tickonomics/computation/demo/PaperTradingEngineTest.java": {
-    "mtime": 1781651718.722207,
-    "ast_hash": "76e9924d47ad6b379bf7ae05c1e8c33c",
+    "mtime": 1781695697.5880368,
+    "ast_hash": "0abd0098e7f1df8f3445a71f3802b526",
     "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/demo/RandomizedExecutionWindowTest.java": {
@@ -2240,8 +2240,8 @@
     "semantic_hash": "de8905a42eb7a6a2cb637da7c683ecae"
   },
   "computation/src/test/java/com/tickonomics/computation/demo/SignalQualityAnalyzerTest.java": {
-    "mtime": 1781651718.722207,
-    "ast_hash": "d2d701547b39cee794dc7bb03b8fe2d0",
+    "mtime": 1781695701.396083,
+    "ast_hash": "a20f51300248854b69a5e600142dc2f7",
     "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/demo/SystemicResilienceMonitorTest.java": {
@@ -2250,19 +2250,19 @@
     "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/demo/VirtualPortfolioLeverageRotationTest.java": {
-    "mtime": 1781651718.7232072,
-    "ast_hash": "2c4badfcc6ca1f8899d54c8ac609575c",
+    "mtime": 1781695703.4831085,
+    "ast_hash": "568be42b77a4ab6e9ea707e637df6e6f",
     "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/demo/VirtualPortfolioTest.java": {
-    "mtime": 1781651718.7232072,
-    "ast_hash": "acc5a2d2c52cd66fd116fb90daa9bc48",
+    "mtime": 1781695750.4366798,
+    "ast_hash": "63e2d5eca443b0f61dc4e89b37d4679f",
     "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/equity/EquityStrategyRegistryTest.java": {
-    "mtime": 1780522046.0,
-    "ast_hash": "4a00b4d6c5ad791674fbabc3020a363b",
-    "semantic_hash": "4a00b4d6c5ad791674fbabc3020a363b"
+    "mtime": 1781694586.6334789,
+    "ast_hash": "d375746b379d06d27a8b8d454cc29f1c",
+    "semantic_hash": ""
   },
   "computation/src/test/java/com/tickonomics/computation/execution/ComparativeExecutionAnalysisTest.java": {
     "mtime": 1781617425.5515494,
@@ -3745,9 +3745,9 @@
     "semantic_hash": "7a90349e744904d3763377c475463075"
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/equity/EquityPriceClient.java": {
-    "mtime": 1781440903.4376125,
-    "ast_hash": "6e1e709a1bd91dc710f9a79b99d90a5b",
-    "semantic_hash": "6e1e709a1bd91dc710f9a79b99d90a5b"
+    "mtime": 1781694340.744466,
+    "ast_hash": "a5ec3a66f9dffd5ca0ff5344c775a736",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/equity/EquityPriceScheduler.java": {
     "mtime": 1781440903.437697,
@@ -3755,19 +3755,19 @@
     "semantic_hash": "c23fb598bce614e6c11cf50c9b089de2"
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/equity/FinnhubEquityClient.java": {
-    "mtime": 1781617425.5545495,
-    "ast_hash": "8985bc14c5bacec86572f1b71b12fbeb",
-    "semantic_hash": "8985bc14c5bacec86572f1b71b12fbeb"
+    "mtime": 1781694354.0836294,
+    "ast_hash": "fc4dac423d002a6081b1ec849cee26fc",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/equity/YahooFinanceClient.java": {
-    "mtime": 1781617425.5545495,
-    "ast_hash": "4395011e83396033a272e6528a79bbd1",
-    "semantic_hash": "4395011e83396033a272e6528a79bbd1"
+    "mtime": 1781694366.132777,
+    "ast_hash": "f55530037a854e1fec130425a133b5e0",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/external/DisasterAlertClient.java": {
-    "mtime": 1781617425.5545495,
-    "ast_hash": "1d8fc54cb19598457f8abb53a67ff268",
-    "semantic_hash": "1d8fc54cb19598457f8abb53a67ff268"
+    "mtime": 1781694294.395898,
+    "ast_hash": "db8b04e35f6a7016f1c27e6dbbd086d5",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/external/EconomicCalendarClient.java": {
     "mtime": 1781617425.5545495,
@@ -3805,9 +3805,9 @@
     "semantic_hash": "19a6cb5a4a855ba9a80196bbbad4f22c"
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java": {
-    "mtime": 1780522054.0,
-    "ast_hash": "f5062b297773a545585339ecfecc9887",
-    "semantic_hash": "f5062b297773a545585339ecfecc9887"
+    "mtime": 1781694311.4701073,
+    "ast_hash": "d4237d174086ebb3a820a58809ee6061",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/kernel/KernelAggregator.java": {
     "mtime": 1781617425.5555494,
@@ -3870,9 +3870,9 @@
     "semantic_hash": "97782d606080c9a56dc19ac36d65fea5"
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/time/EventBasedTimeConverter.java": {
-    "mtime": 1780522054.0,
-    "ast_hash": "db66cf08615adfe54c2381600ba969c0",
-    "semantic_hash": "db66cf08615adfe54c2381600ba969c0"
+    "mtime": 1781694511.2565553,
+    "ast_hash": "839a5b42f3cab5d55bfe059c87af784a",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/tracing/IngestionTracer.java": {
     "mtime": 1781440903.438124,
@@ -3890,14 +3890,14 @@
     "semantic_hash": "31b2dbda7fc1d60fa0d5690116426345"
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/writer/TimescaleDbWriter.java": {
-    "mtime": 1781440903.4385138,
-    "ast_hash": "022221c19f28510411bd0b5e44d935b5",
-    "semantic_hash": "022221c19f28510411bd0b5e44d935b5"
+    "mtime": 1781694414.1653657,
+    "ast_hash": "b6605ddcb0fb48c50f35309e9b1aa367",
+    "semantic_hash": ""
   },
   "ingestion/src/main/java/com/tickonomics/ingestion/ws/FinnhubWsClient.java": {
-    "mtime": 1781617425.5555494,
-    "ast_hash": "0bf0f65a862963e9ee8c04ed80358022",
-    "semantic_hash": "0bf0f65a862963e9ee8c04ed80358022"
+    "mtime": 1781694493.9103427,
+    "ast_hash": "6697cbb47989846009f1ecc70f3046e1",
+    "semantic_hash": ""
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/alphavantage/AlphaVantageClientSpec.groovy": {
     "mtime": 1781617425.5555494,
@@ -3935,14 +3935,14 @@
     "semantic_hash": "0bc5193d27d37fba5117cb47ebe0f51a"
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/equity/FinnhubEquityClientSpec.groovy": {
-    "mtime": 1781617425.5555494,
-    "ast_hash": "46fc5becfc98f73e963981400bc05e61",
-    "semantic_hash": "46fc5becfc98f73e963981400bc05e61"
+    "mtime": 1781694782.834883,
+    "ast_hash": "f0872b2453fab4a697f50c2605ee187e",
+    "semantic_hash": ""
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/equity/YahooFinanceClientSpec.groovy": {
-    "mtime": 1781617425.5555494,
-    "ast_hash": "038f043d7424fa34e6b3fd9cc86e84b5",
-    "semantic_hash": "038f043d7424fa34e6b3fd9cc86e84b5"
+    "mtime": 1781694750.77249,
+    "ast_hash": "8ee94b58656914e3f1f67b2541b65e37",
+    "semantic_hash": ""
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/external/EconomicCalendarClientSpec.groovy": {
     "mtime": 1780522044.0,
@@ -4020,19 +4020,19 @@
     "semantic_hash": "b39dc28dfda2e8b2f33cbf3f0f1a1266"
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/writer/IdempotencyRoutingSpec.groovy": {
-    "mtime": 1781600743.4405417,
-    "ast_hash": "cc6006e317c53ee50b9bd0fd54a27f8f",
-    "semantic_hash": "cc6006e317c53ee50b9bd0fd54a27f8f"
+    "mtime": 1781694717.386081,
+    "ast_hash": "0b4484cb833c96daf7d13cf9ecb0904b",
+    "semantic_hash": ""
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/writer/TimescaleDbWriterSpec.groovy": {
-    "mtime": 1781651718.8512087,
-    "ast_hash": "9b2f30e7fe0d60cbf2701d454e406140",
-    "semantic_hash": "9b2f30e7fe0d60cbf2701d454e406140"
+    "mtime": 1781694709.5389848,
+    "ast_hash": "a0fe26e1e6293d51e9207c07861faf19",
+    "semantic_hash": ""
   },
   "ingestion/src/test/groovy/com/tickonomics/ingestion/ws/FinnhubWsClientSpec.groovy": {
-    "mtime": 1781617425.5565495,
-    "ast_hash": "2bc8cb71fd158704b222eea79d24ead7",
-    "semantic_hash": "2bc8cb71fd158704b222eea79d24ead7"
+    "mtime": 1781694708.1389678,
+    "ast_hash": "2afd86eb2712f49c8bfa1d6e4344d048",
+    "semantic_hash": ""
   },
   "ingestion/src/test/java/com/tickonomics/ingestion/external/DisasterAlertClientTest.java": {
     "mtime": 1781617425.5565495,
@@ -4360,9 +4360,9 @@
     "semantic_hash": "4a66b77aee70dae428e2481b221aca9d"
   },
   "persistence/src/main/java/com/tickonomics/persistence/entity/TickData.java": {
-    "mtime": 1781651718.8522089,
-    "ast_hash": "9a4207d3a2a75318d497d51bbf81d48e",
-    "semantic_hash": "9a4207d3a2a75318d497d51bbf81d48e"
+    "mtime": 1781694519.736659,
+    "ast_hash": "c0a3b38e355d21686704f4cb6ffaef24",
+    "semantic_hash": ""
   },
   "persistence/src/main/java/com/tickonomics/persistence/entity/VirtualPortfolioPosition.java": {
     "mtime": 1781651718.8522089,
@@ -4445,9 +4445,9 @@
     "semantic_hash": "29a90f653b96b6f3a79352a36fac05a9"
   },
   "persistence/src/main/java/com/tickonomics/persistence/repository/TickDataRepository.java": {
-    "mtime": 1781651718.8522089,
-    "ast_hash": "dd2bfdcfa0d3f702dc656e460cf9186b",
-    "semantic_hash": "dd2bfdcfa0d3f702dc656e460cf9186b"
+    "mtime": 1781695420.8976696,
+    "ast_hash": "4c6f5788cf4fc17367be73f27b10d13e",
+    "semantic_hash": ""
   },
   "persistence/src/main/java/com/tickonomics/persistence/repository/VirtualPortfolioPositionRepository.java": {
     "mtime": 1781651718.8522089,
@@ -4455,9 +4455,9 @@
     "semantic_hash": "1970ab4437290eacfa75a7731519f929"
   },
   "persistence/src/main/java/com/tickonomics/persistence/repository/VirtualPortfolioTradeRepository.java": {
-    "mtime": 1781651718.8522089,
-    "ast_hash": "64953ff9f686e82fea8936b34de6a0ab",
-    "semantic_hash": "64953ff9f686e82fea8936b34de6a0ab"
+    "mtime": 1781695422.1196845,
+    "ast_hash": "5a4d95b0ebfc680fcf48620c9a4ab709",
+    "semantic_hash": ""
   },
   "persistence/src/main/java/com/tickonomics/persistence/repository/VolatilityForecastRepository.java": {
     "mtime": 1781336982.7551517,
@@ -4760,8 +4760,8 @@
     "semantic_hash": "37b4872e4412ed18cf45f09468b6f337"
   },
   "web/src/main/java/com/tickonomics/web/config/SecurityConfig.java": {
-    "mtime": 1781655810.222003,
-    "ast_hash": "a029050d8f8a741ef35d07b81cd144ed",
+    "mtime": 1781694416.8533986,
+    "ast_hash": "ae88d50d2d4469ba6d580548a195c69e",
     "semantic_hash": ""
   },
   "web/src/main/java/com/tickonomics/web/config/SecurityProperties.java": {
@@ -4785,8 +4785,8 @@
     "semantic_hash": "92da225a73e8c43588e998c47d240b54"
   },
   "web/src/main/java/com/tickonomics/web/controller/KpiController.java": {
-    "mtime": 1781651718.8522089,
-    "ast_hash": "0857e4beb936040fd3886955f6d21693",
+    "mtime": 1781695237.6564398,
+    "ast_hash": "dd2bde6ef900fcff62a344d38170eaa4",
     "semantic_hash": ""
   },
   "web/src/main/java/com/tickonomics/web/controller/QuantController.java": {
@@ -4850,9 +4850,9 @@
     "semantic_hash": "ad19cf67248b46d25332d2cbfad64bad"
   },
   "web/src/test/java/com/tickonomics/web/config/SecurityConfigTest.java": {
-    "mtime": 1781544718.5306752,
-    "ast_hash": "34019aa212b66d0378270293a9f8041f",
-    "semantic_hash": "34019aa212b66d0378270293a9f8041f"
+    "mtime": 1781694642.9231687,
+    "ast_hash": "1fa0f5fe26413716bb1756ed69dfba35",
+    "semantic_hash": ""
   },
   "web/src/test/java/com/tickonomics/web/controller/DemoControllerTest.java": {
     "mtime": 1781651718.8532088,
@@ -4935,7 +4935,7 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1781692541.5475905,
+    "mtime": 1781693619.4986286,
     "ast_hash": "8bc59199b12f5a5ab1903c94c156830b",
     "semantic_hash": ""
   },
@@ -6259,29 +6259,9 @@
     "ast_hash": "276f27b050f40959e3a118cc80dc32ce",
     "semantic_hash": ""
   },
-  "COMMERCIAL.md": {
-    "mtime": 1781654591.9146442,
-    "ast_hash": "57207000c9d7e8dbd824b64cea47bcf8",
-    "semantic_hash": ""
-  },
-  "CONTRIBUTING.md": {
-    "mtime": 1781654585.360562,
-    "ast_hash": "068b04c995bdd7f2690059ab7a5afaeb",
-    "semantic_hash": ""
-  },
   "docs/adr/ADR-034-licensing-strategy.md": {
     "mtime": 1781654563.2212842,
     "ast_hash": "c3c4f69885ffe66f4a7bd707fa409466",
-    "semantic_hash": ""
-  },
-  "docs/commercialization-implementation-plan.md": {
-    "mtime": 1781654570.3063731,
-    "ast_hash": "6f535b08e6c14272fe8298b5dac8b552",
-    "semantic_hash": ""
-  },
-  "docs/commercialization-integration-plan.md": {
-    "mtime": 1781654977.5114827,
-    "ast_hash": "ee0a2150fb4e8ec44d4618fbf9c60169",
     "semantic_hash": ""
   },
   "docs/JAVA_BEST_PRACTIVE_REVIEW.md": {
@@ -6290,17 +6270,17 @@
     "semantic_hash": ""
   },
   ".claude/settings.json": {
-    "mtime": 1781692541.5483549,
+    "mtime": 1781693619.4986286,
     "ast_hash": "e1073342e958ac9f00716938c8f165e3",
     "semantic_hash": ""
   },
   ".gemini/settings.json": {
-    "mtime": 1781692573.3972926,
+    "mtime": 1781693619.4986286,
     "ast_hash": "f080aabf772e803c9e24b9ad0acbf2b6",
     "semantic_hash": ""
   },
   "GEMINI.md": {
-    "mtime": 1781692573.3971179,
+    "mtime": 1781693619.4986286,
     "ast_hash": "82efb97a359f5c7290bf2513d14686be",
     "semantic_hash": ""
   }
