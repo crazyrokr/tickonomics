@@ -50,7 +50,7 @@ public class BacktestResultRepository {
         toParams(record),
         keyHolder,
         new String[]{"id"});
-    return keyHolder.getKey().longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public Optional<BacktestResultRecord> findById(long id) {

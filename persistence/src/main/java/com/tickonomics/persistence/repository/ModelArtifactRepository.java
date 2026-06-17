@@ -42,7 +42,7 @@ public class ModelArtifactRepository {
         toParams(artifact),
         keyHolder,
         new String[]{"id"});
-    return keyHolder.getKey().longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public Optional<ModelArtifact> findActiveByModelType(String modelType) {

@@ -36,7 +36,7 @@ public class VirtualPortfolioPositionRepository {
         toParams(position),
         keyHolder,
         new String[]{"id"});
-    return keyHolder.getKey().longValue();
+    return KeyHolderUtils.extractGeneratedLong(keyHolder);
   }
 
   public List<VirtualPortfolioPosition> findOpenPositions() {
