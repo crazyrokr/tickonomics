@@ -4,7 +4,6 @@ import com.tickonomics.computation.kpi.CorrelationEngine;
 import com.tickonomics.computation.kpi.KpiProcessor;
 import com.tickonomics.computation.kpi.KpiResult;
 import com.tickonomics.computation.kpi.RegimeDetector;
-import com.tickonomics.computation.kpi.RegimeResult;
 import com.tickonomics.persistence.repository.IliHistoryRepository;
 import java.time.Instant;
 import java.util.List;

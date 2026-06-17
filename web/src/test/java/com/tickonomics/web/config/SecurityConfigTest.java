@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -56,10 +55,9 @@ class SecurityConfigTest {
   class CorsConfigurationSource {
     @Test
     void givenAllowedOrigins_whenCorsConfigured_thenCorsSourceCreated() throws Exception {
-      var config = new SecurityConfig(new SecurityProperties(false, null, null, null, null, null));
-      Field originsField = SecurityConfig.class.getDeclaredField("allowedOrigins");
-      originsField.setAccessible(true);
-      originsField.set(config, List.of("http://localhost:3000", "http://localhost:3001"));
+      var config = new SecurityConfig(
+          new SecurityProperties(false, null, null, null, null, null),
+          List.of("http://localhost:3000", "http://localhost:3001"));
 
       var source = config.corsConfigurationSource();
       assertNotNull(source);
