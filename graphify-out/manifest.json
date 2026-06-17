@@ -4935,9 +4935,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1781544718.5255046,
-    "ast_hash": "e4bb5cfa49b11e52a950138c9c50839b",
-    "semantic_hash": "e4bb5cfa49b11e52a950138c9c50839b"
+    "mtime": 1781692541.5475905,
+    "ast_hash": "8bc59199b12f5a5ab1903c94c156830b",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1781544718.5255046,
@@ -6035,8 +6035,8 @@
     "semantic_hash": "3a9fca1881fca1a61310841791caa44b"
   },
   "docs/reviews/07-infrastructure-devops.md": {
-    "mtime": 1781688077.0571685,
-    "ast_hash": "5bc8e887504e0df9900c14e1e92884ed",
+    "mtime": 1781692864.7453551,
+    "ast_hash": "f453c9374ed5f20d5f9c4b150b18b218",
     "semantic_hash": ""
   },
   "docs/reviews/08-frontend-typescript.md": {
@@ -6287,6 +6287,21 @@
   "docs/JAVA_BEST_PRACTIVE_REVIEW.md": {
     "mtime": 1781681785.300392,
     "ast_hash": "d6ac2eef70c206d7f85469c6776f087c",
+    "semantic_hash": ""
+  },
+  ".claude/settings.json": {
+    "mtime": 1781692541.5483549,
+    "ast_hash": "e1073342e958ac9f00716938c8f165e3",
+    "semantic_hash": ""
+  },
+  ".gemini/settings.json": {
+    "mtime": 1781692573.3972926,
+    "ast_hash": "f080aabf772e803c9e24b9ad0acbf2b6",
+    "semantic_hash": ""
+  },
+  "GEMINI.md": {
+    "mtime": 1781692573.3971179,
+    "ast_hash": "82efb97a359f5c7290bf2513d14686be",
     "semantic_hash": ""
   }
 }

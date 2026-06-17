@@ -590,6 +590,226 @@
   },
   "nodes": [
     {
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude",
+      "community": 966,
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude_md",
+      "community": 966,
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "What this project is",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_what_this_project_is",
+      "community": 966,
+      "norm_label": "what this project is"
+    },
+    {
+      "label": "Build, test, lint",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "claude_build_test_lint",
+      "community": 966,
+      "norm_label": "build, test, lint"
+    },
+    {
+      "label": "Python analytics worker (`analytics/`)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "claude_python_analytics_worker_analytics",
+      "community": 966,
+      "norm_label": "python analytics worker (`analytics/`)"
+    },
+    {
+      "label": "Frontend (`frontend/` dashboard, `landing/` marketing page \u2014 both Next.js 16 / React 19)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "claude_frontend_frontend_dashboard_landing_marketing_page_both_next_js_16_react_19",
+      "community": 966,
+      "norm_label": "frontend (`frontend/` dashboard, `landing/` marketing page \u2014 both next.js 16 / react 19)"
+    },
+    {
+      "label": "Local GitHub-Actions verification (the current branch's focus)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "claude_local_github_actions_verification_the_current_branch_s_focus",
+      "community": 966,
+      "norm_label": "local github-actions verification (the current branch's focus)"
+    },
+    {
+      "label": "Running the stack locally",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "claude_running_the_stack_locally",
+      "community": 966,
+      "norm_label": "running the stack locally"
+    },
+    {
+      "label": "Local dev without rebuilding images",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L94",
+      "_origin": "ast",
+      "id": "claude_local_dev_without_rebuilding_images",
+      "community": 966,
+      "norm_label": "local dev without rebuilding images"
+    },
+    {
+      "label": "Architecture",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "claude_architecture",
+      "community": 966,
+      "norm_label": "architecture"
+    },
+    {
+      "label": "Gradle modules (`settings.gradle`) and dependency flow",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "claude_gradle_modules_settings_gradle_and_dependency_flow",
+      "community": 966,
+      "norm_label": "gradle modules (`settings.gradle`) and dependency flow"
+    },
+    {
+      "label": "API contract is hand-maintained (contract-first)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L124",
+      "_origin": "ast",
+      "id": "claude_api_contract_is_hand_maintained_contract_first",
+      "community": 966,
+      "norm_label": "api contract is hand-maintained (contract-first)"
+    },
+    {
+      "label": "The Java\u2194Python boundary (ADR-022 D4)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L134",
+      "_origin": "ast",
+      "id": "claude_the_java_python_boundary_adr_022_d4",
+      "community": 966,
+      "norm_label": "the java\u2194python boundary (adr-022 d4)"
+    },
+    {
+      "label": "Data flow",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L142",
+      "_origin": "ast",
+      "id": "claude_data_flow",
+      "community": 966,
+      "norm_label": "data flow"
+    },
+    {
+      "label": "Migrations & schema",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L155",
+      "_origin": "ast",
+      "id": "claude_migrations_schema",
+      "community": 966,
+      "norm_label": "migrations & schema"
+    },
+    {
+      "label": "Adding an equity or options strategy",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L161",
+      "_origin": "ast",
+      "id": "claude_adding_an_equity_or_options_strategy",
+      "community": 966,
+      "norm_label": "adding an equity or options strategy"
+    },
+    {
+      "label": "Adding a data source",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L180",
+      "_origin": "ast",
+      "id": "claude_adding_a_data_source",
+      "community": 966,
+      "norm_label": "adding a data source"
+    },
+    {
+      "label": "Conventions that matter",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L198",
+      "_origin": "ast",
+      "id": "claude_conventions_that_matter",
+      "community": 966,
+      "norm_label": "conventions that matter"
+    },
+    {
+      "label": "Operations & infra",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L218",
+      "_origin": "ast",
+      "id": "claude_operations_infra",
+      "community": 966,
+      "norm_label": "operations & infra"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L227",
+      "_origin": "ast",
+      "id": "claude_graphify",
+      "community": 966,
+      "norm_label": "graphify"
+    },
+    {
+      "label": "GEMINI.md",
+      "file_type": "document",
+      "source_file": "GEMINI.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "gemini",
+      "community": 627,
+      "norm_label": "gemini.md"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "GEMINI.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "gemini_graphify",
+      "community": 627,
+      "norm_label": "graphify"
+    },
+    {
       "label": "lighthouserc.js",
       "file_type": "code",
       "source_file": ".github/lighthouse/lighthouserc.js",
@@ -1145,7 +1365,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "econometrics.py",
       "id": "econometrics_econometrics"
     },
@@ -1155,7 +1375,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "adfrequest",
       "id": "econometrics_econometrics_adfrequest"
     },
@@ -1165,7 +1385,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "grangerrequest",
       "id": "econometrics_econometrics_grangerrequest"
     },
@@ -1175,7 +1395,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "olsrequest",
       "id": "econometrics_econometrics_olsrequest"
     },
@@ -1185,7 +1405,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "run_adf()",
       "id": "econometrics_econometrics_run_adf"
     },
@@ -1195,7 +1415,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "run_granger()",
       "id": "econometrics_econometrics_run_granger"
     },
@@ -1205,7 +1425,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "run_ols()",
       "id": "econometrics_econometrics_run_ols"
     },
@@ -1215,7 +1435,7 @@
       "source_file": "analytics/app/routers/econometrics/econometrics.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 20,
+      "community": 9,
       "norm_label": "econometrics router: adf, granger causality, ols regression.",
       "id": "econometrics_econometrics_rationale_1"
     },
@@ -1945,7 +2165,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "risk.py",
       "id": "risk_risk"
     },
@@ -1955,7 +2175,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "varrequest",
       "id": "risk_risk_varrequest"
     },
@@ -1965,7 +2185,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "cvarrequest",
       "id": "risk_risk_cvarrequest"
     },
@@ -1975,7 +2195,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "garchrequest",
       "id": "risk_risk_garchrequest"
     },
@@ -1985,7 +2205,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L30",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "run_var()",
       "id": "risk_risk_run_var"
     },
@@ -1995,7 +2215,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L35",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "run_cvar()",
       "id": "risk_risk_run_cvar"
     },
@@ -2005,7 +2225,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L40",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "run_garch()",
       "id": "risk_risk_run_garch"
     },
@@ -2015,7 +2235,7 @@
       "source_file": "analytics/app/routers/risk/risk.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1120,
+      "community": 74,
       "norm_label": "risk metrics router: var, cvar, garch.",
       "id": "risk_risk_rationale_1"
     },
@@ -3605,7 +3825,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "risk_service.py",
       "id": "risk_risk_service"
     },
@@ -3625,7 +3845,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "conditional_var()",
       "id": "risk_risk_service_conditional_var"
     },
@@ -3635,7 +3855,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L54",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "garch_forecast()",
       "id": "risk_risk_service_garch_forecast"
     },
@@ -3645,7 +3865,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L95",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "_estimate_garch()",
       "id": "risk_risk_service_estimate_garch"
     },
@@ -3655,7 +3875,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L95",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "ndarray",
       "id": "analytics_app_services_risk_risk_service_py_ndarray"
     },
@@ -3665,7 +3885,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L144",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "_compute_conditional_variance()",
       "id": "risk_risk_service_compute_conditional_variance"
     },
@@ -3675,7 +3895,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "risk metrics service: var, cvar, garch volatility forecasting.",
       "id": "risk_risk_service_rationale_1"
     },
@@ -3695,7 +3915,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "conditional value at risk (expected shortfall).",
       "id": "risk_risk_service_rationale_37"
     },
@@ -3705,7 +3925,7 @@
       "source_file": "analytics/app/services/risk/risk_service.py",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "garch(p,q) volatility forecast via maximum likelihood estimation.",
       "id": "risk_risk_service_rationale_60"
     },
@@ -4435,7 +4655,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "conftest.py",
       "id": "external_validation_conftest"
     },
@@ -4445,7 +4665,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "norm_cdf_erfc()",
       "id": "external_validation_conftest_norm_cdf_erfc"
     },
@@ -4455,7 +4675,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "norm_pdf_erfc()",
       "id": "external_validation_conftest_norm_pdf_erfc"
     },
@@ -4465,7 +4685,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "bsm_price_erfc()",
       "id": "external_validation_conftest_bsm_price_erfc"
     },
@@ -4475,7 +4695,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L40",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "bsm_delta_erfc()",
       "id": "external_validation_conftest_bsm_delta_erfc"
     },
@@ -4485,7 +4705,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L52",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "bsm_gamma_erfc()",
       "id": "external_validation_conftest_bsm_gamma_erfc"
     },
@@ -4495,7 +4715,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "make_garch_data()",
       "id": "external_validation_conftest_make_garch_data"
     },
@@ -4505,7 +4725,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "ndarray",
       "id": "analytics_tests_external_validation_conftest_py_ndarray"
     },
@@ -4515,7 +4735,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "shared tolerances and helpers for external validation tests.",
       "id": "external_validation_conftest_rationale_1"
     },
@@ -4525,7 +4745,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "standard normal cdf using math.erfc \u2014 independent of scipy.stats.norm.",
       "id": "external_validation_conftest_rationale_17"
     },
@@ -4535,7 +4755,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L22",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "standard normal pdf using math.exp/math.sqrt \u2014 independent of scipy.stats.norm.",
       "id": "external_validation_conftest_rationale_22"
     },
@@ -4545,7 +4765,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "bsm price using erfc-based n(x) \u2014 independent of scipy.stats.",
       "id": "external_validation_conftest_rationale_28"
     },
@@ -4555,7 +4775,7 @@
       "source_file": "analytics/tests/external_validation/conftest.py",
       "source_location": "L61",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "simulate garch(1,1) data with known parameters.",
       "id": "external_validation_conftest_rationale_61"
     },
@@ -4565,7 +4785,7 @@
       "source_file": "analytics/tests/external_validation/test_group_a_closed_form.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "test_group_a_closed_form.py",
       "id": "external_validation_test_group_a_closed_form"
     },
@@ -4575,7 +4795,7 @@
       "source_file": "analytics/tests/external_validation/test_group_a_closed_form.py",
       "source_location": "L73",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "test_step01_bsm_greeks_vs_erfc_oracle()",
       "id": "external_validation_test_group_a_closed_form_test_step01_bsm_greeks_vs_erfc_oracle"
     },
@@ -4595,7 +4815,7 @@
       "source_file": "analytics/tests/external_validation/test_group_a_closed_form.py",
       "source_location": "L106",
       "_origin": "ast",
-      "community": 88,
+      "community": 59,
       "norm_label": "test_step02_aggregate_gex_vs_manual()",
       "id": "external_validation_test_group_a_closed_form_test_step02_aggregate_gex_vs_manual"
     },
@@ -4845,7 +5065,7 @@
       "source_file": "analytics/tests/external_validation/test_group_a_closed_form.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 9,
+      "community": 59,
       "norm_label": "group a: closed-form / deterministic external validation tests (steps 1-18).  ea",
       "id": "external_validation_test_group_a_closed_form_rationale_1"
     },
@@ -4855,7 +5075,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "test_group_b_statistical.py",
       "id": "external_validation_test_group_b_statistical"
     },
@@ -4865,7 +5085,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "test_step19_garch_forecast_vs_scipy_lbfgsb()",
       "id": "external_validation_test_group_b_statistical_test_step19_garch_forecast_vs_scipy_lbfgsb"
     },
@@ -4875,7 +5095,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L65",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "test_step19_garch_alpha_beta_are_estimated()",
       "id": "external_validation_test_group_b_statistical_test_step19_garch_alpha_beta_are_estimated"
     },
@@ -4905,7 +5125,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L121",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "test_step20_cvar_vs_manual()",
       "id": "external_validation_test_group_b_statistical_test_step20_cvar_vs_manual"
     },
@@ -4935,7 +5155,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L231",
       "_origin": "ast",
-      "community": 263,
+      "community": 164,
       "norm_label": "test_step22_impulse_response_ci_proper()",
       "id": "external_validation_test_group_b_statistical_test_step22_impulse_response_ci_proper"
     },
@@ -4975,7 +5195,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L351",
       "_origin": "ast",
-      "community": 263,
+      "community": 146,
       "norm_label": "test_step24_transfer_entropy_bidirectional()",
       "id": "external_validation_test_group_b_statistical_test_step24_transfer_entropy_bidirectional"
     },
@@ -4985,7 +5205,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L374",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "test_step25_volatility_forecast_reasonable()",
       "id": "external_validation_test_group_b_statistical_test_step25_volatility_forecast_reasonable"
     },
@@ -4995,7 +5215,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "group b: statistical / econometric external validation tests (steps 19-25).  eac",
       "id": "external_validation_test_group_b_statistical_rationale_1"
     },
@@ -5005,7 +5225,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L66",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "verify b1 fix: alpha and beta are now estimated via mle, not stuck at initial va",
       "id": "external_validation_test_group_b_statistical_rationale_66"
     },
@@ -5015,7 +5235,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L232",
       "_origin": "ast",
-      "community": 263,
+      "community": 164,
       "norm_label": "verify b5 fix: confidence intervals are bootstrap-based, not response*-1.96.",
       "id": "external_validation_test_group_b_statistical_rationale_232"
     },
@@ -5045,7 +5265,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L352",
       "_origin": "ast",
-      "community": 263,
+      "community": 146,
       "norm_label": "bidirectional coupling => te > 0 in both directions.",
       "id": "external_validation_test_group_b_statistical_rationale_352"
     },
@@ -5055,7 +5275,7 @@
       "source_file": "analytics/tests/external_validation/test_group_b_statistical.py",
       "source_location": "L375",
       "_origin": "ast",
-      "community": 263,
+      "community": 59,
       "norm_label": "volatility forecast delegates to garch_forecast (b1 fixed).",
       "id": "external_validation_test_group_b_statistical_rationale_375"
     },
@@ -10025,7 +10245,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L64",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "test_cvar_insufficient_data()",
       "id": "tests_test_risk_service_test_cvar_insufficient_data"
     },
@@ -10055,7 +10275,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L93",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "test_garch_persistence_near_one()",
       "id": "tests_test_risk_service_test_garch_persistence_near_one"
     },
@@ -10075,7 +10295,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L118",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "test_cvar_geq_var()",
       "id": "tests_test_risk_service_test_cvar_geq_var"
     },
@@ -10115,7 +10335,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L170",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "test_garch_forecast_converges()",
       "id": "tests_test_risk_service_test_garch_forecast_converges"
     },
@@ -10185,7 +10405,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L65",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "given fewer than 20 returns, when cvar, then error returned.",
       "id": "tests_test_risk_service_rationale_65"
     },
@@ -10215,7 +10435,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L94",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "given highly volatile returns, when garch, then persistence is near 1.",
       "id": "tests_test_risk_service_rationale_94"
     },
@@ -10235,7 +10455,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L119",
       "_origin": "ast",
-      "community": 1170,
+      "community": 74,
       "norm_label": "given any return distribution, when computing cvar, then cvar >= var (monotonici",
       "id": "tests_test_risk_service_rationale_119"
     },
@@ -10275,7 +10495,7 @@
       "source_file": "analytics/tests/test_risk_service.py",
       "source_location": "L171",
       "_origin": "ast",
-      "community": 985,
+      "community": 74,
       "norm_label": "given long-horizon garch forecast, then forecast should converge to unconditiona",
       "id": "tests_test_risk_service_rationale_171"
     },
@@ -11925,7 +12145,7 @@
       "source_file": "app/src/main/java/com/tickonomics/TickonomicsApplication.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1218,
+      "community": 69,
       "norm_label": "tickonomicsapplication.java",
       "id": "tickonomics_tickonomicsapplication"
     },
@@ -11935,7 +12155,7 @@
       "source_file": "app/src/main/java/com/tickonomics/TickonomicsApplication.java",
       "source_location": "L9",
       "_origin": "ast",
-      "community": 1218,
+      "community": 69,
       "norm_label": "tickonomicsapplication",
       "id": "tickonomics_tickonomicsapplication_tickonomicsapplication"
     },
@@ -11945,7 +12165,7 @@
       "source_file": "app/src/main/java/com/tickonomics/TickonomicsApplication.java",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 1218,
+      "community": 69,
       "norm_label": ".main()",
       "id": "tickonomics_tickonomicsapplication_tickonomicsapplication_main"
     },
@@ -11955,7 +12175,7 @@
       "source_file": "app/src/main/java/com/tickonomics/TickonomicsApplication.java",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 1218,
+      "community": 69,
       "norm_label": "string",
       "id": "app_src_main_java_com_tickonomics_tickonomicsapplication_java_string"
     },
@@ -13505,7 +13725,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "cdmadapterspec.groovy",
       "id": "adapter_cdmadapterspec"
     },
@@ -13515,7 +13735,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "cdmadapterspec",
       "id": "adapter_cdmadapterspec_cdmadapterspec"
     },
@@ -13525,7 +13745,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"fredcdmadapter adapts fred effr observation to cdmratesnapshot\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_fredcdmadapter_adapts_fred_effr_observation_to_cdmratesnapshot"
     },
@@ -13535,7 +13755,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"fredcdmadapter adapts fred rrp observation to repo instrument type\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_fredcdmadapter_adapts_fred_rrp_observation_to_repo_instrument_type"
     },
@@ -13545,7 +13765,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L41",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"fredcdmadapter adapts fred iorb observation to iorb instrument type\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_fredcdmadapter_adapts_fred_iorb_observation_to_iorb_instrument_type"
     },
@@ -13555,7 +13775,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"nyfedcdmadapter adapts nyfed sofr response to cdmratesnapshot\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_nyfedcdmadapter_adapts_nyfed_sofr_response_to_cdmratesnapshot"
     },
@@ -13565,7 +13785,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L68",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"nyfedcdmadapter adapts nyfed tgcr response to tgcr instrument type\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_nyfedcdmadapter_adapts_nyfed_tgcr_response_to_tgcr_instrument_type"
     },
@@ -13575,7 +13795,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/adapter/CdmAdapterSpec.groovy",
       "source_location": "L80",
       "_origin": "ast",
-      "community": 472,
+      "community": 276,
       "norm_label": "\"nyfedcdmadapter adapts nyfed bgcr response to bgcr instrument type\"",
       "id": "adapter_cdmadapterspec_cdmadapterspec_nyfedcdmadapter_adapts_nyfed_bgcr_response_to_bgcr_instrument_type"
     },
@@ -13905,7 +14125,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 56,
+      "community": 472,
       "norm_label": "cdminstrumentmapperspec.groovy",
       "id": "mapper_cdminstrumentmapperspec"
     },
@@ -13915,7 +14135,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L8",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "cdminstrumentmapperspec",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec"
     },
@@ -13925,7 +14145,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L11",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "\"maps fred series #series to expected instrument\"",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec_maps_fred_series_series_to_expected_instrument"
     },
@@ -13935,7 +14155,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "\"throws illegalargumentexception for unknown fred series\"",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec_throws_illegalargumentexception_for_unknown_fred_series"
     },
@@ -13945,7 +14165,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L46",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "\"maps nyfed rate #rate to expected instrument\"",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec_maps_nyfed_rate_rate_to_expected_instrument"
     },
@@ -13955,7 +14175,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L62",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "\"throws illegalargumentexception for unknown nyfed rate\"",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec_throws_illegalargumentexception_for_unknown_nyfed_rate"
     },
@@ -13965,7 +14185,7 @@
       "source_file": "cdm/src/test/groovy/com/tickonomics/cdm/mapper/CdmInstrumentMapperSpec.groovy",
       "source_location": "L70",
       "_origin": "ast",
-      "community": 1117,
+      "community": 472,
       "norm_label": "\"maps all ratetypes to correct instruments\"",
       "id": "mapper_cdminstrumentmapperspec_cdminstrumentmapperspec_maps_all_ratetypes_to_correct_instruments"
     },
@@ -18215,7 +18435,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/demo/SignalQualityAnalyzer.java",
       "source_location": "L264",
       "_origin": "ast",
-      "community": 86,
+      "community": 66,
       "norm_label": "string",
       "id": "computation_src_main_java_com_tickonomics_computation_demo_signalqualityanalyzer_java_string"
     },
@@ -18235,7 +18455,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/demo/SignalQualityAnalyzer.java",
       "source_location": "L314",
       "_origin": "ast",
-      "community": 86,
+      "community": 66,
       "norm_label": ".findlatestreport()",
       "id": "demo_signalqualityanalyzer_signalqualityanalyzer_findlatestreport"
     },
@@ -18245,7 +18465,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/demo/SignalQualityAnalyzer.java",
       "source_location": "L314",
       "_origin": "ast",
-      "community": 86,
+      "community": 66,
       "norm_label": "optional",
       "id": "computation_src_main_java_com_tickonomics_computation_demo_signalqualityanalyzer_java_optional"
     },
@@ -18255,7 +18475,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/demo/SignalQualityAnalyzer.java",
       "source_location": "L314",
       "_origin": "ast",
-      "community": 86,
+      "community": 66,
       "norm_label": "map",
       "id": "computation_src_main_java_com_tickonomics_computation_demo_signalqualityanalyzer_java_map"
     },
@@ -18265,7 +18485,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/demo/SignalQualityAnalyzer.java",
       "source_location": "L314",
       "_origin": "ast",
-      "community": 86,
+      "community": 66,
       "norm_label": "object",
       "id": "computation_src_main_java_com_tickonomics_computation_demo_signalqualityanalyzer_java_object"
     },
@@ -18815,7 +19035,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 288,
+      "community": 286,
       "norm_label": "baseequitystrategy",
       "id": "baseequitystrategy"
     },
@@ -18915,7 +19135,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/AroonOscillatorStrategy.java",
       "source_location": "L8",
       "_origin": "ast",
-      "community": 288,
+      "community": 286,
       "norm_label": "aroonoscillatorstrategy",
       "id": "equity_aroonoscillatorstrategy_aroonoscillatorstrategy"
     },
@@ -18925,7 +19145,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/AroonOscillatorStrategy.java",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 288,
+      "community": 286,
       "norm_label": ".aroonoscillatorstrategy()",
       "id": "equity_aroonoscillatorstrategy_aroonoscillatorstrategy_aroonoscillatorstrategy"
     },
@@ -19275,7 +19495,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/BaseEquityStrategy.java",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 285,
+      "community": 129,
       "norm_label": ".buildsignal()",
       "id": "equity_baseequitystrategy_baseequitystrategy_buildsignal"
     },
@@ -21385,7 +21605,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": "universeaggregator.java",
       "id": "equity_universeaggregator"
     },
@@ -21395,7 +21615,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L7",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": "universeaggregator",
       "id": "equity_universeaggregator_universeaggregator"
     },
@@ -21405,7 +21625,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": ".processtickcycle()",
       "id": "equity_universeaggregator_universeaggregator_processtickcycle"
     },
@@ -21415,7 +21635,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": "map",
       "id": "computation_src_main_java_com_tickonomics_computation_equity_universeaggregator_java_map"
     },
@@ -21425,7 +21645,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": "string",
       "id": "computation_src_main_java_com_tickonomics_computation_equity_universeaggregator_java_string"
     },
@@ -21435,7 +21655,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/equity/UniverseAggregator.java",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 1080,
+      "community": 130,
       "norm_label": "double",
       "id": "computation_src_main_java_com_tickonomics_computation_equity_universeaggregator_java_double"
     },
@@ -22595,7 +22815,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/ili/WeightedWeightStore.java",
       "source_location": "L27",
       "_origin": "ast",
-      "community": 468,
+      "community": 33,
       "norm_label": ".getbaseweights()",
       "id": "ili_weightedweightstore_weightedweightstore_getbaseweights"
     },
@@ -25005,7 +25225,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/BayesianWeightOptimizer.java",
       "source_location": "L93",
       "_origin": "ast",
-      "community": 172,
+      "community": 104,
       "norm_label": "tostring()",
       "id": "optimization_bayesianweightoptimizer_tostring"
     },
@@ -25015,7 +25235,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/BayesianWeightOptimizer.java",
       "source_location": "L93",
       "_origin": "ast",
-      "community": 172,
+      "community": 104,
       "norm_label": "string",
       "id": "computation_src_main_java_com_tickonomics_computation_optimization_bayesianweightoptimizer_java_string"
     },
@@ -25025,7 +25245,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/BayesianWeightOptimizer.java",
       "source_location": "L93",
       "_origin": "ast",
-      "community": 172,
+      "community": 104,
       "norm_label": "override",
       "id": "computation_src_main_java_com_tickonomics_computation_optimization_bayesianweightoptimizer_java_override"
     },
@@ -25175,7 +25395,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": "regimeawareweightingservice.java",
       "id": "optimization_regimeawareweightingservice"
     },
@@ -25185,7 +25405,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": "regimeawareweightingservice",
       "id": "optimization_regimeawareweightingservice_regimeawareweightingservice"
     },
@@ -25195,7 +25415,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L27",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": ".regimeawareweightingservice()",
       "id": "optimization_regimeawareweightingservice_regimeawareweightingservice_regimeawareweightingservice"
     },
@@ -25205,7 +25425,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L27",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": "weightedweightstore",
       "id": "computation_src_main_java_com_tickonomics_computation_optimization_regimeawareweightingservice_java_weightedweightstore"
     },
@@ -25235,7 +25455,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L59",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": ".applyhighvoladjustment()",
       "id": "optimization_regimeawareweightingservice_regimeawareweightingservice_applyhighvoladjustment"
     },
@@ -25245,7 +25465,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L69",
       "_origin": "ast",
-      "community": 1096,
+      "community": 33,
       "norm_label": ".applyunstableadjustment()",
       "id": "optimization_regimeawareweightingservice_regimeawareweightingservice_applyunstableadjustment"
     },
@@ -25255,7 +25475,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/RegimeAwareWeightingService.java",
       "source_location": "L76",
       "_origin": "ast",
-      "community": 468,
+      "community": 33,
       "norm_label": ".normalize()",
       "id": "optimization_regimeawareweightingservice_regimeawareweightingservice_normalize"
     },
@@ -25415,7 +25635,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/optimization/ScheduledCalibrationTask.java",
       "source_location": "L253",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".getlastcalibrationtime()",
       "id": "optimization_scheduledcalibrationtask_scheduledcalibrationtask_getlastcalibrationtime"
     },
@@ -28095,7 +28315,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/regime/SessionRangeService.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 154,
+      "community": 341,
       "norm_label": "sessionrangeservice.java",
       "id": "regime_sessionrangeservice"
     },
@@ -28105,7 +28325,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/regime/SessionRangeService.java",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 154,
+      "community": 341,
       "norm_label": "sessionrangeservice",
       "id": "regime_sessionrangeservice_sessionrangeservice"
     },
@@ -28115,7 +28335,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/regime/SessionRangeService.java",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 154,
+      "community": 341,
       "norm_label": ".detect()",
       "id": "regime_sessionrangeservice_sessionrangeservice_detect"
     },
@@ -28125,7 +28345,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/regime/SessionRangeService.java",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 154,
+      "community": 341,
       "norm_label": "instant",
       "id": "computation_src_main_java_com_tickonomics_computation_regime_sessionrangeservice_java_instant"
     },
@@ -28135,7 +28355,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/regime/SessionRangeService.java",
       "source_location": "L34",
       "_origin": "ast",
-      "community": 154,
+      "community": 341,
       "norm_label": "sessionrange",
       "id": "sessionrange"
     },
@@ -29335,7 +29555,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 286,
+      "community": 176,
       "norm_label": "alphasignal.java",
       "id": "strategy_alphasignal"
     },
@@ -29345,7 +29565,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 286,
+      "community": 176,
       "norm_label": "neutral()",
       "id": "strategy_alphasignal_neutral"
     },
@@ -29355,7 +29575,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 286,
+      "community": 176,
       "norm_label": "uuid",
       "id": "computation_src_main_java_com_tickonomics_computation_strategy_alphasignal_java_uuid"
     },
@@ -29365,7 +29585,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 286,
+      "community": 176,
       "norm_label": "string",
       "id": "computation_src_main_java_com_tickonomics_computation_strategy_alphasignal_java_string"
     },
@@ -29375,7 +29595,7 @@
       "source_file": "computation/src/main/java/com/tickonomics/computation/strategy/AlphaSignal.java",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 286,
+      "community": 176,
       "norm_label": "alphasignal",
       "id": "computation_src_main_java_com_tickonomics_computation_strategy_alphasignal_java_alphasignal"
     },
@@ -30725,7 +30945,7 @@
       "source_file": "computation/src/test/groovy/com/tickonomics/computation/ili/AdaptiveIliCalculatorSpec.groovy",
       "source_location": "L9",
       "_origin": "ast",
-      "community": 238,
+      "community": 459,
       "norm_label": "adaptiveilicalculatorspec",
       "id": "ili_adaptiveilicalculatorspec_adaptiveilicalculatorspec"
     },
@@ -30735,7 +30955,7 @@
       "source_file": "computation/src/test/groovy/com/tickonomics/computation/ili/AdaptiveIliCalculatorSpec.groovy",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 238,
+      "community": 459,
       "norm_label": "\"given optimizer returns valid deltas, when calculate, then ili computed with updated weights\"",
       "id": "ili_adaptiveilicalculatorspec_adaptiveilicalculatorspec_given_optimizer_returns_valid_deltas_when_calculate_then_ili_computed_with_updated_weights"
     },
@@ -30745,7 +30965,7 @@
       "source_file": "computation/src/test/groovy/com/tickonomics/computation/ili/AdaptiveIliCalculatorSpec.groovy",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 238,
+      "community": 459,
       "norm_label": "\"given optimizer unavailable, when calculate, then base weights used\"",
       "id": "ili_adaptiveilicalculatorspec_adaptiveilicalculatorspec_given_optimizer_unavailable_when_calculate_then_base_weights_used"
     },
@@ -30755,7 +30975,7 @@
       "source_file": "computation/src/test/groovy/com/tickonomics/computation/ili/AdaptiveIliCalculatorSpec.groovy",
       "source_location": "L47",
       "_origin": "ast",
-      "community": 238,
+      "community": 459,
       "norm_label": "\"given optimizer throws exception, when calculate, then fallback succeeds\"",
       "id": "ili_adaptiveilicalculatorspec_adaptiveilicalculatorspec_given_optimizer_throws_exception_when_calculate_then_fallback_succeeds"
     },
@@ -32345,7 +32565,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L66",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": "runequitybacktest",
       "id": "backtest_backtestenginetest_runequitybacktest"
     },
@@ -32355,7 +32575,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L69",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": ".givenvaliddata_whenrun_thenresulthasmetrics()",
       "id": "backtest_backtestenginetest_runequitybacktest_givenvaliddata_whenrun_thenresulthasmetrics"
     },
@@ -32365,7 +32585,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L69",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": "test",
       "id": "computation_src_test_java_com_tickonomics_computation_backtest_backtestenginetest_java_test"
     },
@@ -32375,7 +32595,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L96",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": ".givennoticks_whenrun_thenzeroedresult()",
       "id": "backtest_backtestenginetest_runequitybacktest_givennoticks_whenrun_thenzeroedresult"
     },
@@ -32385,7 +32605,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L108",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": ".givenunknownstrategy_whenrun_thenthrows()",
       "id": "backtest_backtestenginetest_runequitybacktest_givenunknownstrategy_whenrun_thenthrows"
     },
@@ -32395,7 +32615,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L116",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": ".givenrsistrategyandrisingprices_whenrun_thennonneutralsignalspersisted()",
       "id": "backtest_backtestenginetest_runequitybacktest_givenrsistrategyandrisingprices_whenrun_thennonneutralsignalspersisted"
     },
@@ -32415,7 +32635,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/BacktestEngineTest.java",
       "source_location": "L142",
       "_origin": "ast",
-      "community": 213,
+      "community": 110,
       "norm_label": ".givenstrategies_whenrunall_thenmaphasentries()",
       "id": "backtest_backtestenginetest_runallequitystrategies_givenstrategies_whenrunall_thenmaphasentries"
     },
@@ -33105,7 +33325,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/HistoricalDataReplayTest.java",
       "source_location": "L40",
       "_origin": "ast",
-      "community": 152,
+      "community": 213,
       "norm_label": "replaysinglesymbol",
       "id": "backtest_historicaldatareplaytest_replaysinglesymbol"
     },
@@ -33115,7 +33335,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/HistoricalDataReplayTest.java",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 152,
+      "community": 213,
       "norm_label": ".givensymbolandrange_whenreplay_thenreturnticks()",
       "id": "backtest_historicaldatareplaytest_replaysinglesymbol_givensymbolandrange_whenreplay_thenreturnticks"
     },
@@ -33135,7 +33355,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/backtest/HistoricalDataReplayTest.java",
       "source_location": "L56",
       "_origin": "ast",
-      "community": 152,
+      "community": 213,
       "norm_label": ".givennoticks_whenreplay_thenreturnempty()",
       "id": "backtest_historicaldatareplaytest_replaysinglesymbol_givennoticks_whenreplay_thenreturnempty"
     },
@@ -41875,7 +42095,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/RegimeAwareWeightingServiceTest.java",
       "source_location": "L18",
       "_origin": "ast",
-      "community": 468,
+      "community": 33,
       "norm_label": "regimeawareweightingservicetest",
       "id": "optimization_regimeawareweightingservicetest_regimeawareweightingservicetest"
     },
@@ -41885,7 +42105,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/RegimeAwareWeightingServiceTest.java",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 468,
+      "community": 33,
       "norm_label": ".setup()",
       "id": "optimization_regimeawareweightingservicetest_regimeawareweightingservicetest_setup"
     },
@@ -41895,7 +42115,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/RegimeAwareWeightingServiceTest.java",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 468,
+      "community": 33,
       "norm_label": "beforeeach",
       "id": "computation_src_test_java_com_tickonomics_computation_optimization_regimeawareweightingservicetest_java_beforeeach"
     },
@@ -42205,7 +42425,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": "runcalibrationwithhistory",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory"
     },
@@ -42215,7 +42435,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L39",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givennullhistory_whenruncalibration_thenreturnsinsufficientdata()",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory_givennullhistory_whenruncalibration_thenreturnsinsufficientdata"
     },
@@ -42235,7 +42455,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L55",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givenshorthistory_whenruncalibration_thenreturnsinsufficientdata()",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory_givenshorthistory_whenruncalibration_thenreturnsinsufficientdata"
     },
@@ -42245,7 +42465,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L69",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givenvalidhistory_whennoimprovement_thenreturnsnoimprovement()",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory_givenvalidhistory_whennoimprovement_thenreturnsnoimprovement"
     },
@@ -42255,7 +42475,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L86",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givenimprovinghistory_whenruncalibration_thenapplyisskippedifbelowthreshold()",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory_givenimprovinghistory_whenruncalibration_thenapplyisskippedifbelowthreshold"
     },
@@ -42275,7 +42495,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L117",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givensufficienthistory_whencalibrationcompletes_thenlastcalibrationtimeisset()",
       "id": "optimization_scheduledcalibrationtasktest_runcalibrationwithhistory_givensufficienthistory_whencalibrationcompletes_thenlastcalibrationtimeisset"
     },
@@ -42355,7 +42575,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L223",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": "gridsearchoptimize",
       "id": "optimization_scheduledcalibrationtasktest_gridsearchoptimize"
     },
@@ -42365,7 +42585,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L226",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givenflattrainingdata_whenoptimize_thenreturnsnormalizedweights()",
       "id": "optimization_scheduledcalibrationtasktest_gridsearchoptimize_givenflattrainingdata_whenoptimize_thenreturnsnormalizedweights"
     },
@@ -42385,7 +42605,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L262",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".givenequalweightstart_whenoptimize_thenreturnssamelength()",
       "id": "optimization_scheduledcalibrationtasktest_gridsearchoptimize_givenequalweightstart_whenoptimize_thenreturnssamelength"
     },
@@ -42475,7 +42695,7 @@
       "source_file": "computation/src/test/java/com/tickonomics/computation/optimization/ScheduledCalibrationTaskTest.java",
       "source_location": "L369",
       "_origin": "ast",
-      "community": 102,
+      "community": 248,
       "norm_label": ".buildflatpricehistory()",
       "id": "optimization_scheduledcalibrationtasktest_scheduledcalibrationtasktest_buildflatpricehistory"
     },
@@ -59401,7 +59621,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/buffer/FileOverflowBuffer.java",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 101,
+      "community": 172,
       "norm_label": ".append()",
       "id": "buffer_fileoverflowbuffer_fileoverflowbuffer_append"
     },
@@ -59451,7 +59671,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/buffer/FileOverflowBuffer.java",
       "source_location": "L75",
       "_origin": "ast",
-      "community": 101,
+      "community": 172,
       "norm_label": ".ensuredirectoryexists()",
       "id": "buffer_fileoverflowbuffer_fileoverflowbuffer_ensuredirectoryexists"
     },
@@ -62541,7 +62761,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "algorithmicsanityguard.java",
       "id": "guard_algorithmicsanityguard"
     },
@@ -62551,7 +62771,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "algorithmicsanityguard",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard"
     },
@@ -62561,7 +62781,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L32",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".algorithmicsanityguard()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_algorithmicsanityguard"
     },
@@ -62571,7 +62791,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "clock",
       "id": "ingestion_src_main_java_com_tickonomics_ingestion_guard_algorithmicsanityguard_java_clock"
     },
@@ -62581,7 +62801,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L40",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".now()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_now"
     },
@@ -62591,7 +62811,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L40",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "instant",
       "id": "ingestion_src_main_java_com_tickonomics_ingestion_guard_algorithmicsanityguard_java_instant"
     },
@@ -62611,7 +62831,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L44",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": "string",
       "id": "ingestion_src_main_java_com_tickonomics_ingestion_guard_algorithmicsanityguard_java_string"
     },
@@ -62621,7 +62841,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L62",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".checkmessagerate()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_checkmessagerate"
     },
@@ -62631,7 +62851,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L90",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".ismanualoversight()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_ismanualoversight"
     },
@@ -62641,7 +62861,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L96",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".getrecentbreaches()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_getrecentbreaches"
     },
@@ -62651,7 +62871,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L96",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "collection",
       "id": "ingestion_src_main_java_com_tickonomics_ingestion_guard_algorithmicsanityguard_java_collection"
     },
@@ -62661,7 +62881,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L96",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": "sanitybreach",
       "id": "sanitybreach"
     },
@@ -62671,7 +62891,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L102",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".recordbreach()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_recordbreach"
     },
@@ -62681,7 +62901,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuard.java",
       "source_location": "L110",
       "_origin": "ast",
-      "community": 341,
+      "community": 142,
       "norm_label": ".purgeoldbreaches()",
       "id": "guard_algorithmicsanityguard_algorithmicsanityguard_purgeoldbreaches"
     },
@@ -64521,7 +64741,7 @@
       "source_file": "ingestion/src/main/java/com/tickonomics/ingestion/writer/TimescaleDbWriter.java",
       "source_location": "L51",
       "_origin": "ast",
-      "community": 100,
+      "community": 79,
       "norm_label": ".writetick()",
       "id": "writer_timescaledbwriter_timescaledbwriter_writetick"
     },
@@ -66031,7 +66251,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 154,
+      "community": 26,
       "norm_label": "frenchfactorclientspec.groovy",
       "id": "factor_frenchfactorclientspec"
     },
@@ -66041,7 +66261,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "frenchfactorclientspec",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec"
     },
@@ -66051,7 +66271,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L21",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": ".setup()",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_setup"
     },
@@ -66061,7 +66281,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given valid 3-factor csv, when parsezipcsv, then return rows\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_valid_3_factor_csv_when_parsezipcsv_then_return_rows"
     },
@@ -66071,7 +66291,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given valid 5-factor csv, when parsezipcsv, then return rows\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_valid_5_factor_csv_when_parsezipcsv_then_return_rows"
     },
@@ -66081,7 +66301,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L65",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given valid momentum csv, when parsezipcsv, then return rows\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_valid_momentum_csv_when_parsezipcsv_then_return_rows"
     },
@@ -66091,7 +66311,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L83",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given valid st reversal csv, when parsezipcsv, then strev carries data\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_valid_st_reversal_csv_when_parsezipcsv_then_strev_carries_data"
     },
@@ -66101,7 +66321,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L102",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given valid lt reversal csv, when parsezipcsv, then ltrev carries data\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_valid_lt_reversal_csv_when_parsezipcsv_then_ltrev_carries_data"
     },
@@ -66111,7 +66331,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L121",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given st reversal row, when adapted to cdm, then strev is preserved (not nan)\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_st_reversal_row_when_adapted_to_cdm_then_strev_is_preserved_not_nan"
     },
@@ -66121,7 +66341,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L137",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given missing value sentinel -99.99, when parserow, then return nan\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_missing_value_sentinel_99_99_when_parserow_then_return_nan"
     },
@@ -66131,7 +66351,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L154",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given empty csv, when parsezipcsv, then return empty\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_empty_csv_when_parsezipcsv_then_return_empty"
     },
@@ -66141,7 +66361,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L165",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given invalid date format, when parserow, then skip row\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_invalid_date_format_when_parserow_then_skip_row"
     },
@@ -66151,7 +66371,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L173",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given row with too few columns, when parserow, then return null\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_row_with_too_few_columns_when_parserow_then_return_null"
     },
@@ -66161,7 +66381,7 @@
       "source_file": "ingestion/src/test/groovy/com/tickonomics/ingestion/factor/FrenchFactorClientSpec.groovy",
       "source_location": "L181",
       "_origin": "ast",
-      "community": 225,
+      "community": 26,
       "norm_label": "\"given cdm adapter, when tocdm, then divide by 100 for percentage conversion\"",
       "id": "factor_frenchfactorclientspec_frenchfactorclientspec_given_cdm_adapter_when_tocdm_then_divide_by_100_for_percentage_conversion"
     },
@@ -67861,7 +68081,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 142,
+      "community": 154,
       "norm_label": "algorithmicsanityguardtest.java",
       "id": "guard_algorithmicsanityguardtest"
     },
@@ -67871,7 +68091,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L14",
       "_origin": "ast",
-      "community": 142,
+      "community": 154,
       "norm_label": "algorithmicsanityguardtest",
       "id": "guard_algorithmicsanityguardtest_algorithmicsanityguardtest"
     },
@@ -67881,7 +68101,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 142,
+      "community": 154,
       "norm_label": ".setup()",
       "id": "guard_algorithmicsanityguardtest_algorithmicsanityguardtest_setup"
     },
@@ -67891,7 +68111,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 142,
+      "community": 154,
       "norm_label": "beforeeach",
       "id": "ingestion_src_test_java_com_tickonomics_ingestion_guard_algorithmicsanityguardtest_java_beforeeach"
     },
@@ -67921,7 +68141,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".advancemillis()",
       "id": "guard_algorithmicsanityguardtest_mutableclock_advancemillis"
     },
@@ -68091,7 +68311,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L145",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": "messageratedetection",
       "id": "guard_algorithmicsanityguardtest_messageratedetection"
     },
@@ -68101,7 +68321,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L148",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".givensustainedhighmessagerate_whencheckmessagerate_thendetectsspike()",
       "id": "guard_algorithmicsanityguardtest_messageratedetection_givensustainedhighmessagerate_whencheckmessagerate_thendetectsspike"
     },
@@ -68111,7 +68331,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L166",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".givenratebelowthreshold_whencheckmessagerate_thennospike()",
       "id": "guard_algorithmicsanityguardtest_messageratedetection_givenratebelowthreshold_whencheckmessagerate_thennospike"
     },
@@ -68121,7 +68341,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L179",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".givenexactlytenthousandpersecond_whencheckmessagerate_thennospike()",
       "id": "guard_algorithmicsanityguardtest_messageratedetection_givenexactlytenthousandpersecond_whencheckmessagerate_thennospike"
     },
@@ -68131,7 +68351,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L192",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".givenzerowindowms_whencheckmessagerate_thennospike()",
       "id": "guard_algorithmicsanityguardtest_messageratedetection_givenzerowindowms_whencheckmessagerate_thennospike"
     },
@@ -68141,7 +68361,7 @@
       "source_file": "ingestion/src/test/java/com/tickonomics/ingestion/guard/AlgorithmicSanityGuardTest.java",
       "source_location": "L205",
       "_origin": "ast",
-      "community": 142,
+      "community": 271,
       "norm_label": ".givenratedropsbelowthreshold_whencheckmessagerate_thentrackerresets()",
       "id": "guard_algorithmicsanityguardtest_messageratedetection_givenratedropsbelowthreshold_whencheckmessagerate_thentrackerresets"
     },
@@ -74631,7 +74851,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "alphasignalrepositorytest.java",
       "id": "repository_alphasignalrepositorytest"
     },
@@ -74641,7 +74861,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "alphasignalrepositorytest",
       "id": "repository_alphasignalrepositorytest_alphasignalrepositorytest"
     },
@@ -74651,7 +74871,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".setup()",
       "id": "repository_alphasignalrepositorytest_alphasignalrepositorytest_setup"
     },
@@ -74661,7 +74881,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "beforeeach",
       "id": "persistence_src_test_java_com_tickonomics_persistence_repository_alphasignalrepositorytest_java_beforeeach"
     },
@@ -74671,7 +74891,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L42",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "save",
       "id": "repository_alphasignalrepositorytest_save"
     },
@@ -74681,7 +74901,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".givensignal_whensave_thenjdbcupdatecalled()",
       "id": "repository_alphasignalrepositorytest_save_givensignal_whensave_thenjdbcupdatecalled"
     },
@@ -74691,7 +74911,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "test",
       "id": "persistence_src_test_java_com_tickonomics_persistence_repository_alphasignalrepositorytest_java_test"
     },
@@ -74701,7 +74921,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L57",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "saveall",
       "id": "repository_alphasignalrepositorytest_saveall"
     },
@@ -74711,7 +74931,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".givenmultiplesignals_whensaveall_thenbatchupdatecalled()",
       "id": "repository_alphasignalrepositorytest_saveall_givenmultiplesignals_whensaveall_thenbatchupdatecalled"
     },
@@ -74721,7 +74941,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "suppresswarnings",
       "id": "persistence_src_test_java_com_tickonomics_persistence_repository_alphasignalrepositorytest_java_suppresswarnings"
     },
@@ -74731,7 +74951,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L73",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "findbystrategyidandtimebetween",
       "id": "repository_alphasignalrepositorytest_findbystrategyidandtimebetween"
     },
@@ -74741,7 +74961,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L76",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".givenvalidrange_whenfindbystrategyid_thenquerycalled()",
       "id": "repository_alphasignalrepositorytest_findbystrategyidandtimebetween_givenvalidrange_whenfindbystrategyid_thenquerycalled"
     },
@@ -74751,7 +74971,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L90",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "findbysymbolandtimebetween",
       "id": "repository_alphasignalrepositorytest_findbysymbolandtimebetween"
     },
@@ -74761,7 +74981,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L93",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".givenvalidrange_whenfindbysymbol_thenquerycalled()",
       "id": "repository_alphasignalrepositorytest_findbysymbolandtimebetween_givenvalidrange_whenfindbysymbol_thenquerycalled"
     },
@@ -74771,7 +74991,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L107",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": "findlatestbystrategyid",
       "id": "repository_alphasignalrepositorytest_findlatestbystrategyid"
     },
@@ -74781,7 +75001,7 @@
       "source_file": "persistence/src/test/java/com/tickonomics/persistence/repository/AlphaSignalRepositoryTest.java",
       "source_location": "L110",
       "_origin": "ast",
-      "community": 248,
+      "community": 57,
       "norm_label": ".givenstrategyid_whenfindlatest_thenquerycalled()",
       "id": "repository_alphasignalrepositorytest_findlatestbystrategyid_givenstrategyid_whenfindlatest_thenquerycalled"
     },
@@ -78782,196 +79002,6 @@
       "community": 1217,
       "norm_label": "post-merge",
       "id": "github_pull_request_template_post_merge"
-    },
-    {
-      "label": "CLAUDE.md",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "claude.md",
-      "id": "claude"
-    },
-    {
-      "label": "CLAUDE.md",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "claude.md",
-      "id": "claude_claude_md"
-    },
-    {
-      "label": "What this project is",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "what this project is",
-      "id": "claude_what_this_project_is"
-    },
-    {
-      "label": "Build, test, lint",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L20",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "build, test, lint",
-      "id": "claude_build_test_lint"
-    },
-    {
-      "label": "Python analytics worker (`analytics/`)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L43",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "python analytics worker (`analytics/`)",
-      "id": "claude_python_analytics_worker_analytics"
-    },
-    {
-      "label": "Frontend (`frontend/` dashboard, `landing/` marketing page \u2014 both Next.js 16 / React 19)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L54",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "frontend (`frontend/` dashboard, `landing/` marketing page \u2014 both next.js 16 / react 19)",
-      "id": "claude_frontend_frontend_dashboard_landing_marketing_page_both_next_js_16_react_19"
-    },
-    {
-      "label": "Local GitHub-Actions verification (the current branch's focus)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L74",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "local github-actions verification (the current branch's focus)",
-      "id": "claude_local_github_actions_verification_the_current_branch_s_focus"
-    },
-    {
-      "label": "Running the stack locally",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L84",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "running the stack locally",
-      "id": "claude_running_the_stack_locally"
-    },
-    {
-      "label": "Local dev without rebuilding images",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L94",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "local dev without rebuilding images",
-      "id": "claude_local_dev_without_rebuilding_images"
-    },
-    {
-      "label": "Architecture",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L107",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "architecture",
-      "id": "claude_architecture"
-    },
-    {
-      "label": "Gradle modules (`settings.gradle`) and dependency flow",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L109",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "gradle modules (`settings.gradle`) and dependency flow",
-      "id": "claude_gradle_modules_settings_gradle_and_dependency_flow"
-    },
-    {
-      "label": "API contract is hand-maintained (contract-first)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L124",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "api contract is hand-maintained (contract-first)",
-      "id": "claude_api_contract_is_hand_maintained_contract_first"
-    },
-    {
-      "label": "The Java\u2194Python boundary (ADR-022 D4)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L134",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "the java\u2194python boundary (adr-022 d4)",
-      "id": "claude_the_java_python_boundary_adr_022_d4"
-    },
-    {
-      "label": "Data flow",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L142",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "data flow",
-      "id": "claude_data_flow"
-    },
-    {
-      "label": "Migrations & schema",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L155",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "migrations & schema",
-      "id": "claude_migrations_schema"
-    },
-    {
-      "label": "Adding an equity or options strategy",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L161",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "adding an equity or options strategy",
-      "id": "claude_adding_an_equity_or_options_strategy"
-    },
-    {
-      "label": "Adding a data source",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L180",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "adding a data source",
-      "id": "claude_adding_a_data_source"
-    },
-    {
-      "label": "Conventions that matter",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L198",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "conventions that matter",
-      "id": "claude_conventions_that_matter"
-    },
-    {
-      "label": "Operations & infra",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L218",
-      "_origin": "ast",
-      "community": 966,
-      "norm_label": "operations & infra",
-      "id": "claude_operations_infra"
     },
     {
       "label": "COMMERCIAL.md",
@@ -91909,7 +91939,7 @@
       "source_file": "docs/plan_v1/01-scaffolding-api-contracts.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 174,
+      "community": 151,
       "norm_label": "01-scaffolding-api-contracts.md",
       "id": "plan_v1_01_scaffolding_api_contracts"
     },
@@ -92279,7 +92309,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1029,
+      "community": 174,
       "norm_label": "03-analytics-worker.md",
       "id": "plan_v1_03_analytics_worker"
     },
@@ -92339,7 +92369,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L106",
       "_origin": "ast",
-      "community": 1265,
+      "community": 986,
       "norm_label": "econometrics (openbb sdk)",
       "id": "plan_v1_03_analytics_worker_econometrics_openbb_sdk"
     },
@@ -92349,7 +92379,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L108",
       "_origin": "ast",
-      "community": 1265,
+      "community": 986,
       "norm_label": "`post /api/v1/econometrics/unit-root`",
       "id": "plan_v1_03_analytics_worker_post_api_v1_econometrics_unit_root"
     },
@@ -92359,7 +92389,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L137",
       "_origin": "ast",
-      "community": 1265,
+      "community": 986,
       "norm_label": "`post /api/v1/econometrics/causality`",
       "id": "plan_v1_03_analytics_worker_post_api_v1_econometrics_causality"
     },
@@ -92369,7 +92399,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L179",
       "_origin": "ast",
-      "community": 1265,
+      "community": 986,
       "norm_label": "`post /api/v1/econometrics/ols`",
       "id": "plan_v1_03_analytics_worker_post_api_v1_econometrics_ols"
     },
@@ -92499,7 +92529,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L381",
       "_origin": "ast",
-      "community": 1348,
+      "community": 1029,
       "norm_label": "openbb sdk reference",
       "id": "plan_v1_03_analytics_worker_openbb_sdk_reference"
     },
@@ -92509,7 +92539,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L383",
       "_origin": "ast",
-      "community": 1348,
+      "community": 1029,
       "norm_label": "version history",
       "id": "plan_v1_03_analytics_worker_version_history"
     },
@@ -92519,7 +92549,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L392",
       "_origin": "ast",
-      "community": 1348,
+      "community": 1029,
       "norm_label": "openbb sdk functions used",
       "id": "plan_v1_03_analytics_worker_openbb_sdk_functions_used"
     },
@@ -92529,7 +92559,7 @@
       "source_file": "docs/plan_v1/03-analytics-worker.md",
       "source_location": "L402",
       "_origin": "ast",
-      "community": 1348,
+      "community": 1029,
       "norm_label": "openbb sdk causality details",
       "id": "plan_v1_03_analytics_worker_openbb_sdk_causality_details"
     },
@@ -94089,7 +94119,7 @@
       "source_file": "docs/plan_v2/01-scaffolding-api-contracts.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 174,
+      "community": 151,
       "norm_label": "01-scaffolding-api-contracts.md",
       "id": "plan_v2_01_scaffolding_api_contracts"
     },
@@ -94499,7 +94529,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 1029,
+      "community": 174,
       "norm_label": "03-analytics-worker.md",
       "id": "plan_v2_03_analytics_worker"
     },
@@ -94509,7 +94539,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "track 3: python analytics worker",
       "id": "plan_v2_03_analytics_worker_track_3_python_analytics_worker"
     },
@@ -94519,7 +94549,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "objective",
       "id": "plan_v2_03_analytics_worker_objective"
     },
@@ -94529,7 +94559,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L19",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "architecture",
       "id": "plan_v2_03_analytics_worker_architecture"
     },
@@ -94539,7 +94569,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L61",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "directory structure",
       "id": "plan_v2_03_analytics_worker_directory_structure"
     },
@@ -94709,7 +94739,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L365",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "dependencies",
       "id": "plan_v2_03_analytics_worker_dependencies"
     },
@@ -94719,7 +94749,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L381",
       "_origin": "ast",
-      "community": 1349,
+      "community": 933,
       "norm_label": "openbb sdk reference",
       "id": "plan_v2_03_analytics_worker_openbb_sdk_reference"
     },
@@ -94729,7 +94759,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L383",
       "_origin": "ast",
-      "community": 1349,
+      "community": 933,
       "norm_label": "version history",
       "id": "plan_v2_03_analytics_worker_version_history"
     },
@@ -94739,7 +94769,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L392",
       "_origin": "ast",
-      "community": 1349,
+      "community": 933,
       "norm_label": "openbb sdk functions used",
       "id": "plan_v2_03_analytics_worker_openbb_sdk_functions_used"
     },
@@ -94749,7 +94779,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L402",
       "_origin": "ast",
-      "community": 1349,
+      "community": 933,
       "norm_label": "openbb sdk causality details",
       "id": "plan_v2_03_analytics_worker_openbb_sdk_causality_details"
     },
@@ -94759,7 +94789,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L412",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "financetoolkit reference",
       "id": "plan_v2_03_analytics_worker_financetoolkit_reference"
     },
@@ -94769,7 +94799,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L414",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "modules used",
       "id": "plan_v2_03_analytics_worker_modules_used"
     },
@@ -94779,7 +94809,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L442",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "graceful degradation",
       "id": "plan_v2_03_analytics_worker_graceful_degradation"
     },
@@ -94789,7 +94819,7 @@
       "source_file": "docs/plan_v2/03-analytics-worker.md",
       "source_location": "L455",
       "_origin": "ast",
-      "community": 459,
+      "community": 933,
       "norm_label": "validation",
       "id": "plan_v2_03_analytics_worker_validation"
     },
@@ -133704,766 +133734,6 @@
       "id": "landing_readme_deploy_on_vercel"
     },
     {
-      "label": "Gradle Multi-Project Build (Java 25)",
-      "file_type": "concept",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 592,
-      "norm_label": "gradle multi-project build (java 25)",
-      "id": "tickonomics_claude_gradle_multiproject"
-    },
-    {
-      "label": "CDM Module \u2014 base domain model + source adapters",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "cdm module \u2014 base domain model + source adapters",
-      "id": "tickonomics_claude_cdm"
-    },
-    {
-      "label": "API Contracts Module \u2014 OpenAPI/AsyncAPI YAML + Java client interfaces",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 895,
-      "norm_label": "api contracts module \u2014 openapi/asyncapi yaml + java client interfaces",
-      "id": "tickonomics_claude_api_contracts"
-    },
-    {
-      "label": "Persistence Module \u2014 NamedParameterJdbcTemplate repos + Flyway migrations",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "persistence module \u2014 namedparameterjdbctemplate repos + flyway migrations",
-      "id": "tickonomics_claude_persistence"
-    },
-    {
-      "label": "Ingestion Module \u2014 free data-source clients",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "ingestion module \u2014 free data-source clients",
-      "id": "tickonomics_claude_ingestion"
-    },
-    {
-      "label": "Computation Module \u2014 quant engine (50+ strategies, TalibAdapter, BacktestEngine, ILI)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "computation module \u2014 quant engine (50+ strategies, talibadapter, backtestengine, ili)",
-      "id": "tickonomics_claude_computation"
-    },
-    {
-      "label": "Web Module \u2014 REST controllers + WebSocket realtime + OAuth2/Keycloak security",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "web module \u2014 rest controllers + websocket realtime + oauth2/keycloak security",
-      "id": "tickonomics_claude_web"
-    },
-    {
-      "label": "App Module \u2014 Spring Boot bootJar (TickonomicsApplication)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "app module \u2014 spring boot bootjar (tickonomicsapplication)",
-      "id": "tickonomics_claude_app"
-    },
-    {
-      "label": "Integration Tests \u2014 Testcontainers/TimescaleDB end-to-end",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "integration tests \u2014 testcontainers/timescaledb end-to-end",
-      "id": "tickonomics_claude_integration_tests"
-    },
-    {
-      "label": "Analytics Worker \u2014 standalone Python FastAPI service",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "analytics worker \u2014 standalone python fastapi service",
-      "id": "tickonomics_claude_analytics_worker"
-    },
-    {
-      "label": "TalibAdapter \u2014 JNA bridge to native TA-Lib C library",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "talibadapter \u2014 jna bridge to native ta-lib c library",
-      "id": "tickonomics_claude_talib_adapter"
-    },
-    {
-      "label": "BacktestEngine \u2014 single system of record for backtesting (Java)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "backtestengine \u2014 single system of record for backtesting (java)",
-      "id": "tickonomics_claude_backtest_engine"
-    },
-    {
-      "label": "AnalyticsWorkerClient \u2014 Java client (REST sendAnalysisRequest + Arrow IPC sendArrowRequest)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "analyticsworkerclient \u2014 java client (rest sendanalysisrequest + arrow ipc sendarrowrequest)",
-      "id": "tickonomics_claude_analytics_worker_client"
-    },
-    {
-      "label": "Flyway Migrations (V1\u2014V35)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "flyway migrations (v1\u2014v35)",
-      "id": "tickonomics_claude_flyway_migrations"
-    },
-    {
-      "label": "TimescaleDB \u2014 PostgreSQL 16 hypertables + continuous aggregates + compression",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "timescaledb \u2014 postgresql 16 hypertables + continuous aggregates + compression",
-      "id": "tickonomics_claude_timescaledb"
-    },
-    {
-      "label": "openapi.yaml \u2014 hand-maintained source of truth for REST surface",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "openapi.yaml \u2014 hand-maintained source of truth for rest surface",
-      "id": "tickonomics_claude_openapi_yaml"
-    },
-    {
-      "label": "asyncapi.yaml \u2014 parallel contract for WebSocket surface",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "asyncapi.yaml \u2014 parallel contract for websocket surface",
-      "id": "tickonomics_claude_asyncapi_yaml"
-    },
-    {
-      "label": "EquityStrategyType \u2014 enum carrying stable IDs and formulaRefs",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "equitystrategytype \u2014 enum carrying stable ids and formularefs",
-      "id": "tickonomics_claude_equity_strategy_type"
-    },
-    {
-      "label": "BaseEquityStrategy \u2014 abstract base for equity signal computation",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "baseequitystrategy \u2014 abstract base for equity signal computation",
-      "id": "tickonomics_claude_base_equity_strategy"
-    },
-    {
-      "label": "EquityStrategyRegistry \u2014 registers strategy instances",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "equitystrategyregistry \u2014 registers strategy instances",
-      "id": "tickonomics_claude_equity_strategy_registry"
-    },
-    {
-      "label": "CdmAdapter<T,R> \u2014 @FunctionalInterface for raw-to-CDM normalization",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "cdmadapter<t,r> \u2014 @functionalinterface for raw-to-cdm normalization",
-      "id": "tickonomics_claude_cdm_adapter"
-    },
-    {
-      "label": "IR Score \u2014 intersubjective-reliability score",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "ir score \u2014 intersubjective-reliability score",
-      "id": "tickonomics_claude_ir_score"
-    },
-    {
-      "label": "StrategyContext \u2014 carries irScore + confidence",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "strategycontext \u2014 carries irscore + confidence",
-      "id": "tickonomics_claude_strategy_context"
-    },
-    {
-      "label": "IntersubjectiveAuditService \u2014 produces IR Scores",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "intersubjectiveauditservice \u2014 produces ir scores",
-      "id": "tickonomics_claude_intersubjective_audit_service"
-    },
-    {
-      "label": "DataQualityChecker \u2014 quality check in ingestion pipeline",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "dataqualitychecker \u2014 quality check in ingestion pipeline",
-      "id": "tickonomics_claude_data_quality_checker"
-    },
-    {
-      "label": "ProxyDivergenceGuard \u2014 detects proxy divergence in ingested data",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "proxydivergenceguard \u2014 detects proxy divergence in ingested data",
-      "id": "tickonomics_claude_proxy_divergence_guard"
-    },
-    {
-      "label": "TimescaleDbWriter \u2014 batched/buffered writer to TimescaleDB",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "timescaledbwriter \u2014 batched/buffered writer to timescaledb",
-      "id": "tickonomics_claude_timescale_db_writer"
-    },
-    {
-      "label": "PriceWebSocketHandler \u2014 handles Finnhub WS trades",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "pricewebsockethandler \u2014 handles finnhub ws trades",
-      "id": "tickonomics_claude_price_websocket_handler"
-    },
-    {
-      "label": "SignalWebSocketHandler \u2014 broadcasts generated signals",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "signalwebsockethandler \u2014 broadcasts generated signals",
-      "id": "tickonomics_claude_signal_websocket_handler"
-    },
-    {
-      "label": "Resilience4j Bulkheads \u2014 separates critical vs high-volume ingestion pools",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "resilience4j bulkheads \u2014 separates critical vs high-volume ingestion pools",
-      "id": "tickonomics_claude_resilience4j_bulkheads"
-    },
-    {
-      "label": "Scheduler-Driven Ingestion Pattern (@Scheduled + @EnableScheduling)",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Each source client is poll-based (not push). Poll cadence and enable/disable live in application.yml, making ingestion fully configuration-driven without code changes.",
-      "community": 320,
-      "norm_label": "scheduler-driven ingestion pattern (@scheduled + @enablescheduling)",
-      "id": "tickonomics_claude_scheduled_ingestion"
-    },
-    {
-      "label": "Keycloak OAuth2 Security",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "keycloak oauth2 security",
-      "id": "tickonomics_claude_keycloak_auth"
-    },
-    {
-      "label": "Hand-Rolled PKCE Auth Flow (lib/auth.ts)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "hand-rolled pkce auth flow (lib/auth.ts)",
-      "id": "tickonomics_claude_pkce_auth_flow"
-    },
-    {
-      "label": "Gradle Configuration Cache (org.gradle.configuration-cache=true)",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Custom Gradle tasks must not touch project/rootProject at execution time; capture values at configuration time. This rule avoids cache misses and stale task outputs.",
-      "community": 592,
-      "norm_label": "gradle configuration cache (org.gradle.configuration-cache=true)",
-      "id": "tickonomics_claude_configuration_cache"
-    },
-    {
-      "label": "application.yml \u2014 centralized config (monitor.<source>.*, resilience4j.*)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "application.yml \u2014 centralized config (monitor.<source>.*, resilience4j.*)",
-      "id": "tickonomics_claude_application_yml"
-    },
-    {
-      "label": "Terraform Infrastructure \u2014 multi-cloud AWS/GCP/Azure",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 370,
-      "norm_label": "terraform infrastructure \u2014 multi-cloud aws/gcp/azure",
-      "id": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "label": "Atlantis \u2014 Terraform PR automation",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 370,
-      "norm_label": "atlantis \u2014 terraform pr automation",
-      "id": "tickonomics_claude_atlantis"
-    },
-    {
-      "label": "Jaeger \u2014 OTLP distributed tracing",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 629,
-      "norm_label": "jaeger \u2014 otlp distributed tracing",
-      "id": "tickonomics_claude_jaeger_tracing"
-    },
-    {
-      "label": "Prometheus Metrics (/actuator/prometheus)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 629,
-      "norm_label": "prometheus metrics (/actuator/prometheus)",
-      "id": "tickonomics_claude_prometheus_metrics"
-    },
-    {
-      "label": "Micrometer + OpenTelemetry Observability",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 629,
-      "norm_label": "micrometer + opentelemetry observability",
-      "id": "tickonomics_claude_micrometer_otel"
-    },
-    {
-      "label": "Makefile Workflow Verification (make verify-workflows)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 627,
-      "norm_label": "makefile workflow verification (make verify-workflows)",
-      "id": "tickonomics_claude_makefile_verification"
-    },
-    {
-      "label": "act \u2014 local GitHub Actions runner",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 627,
-      "norm_label": "act \u2014 local github actions runner",
-      "id": "tickonomics_claude_act_runner"
-    },
-    {
-      "label": "actionlint \u2014 workflow linter",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 627,
-      "norm_label": "actionlint \u2014 workflow linter",
-      "id": "tickonomics_claude_actionlint"
-    },
-    {
-      "label": "Finnhub WebSocket \u2014 realtime equity trades",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "finnhub websocket \u2014 realtime equity trades",
-      "id": "tickonomics_claude_finnhub_ws"
-    },
-    {
-      "label": "FRED REST API \u2014 US Treasury / Fed rates",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 896,
-      "norm_label": "fred rest api \u2014 us treasury / fed rates",
-      "id": "tickonomics_claude_fred_api"
-    },
-    {
-      "label": "Yahoo REST API \u2014 equity price history",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 898,
-      "norm_label": "yahoo rest api \u2014 equity price history",
-      "id": "tickonomics_claude_yahoo_api"
-    },
-    {
-      "label": "Alpha Vantage REST API \u2014 equity/rates",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 894,
-      "norm_label": "alpha vantage rest api \u2014 equity/rates",
-      "id": "tickonomics_claude_alpha_vantage_api"
-    },
-    {
-      "label": "Ken French Data Library \u2014 factor returns",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 897,
-      "norm_label": "ken french data library \u2014 factor returns",
-      "id": "tickonomics_claude_ken_french"
-    },
-    {
-      "label": "ONNX Inference Path \u2014 planned Java inference from Python-trained models",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "Java is the single system of record for backtesting; Python is research/ML-training surface. Trained models cross back to Java via ONNX (planned), avoiding a second backtest path in Python.",
-      "community": 320,
-      "norm_label": "onnx inference path \u2014 planned java inference from python-trained models",
-      "id": "tickonomics_claude_onnx_inference"
-    },
-    {
-      "label": "Next.js 16 Dashboard (frontend/)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 320,
-      "norm_label": "next.js 16 dashboard (frontend/)",
-      "id": "tickonomics_claude_next_js_dashboard"
-    },
-    {
-      "label": "Next.js 16 Landing Page (landing/)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 693,
-      "norm_label": "next.js 16 landing page (landing/)",
-      "id": "tickonomics_claude_next_js_landing"
-    },
-    {
-      "label": "JUnit 5 Tests (~94 files, *Test.java)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 1350,
-      "norm_label": "junit 5 tests (~94 files, *test.java)",
-      "id": "tickonomics_claude_junit5_tests"
-    },
-    {
-      "label": "Spock/Groovy Specs (~67 files, *Spec.groovy)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 1351,
-      "norm_label": "spock/groovy specs (~67 files, *spec.groovy)",
-      "id": "tickonomics_claude_spock_specs"
-    },
-    {
-      "label": "Checkstyle \u2014 advisory static analysis (ignoreFailures=true)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 276,
-      "norm_label": "checkstyle \u2014 advisory static analysis (ignorefailures=true)",
-      "id": "tickonomics_claude_checkstyle"
-    },
-    {
-      "label": "SpotBugs \u2014 advisory static analysis (ignoreFailures=true)",
-      "file_type": "code",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "community": 1352,
-      "norm_label": "spotbugs \u2014 advisory static analysis (ignorefailures=true)",
-      "id": "tickonomics_claude_spotbugs"
-    },
-    {
-      "label": "Trust Gate \u2014 irScore < 0.9 returns neutral signal",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "BaseEquityStrategy.compute returns a neutral signal when ctx.irScore() < 0.9. Low intersubjective-reliability data silently produces no signal, by design. A strategy that 'never fires' may be correct behaviour, not a bug.",
-      "community": 320,
-      "norm_label": "trust gate \u2014 irscore < 0.9 returns neutral signal",
-      "id": "tickonomics_claude_trust_gate"
-    },
-    {
-      "label": "Contract-First API Design \u2014 openapi.yaml as source of truth",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "The API contract is hand-maintained and NOT generated from controllers. Web controllers are an implementation of the contract, not its definition. This inverts the typical Spring Boot approach \u2014 no springdoc/openapi-generator plugin is used.",
-      "community": 320,
-      "norm_label": "contract-first api design \u2014 openapi.yaml as source of truth",
-      "id": "tickonomics_claude_contract_first_api"
-    },
-    {
-      "label": "6-ETF Hardcoded Universe (SPY,QQQ,IWM,TLT,HYG,GLD + SPY benchmark) \u2014 scaffolding",
-      "file_type": "rationale",
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null,
-      "rationale": "The current 6-ETF set and SPY benchmark are placeholders. The real goal (ADR-022) is a broad cross-sectional stock universe with survivorship-bias-free point-in-time data, validated by live/paper trading. Universe/benchmark choices should be config-driven, not hardcoded.",
-      "community": 628,
-      "norm_label": "6-etf hardcoded universe (spy,qqq,iwm,tlt,hyg,gld + spy benchmark) \u2014 scaffolding",
-      "id": "tickonomics_claude_etf_scaffolding"
-    },
-    {
       "label": "Liquidity Index \u2014 composite Intersubjective Liquidity Index (ILI)",
       "file_type": "code",
       "source_file": "README.md",
@@ -134472,7 +133742,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 897,
       "norm_label": "liquidity index \u2014 composite intersubjective liquidity index (ili)",
       "id": "tickonomics_readme_liquidity_index"
     },
@@ -134485,7 +133755,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 898,
       "norm_label": "spring boot 3.5.0",
       "id": "tickonomics_readme_spring_boot_35"
     },
@@ -134667,7 +133937,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 896,
       "norm_label": "dev db port exposure (5432:5432) \u2014 local dev iteration",
       "id": "tickonomics_docker_compose_dev_db_expose"
     },
@@ -134732,7 +134002,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 985,
       "norm_label": "chaos engineering test scenarios \u2014 tsdb latency, worker restart, buffer overflow, ws disconnect, total failure",
       "id": "workflows_chaos_tests_scenarios"
     },
@@ -134784,7 +134054,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 1080,
       "norm_label": "deploy production \u2014 image promotion gate + flyway + ssh deploy + health check + smoke test",
       "id": "workflows_deploy_production_promote"
     },
@@ -134797,7 +134067,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 1096,
       "norm_label": "deploy staging \u2014 on push to main: build images \u2192 flyway migrate \u2192 ssh deploy \u2192 smoke test \u2192 demo update",
       "id": "workflows_deploy_staging_push"
     },
@@ -134810,7 +134080,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 370,
+      "community": 1117,
       "norm_label": "forecast infrastructure \u2014 multi-cloud images + terraform validate/plan/apply + smoke test",
       "id": "workflows_forecast_deploy_multi_cloud"
     },
@@ -134823,7 +134093,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 1120,
       "norm_label": "integration tests ci \u2014 separate workflow (service container incompatible with act dry-run)",
       "id": "workflows_integration_tests_service_container"
     },
@@ -134836,7 +134106,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 629,
       "norm_label": "fastapi 0.137.0 \u2014 python web framework",
       "id": "analytics_requirements_fastapi"
     },
@@ -134849,7 +134119,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 894,
       "norm_label": "pyarrow 24.0.0 \u2014 arrow ipc for java-python data transfer",
       "id": "analytics_requirements_pyarrow"
     },
@@ -134862,7 +134132,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 320,
+      "community": 895,
       "norm_label": "pytorch 2.12.0 \u2014 machine learning framework",
       "id": "analytics_requirements_pytorch"
     },
@@ -138561,7 +137831,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "openapi 3.1 rest contract",
       "id": "plan_v1_01_openapi_contract"
     },
@@ -138574,7 +137844,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "asyncapi websocket contract",
       "id": "plan_v1_01_asyncapi_contract"
     },
@@ -138587,7 +137857,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 225,
       "norm_label": "talibadapter thin wrapper",
       "id": "plan_v1_01_talib_adapter"
     },
@@ -138600,7 +137870,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "arrow ipc transport layer",
       "id": "plan_v1_01_arrow_ipc_transport"
     },
@@ -138613,7 +137883,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "virtual threads + spring mvc primary runtime",
       "id": "plan_v1_01_virtual_threads_primary"
     },
@@ -138652,7 +137922,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "timescaledb single database architecture",
       "id": "plan_v1_02_timescaledb_single_db"
     },
@@ -138678,7 +137948,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "timescaledb continuous aggregates (ohlcv_1min/1h/1d, daily_kpi_summary)",
       "id": "plan_v1_02_continuous_aggregates"
     },
@@ -138691,7 +137961,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "real-time aggregates (materialized_only=false)",
       "id": "plan_v1_02_real_time_aggregates"
     },
@@ -138756,7 +138026,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "python fastapi analytics worker",
       "id": "plan_v1_03_analytics_worker_service"
     },
@@ -138769,7 +138039,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "aic lag selection loop in worker (finding 2)",
       "id": "plan_v1_03_aic_lag_selection"
     },
@@ -138808,7 +138078,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "graceful degradation pattern for analytics worker unavailability",
       "id": "plan_v1_03_graceful_degradation"
     },
@@ -138963,7 +138233,7 @@
       "source_url": null,
       "captured_at": null,
       "contributor": null,
-      "community": 95,
+      "community": 225,
       "norm_label": "correlationengine (ta-lib + ols via analytics worker)",
       "id": "plan_v1_05_correlation_engine"
     },
@@ -139015,7 +138285,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 225,
       "norm_label": "regimedetector (ta_bbands + k-means clustering)",
       "id": "plan_v1_05_regime_detector"
     },
@@ -139028,7 +138298,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 225,
       "norm_label": "kpiprocessor (liquidity stress index, repo/equity beta, rrp drain, systemic risk heatmap, volatility regime)",
       "id": "plan_v1_05_kpi_processor"
     },
@@ -139041,7 +138311,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "aiclagselector thin client (finding 2)",
       "id": "plan_v1_05_aic_lag_selector_thin_client"
     },
@@ -139054,7 +138324,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 225,
       "norm_label": "calculationguard (nan/infinity prevention)",
       "id": "plan_v1_05_calculation_guard"
     },
@@ -139067,7 +138337,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "grangercausalitytest with aic-optimized lag",
       "id": "plan_v1_05_granger_causality_test"
     },
@@ -139093,7 +138363,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "adf stationarity check via analytics worker",
       "id": "plan_v1_05_adf_stationarity_check"
     },
@@ -139106,7 +138376,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "landing page next.js 15 application (tickonomics.io)",
       "id": "plan_v1_06_landing_page_app"
     },
@@ -139132,7 +138402,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "analytics dashboard next.js 15 application (app.tickonomics.io)",
       "id": "plan_v1_07_analytics_dashboard_app"
     },
@@ -139223,7 +138493,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 174,
+      "community": 151,
       "norm_label": "websocket real-time updates (/ws/prices, /ws/signals)",
       "id": "plan_v1_07_websocket_realtime"
     },
@@ -139366,7 +138636,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 174,
       "norm_label": "signalqualityreport (daily hit rate, false positive, benchmark comparison)",
       "id": "plan_v1_10_signal_quality_report"
     },
@@ -139379,7 +138649,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 95,
+      "community": 174,
       "norm_label": "verification criteria (90 days, 50 trades, 55% hit rate, sharpe > 0.5)",
       "id": "plan_v1_10_verification_criteria"
     },
@@ -139392,7 +138662,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "docker compose multi-service deployment",
       "id": "plan_v1_11_docker_compose"
     },
@@ -139522,7 +138792,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "finos timebase-ce (deferred high-performance backup)",
       "id": "plan_v2_00_finos_timebase_deferred"
     },
@@ -139682,7 +138952,7 @@
       "author": null,
       "contributor": null,
       "rationale": "Removes OpenBB sidecar from the critical ILI ingestion path. OpenBB reserved for econometrics only.",
-      "community": 1277,
+      "community": 342,
       "norm_label": "direct fred/ny fed java clients",
       "id": "plan_v3_00_dependency_graph_direct_fred_nyfed_clients"
     },
@@ -139738,7 +139008,7 @@
       "author": null,
       "contributor": null,
       "rationale": "High-performance grid/chart for correlation matrix, signal log, liquidity heatmap. Complements D3.js for data-heavy panels. Confined to tabular/grid contexts.",
-      "community": 271,
+      "community": 1011,
       "norm_label": "finos perspective",
       "id": "plan_v3_00_dependency_graph_perspective"
     },
@@ -139847,7 +139117,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1277,
+      "community": 342,
       "norm_label": "federationdataclient",
       "id": "plan_v3_01_scaffolding_api_contracts_federationdataclient"
     },
@@ -140056,7 +139326,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1277,
+      "community": 342,
       "norm_label": "direct fred client",
       "id": "plan_v3_04_ingestion_layer_direct_fred_client"
     },
@@ -140069,7 +139339,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 1277,
+      "community": 342,
       "norm_label": "direct ny fed client",
       "id": "plan_v3_04_ingestion_layer_direct_nyfed_client"
     },
@@ -140135,7 +139405,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "signalgenerator",
       "id": "plan_v3_05_computation_engine_signal_generator"
     },
@@ -140239,7 +139509,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "next.js landing page (tickonomics.io)",
       "id": "plan_v3_06_landing_page_nextjs_landing"
     },
@@ -140252,7 +139522,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "next.js analytics dashboard (app.tickonomics.io)",
       "id": "plan_v3_07_analytics_dashboard_nextjs_dashboard"
     },
@@ -140527,7 +139797,7 @@
       "author": null,
       "contributor": null,
       "rationale": "PCA-based variance factor on 5-min standardized spreads. Leading indicator for systemic stress.",
-      "community": 271,
+      "community": 1011,
       "norm_label": "liquidity comovement monitor (primary)",
       "id": "plan_v4_00_dependency_graph_liquidity_comovement"
     },
@@ -140569,7 +139839,7 @@
       "author": null,
       "contributor": null,
       "rationale": "BRI from OFI, spread volatility, sentiment polarity. Herding filter and panic guard. 5th axis on systemic risk heatmap.",
-      "community": 271,
+      "community": 1011,
       "norm_label": "behavioural risk index (bri)",
       "id": "plan_v4_00_dependency_graph_behavioural_risk_index"
     },
@@ -140624,7 +139894,7 @@
       "author": null,
       "contributor": null,
       "rationale": "Riemann Zeta-based beta correction for discrete barrier monitoring. beta = -zeta(1/2)/sqrt(2*pi) approx 0.5826.",
-      "community": 271,
+      "community": 1011,
       "norm_label": "broadie-kou-glasserman discrete monitoring correction",
       "id": "plan_v4_00_dependency_graph_discrete_monitoring_correction"
     },
@@ -140810,7 +140080,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "discretemonitoringcorrection",
       "id": "plan_v4_05_computation_engine_discrete_monitoring_correction_impl"
     },
@@ -140836,7 +140106,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "comovementtrigger",
       "id": "plan_v4_05_computation_engine_comovement_trigger"
     },
@@ -140862,7 +140132,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "behaviouralriskprocessor",
       "id": "plan_v4_05_computation_engine_behavioural_risk_processor"
     },
@@ -140929,7 +140199,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 271,
+      "community": 1011,
       "norm_label": "signal status taxonomy",
       "id": "plan_v2_tickonomics_tutorial_signal_status_enum"
     },
@@ -141280,7 +140550,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "track 2: database schema timescaledb (v5)",
       "id": "plan_v5_02_database_schema_md_database_schema_v5"
     },
@@ -141645,7 +140915,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "timescaledbwriter \u2014 batched insert with idempotency",
       "id": "plan_v5_04_ingestion_layer_md_timescaledb_writer"
     },
@@ -141658,7 +140928,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "last known good (lkg) cache",
       "id": "plan_v5_04_ingestion_layer_md_last_known_good_cache"
     },
@@ -141698,7 +140968,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 263,
       "norm_label": "chaos testing workflow (v4)",
       "id": "plan_v5_09_cicd_pipeline_md_chaos_testing_workflow"
     },
@@ -142393,7 +141663,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "analytics/ java bridge (deferred)",
       "id": "plan_v5_analytics_java_bridge"
     },
@@ -142504,7 +141774,7 @@
       "author": null,
       "contributor": null,
       "rationale": "Single database: TimescaleDB (PostgreSQL + time-series extension). Replaces v5 dual-database architecture (QuestDB + PostgreSQL) with a single instance handling both time-series (hypertables) and relational data (regular tables). Schema migrations use Flyway only.",
-      "community": 168,
+      "community": 263,
       "norm_label": "timescaledb single-database architecture",
       "id": "plan_v5_timescaledb_single_db"
     },
@@ -142517,7 +141787,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 168,
+      "community": 225,
       "norm_label": "python analytics worker (fastapi, port 8001)",
       "id": "plan_v5_python_analytics_worker"
     },
@@ -142531,7 +141801,7 @@
       "author": null,
       "contributor": null,
       "rationale": "AIC lag selection pushed entirely into the Python analytics worker (Track 3). Java sends data once, receives optimal result. Arrow IPC replaces REST/JSON for high-throughput time-series transfer. Eliminates N*10 REST call explosion.",
-      "community": 168,
+      "community": 225,
       "norm_label": "aic lag selection loop (finding 2)",
       "id": "plan_v5_aic_lag_selection"
     },
@@ -147349,6 +146619,206 @@
     }
   ],
   "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude",
+      "target": "claude_claude_md"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_architecture"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_build_test_lint"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L198",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_conventions_that_matter"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L218",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_operations_infra"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_claude_md",
+      "target": "claude_what_this_project_is"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L54",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_build_test_lint",
+      "target": "claude_frontend_frontend_dashboard_landing_marketing_page_both_next_js_16_react_19"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_build_test_lint",
+      "target": "claude_local_dev_without_rebuilding_images"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L74",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_build_test_lint",
+      "target": "claude_local_github_actions_verification_the_current_branch_s_focus"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L43",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_build_test_lint",
+      "target": "claude_python_analytics_worker_analytics"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L84",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_build_test_lint",
+      "target": "claude_running_the_stack_locally"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L180",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_adding_a_data_source"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L161",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_adding_an_equity_or_options_strategy"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L124",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_api_contract_is_hand_maintained_contract_first"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L142",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_data_flow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L109",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_gradle_modules_settings_gradle_and_dependency_flow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L155",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_migrations_schema"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L134",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_architecture",
+      "target": "claude_the_java_python_boundary_adr_022_d4"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "GEMINI.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "gemini",
+      "target": "gemini_graphify",
+      "confidence_score": 1.0
+    },
     {
       "relation": "imports_from",
       "context": "import",
@@ -287339,186 +286809,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude",
-      "target": "claude_claude_md"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L107",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_claude_md",
-      "target": "claude_architecture"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_claude_md",
-      "target": "claude_build_test_lint"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L198",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_claude_md",
-      "target": "claude_conventions_that_matter"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L218",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_claude_md",
-      "target": "claude_operations_infra"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_claude_md",
-      "target": "claude_what_this_project_is"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L54",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_build_test_lint",
-      "target": "claude_frontend_frontend_dashboard_landing_marketing_page_both_next_js_16_react_19"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L94",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_build_test_lint",
-      "target": "claude_local_dev_without_rebuilding_images"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L74",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_build_test_lint",
-      "target": "claude_local_github_actions_verification_the_current_branch_s_focus"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L43",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_build_test_lint",
-      "target": "claude_python_analytics_worker_analytics"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L84",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_build_test_lint",
-      "target": "claude_running_the_stack_locally"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L180",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_adding_a_data_source"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L161",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_adding_an_equity_or_options_strategy"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L124",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_api_contract_is_hand_maintained_contract_first"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L142",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_data_flow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L109",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_gradle_modules_settings_gradle_and_dependency_flow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L155",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_migrations_schema"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L134",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_architecture",
-      "target": "claude_the_java_python_boundary_adr_022_d4"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "COMMERCIAL.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -287715,16 +287005,6 @@
       "confidence_score": 1.0,
       "source": "readme_tickonomics",
       "target": "readme_quick_start_full_stack_via_docker"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_etf_scaffolding",
-      "target": "readme_tickonomics"
     },
     {
       "relation": "references",
@@ -341728,646 +341008,6 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": ".github/dependabot.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "github_dependabot_weekly_updates",
-      "target": "tickonomics_claude_gradle_multiproject"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_configuration_cache",
-      "target": "tickonomics_claude_gradle_multiproject"
-    },
-    {
-      "relation": "shares_data_with",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_cdm",
-      "target": "tickonomics_claude_ingestion"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_persistence",
-      "target": "tickonomics_claude_timescaledb"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_data_quality_checker",
-      "target": "tickonomics_claude_ingestion"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_ingestion",
-      "target": "tickonomics_claude_cdm_adapter"
-    },
-    {
-      "relation": "shares_data_with",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_ingestion",
-      "target": "tickonomics_claude_computation"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_ingestion",
-      "target": "tickonomics_claude_timescaledb"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_proxy_divergence_guard",
-      "target": "tickonomics_claude_ingestion"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_resilience4j_bulkheads",
-      "target": "tickonomics_claude_ingestion"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_scheduled_ingestion",
-      "target": "tickonomics_claude_ingestion"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_backtest_engine",
-      "target": "tickonomics_claude_computation"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_computation",
-      "target": "tickonomics_claude_talib_adapter"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_intersubjective_audit_service",
-      "target": "tickonomics_claude_computation"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_contract_first_api",
-      "target": "tickonomics_claude_web"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_keycloak_auth",
-      "target": "tickonomics_claude_web"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_web",
-      "target": "tickonomics_claude_app"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_app",
-      "target": "tickonomics_claude_integration_tests"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/integration-tests.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_integration_tests_service_container",
-      "target": "tickonomics_claude_integration_tests"
-    },
-    {
-      "relation": "calls",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "analytics/requirements.txt",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "analytics_requirements_fastapi",
-      "target": "tickonomics_claude_analytics_worker"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "analytics/requirements.txt",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "analytics_requirements_pytorch",
-      "target": "tickonomics_claude_analytics_worker"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_analytics_worker_client",
-      "target": "tickonomics_claude_analytics_worker"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_onnx_inference",
-      "target": "tickonomics_claude_analytics_worker"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_onnx_inference",
-      "target": "tickonomics_claude_backtest_engine"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/deploy-production.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_deploy_production_promote",
-      "target": "tickonomics_claude_backtest_engine"
-    },
-    {
-      "relation": "shares_data_with",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_analytics_worker_client",
-      "target": "analytics_requirements_pyarrow"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_openapi_yaml",
-      "target": "tickonomics_claude_analytics_worker_client"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_flyway_migrations",
-      "target": "tickonomics_claude_timescaledb"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/deploy-production.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_deploy_production_promote",
-      "target": "tickonomics_claude_flyway_migrations"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/deploy-staging.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_deploy_staging_push",
-      "target": "tickonomics_claude_flyway_migrations"
-    },
-    {
-      "relation": "calls",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_timescale_db_writer",
-      "target": "tickonomics_claude_timescaledb"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docker-compose.dev.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_docker_compose_dev_db_expose",
-      "target": "tickonomics_claude_timescaledb"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_contract_first_api",
-      "target": "tickonomics_claude_openapi_yaml"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_next_js_dashboard",
-      "target": "tickonomics_claude_openapi_yaml"
-    },
-    {
-      "relation": "semantically_similar_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_openapi_yaml",
-      "target": "tickonomics_claude_asyncapi_yaml"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_base_equity_strategy",
-      "target": "tickonomics_claude_equity_strategy_type"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_equity_strategy_registry",
-      "target": "tickonomics_claude_base_equity_strategy"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_trust_gate",
-      "target": "tickonomics_claude_base_equity_strategy"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_cdm_adapter",
-      "target": "tickonomics_claude_timescale_db_writer"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_intersubjective_audit_service",
-      "target": "tickonomics_claude_ir_score"
-    },
-    {
-      "relation": "shares_data_with",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_strategy_context",
-      "target": "tickonomics_claude_ir_score"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_trust_gate",
-      "target": "tickonomics_claude_ir_score"
-    },
-    {
-      "relation": "semantically_similar_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.75,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_readme_liquidity_index",
-      "target": "tickonomics_claude_ir_score"
-    },
-    {
-      "relation": "semantically_similar_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_data_quality_checker",
-      "target": "tickonomics_claude_proxy_divergence_guard"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_price_websocket_handler",
-      "target": "tickonomics_claude_finnhub_ws"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_price_websocket_handler",
-      "target": "tickonomics_claude_next_js_dashboard"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_signal_websocket_handler",
-      "target": "tickonomics_claude_next_js_dashboard"
-    },
-    {
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_resilience4j_bulkheads",
-      "target": "tickonomics_claude_application_yml"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/chaos-tests.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_chaos_tests_scenarios",
-      "target": "tickonomics_claude_resilience4j_bulkheads"
-    },
-    {
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_scheduled_ingestion",
-      "target": "tickonomics_claude_application_yml"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_pkce_auth_flow",
-      "target": "tickonomics_claude_keycloak_auth"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "atlantis.yaml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_atlantis_forecast_aws",
-      "target": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "atlantis.yaml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_atlantis_forecast_azure",
-      "target": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "atlantis.yaml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_atlantis_forecast_gcp",
-      "target": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_atlantis",
-      "target": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/forecast-deploy.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_forecast_deploy_multi_cloud",
-      "target": "tickonomics_claude_terraform_infra"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/PULL_REQUEST_TEMPLATE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "github_pull_request_template_terraform_checklist",
-      "target": "tickonomics_claude_atlantis"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_micrometer_otel",
-      "target": "tickonomics_claude_jaeger_tracing"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_micrometer_otel",
-      "target": "tickonomics_claude_prometheus_metrics"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_makefile_verification",
-      "target": "tickonomics_claude_act_runner"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_makefile_verification",
-      "target": "tickonomics_claude_actionlint"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "CLAUDE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_claude_next_js_dashboard",
-      "target": "tickonomics_readme_spring_boot_35"
-    },
-    {
-      "relation": "conceptually_related_to",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "docker-compose.prod.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "tickonomics_docker_compose_caddy",
-      "target": "tickonomics_claude_next_js_dashboard"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": ".github/workflows/deploy-landing.yml",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "workflows_deploy_landing_vercel",
-      "target": "tickonomics_claude_next_js_landing"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "source_file": "atlantis.yaml",
       "source_location": null,
       "weight": 1.0,
@@ -350552,5 +349192,5 @@
       "source_file": "integration-tests/src/test/resources/application-test.yml"
     }
   ],
-  "built_at_commit": "7830e5461d98122553bd7643e988f8121c321c1d"
+  "built_at_commit": "cbab280cdff44b703b4f06607ede4b695edbdc46"
 }
