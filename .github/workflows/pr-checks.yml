@@ -22,14 +22,9 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - uses: actions/cache@v5
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/configuration-cache
-          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-
+          cache-read-only: false
 
       - uses: actions/cache@v5
         id: talib-native-cache
@@ -45,7 +40,7 @@ jobs:
 
       - name: Build & install TA-Lib (native + JNA jar)
         if: steps.talib-jna-cache.outputs.cache-hit != 'true'
-        run: ./gradlew :computation:setupTalib --no-daemon
+        run: ./gradlew :computation:setupTalib
 
       - name: Download OpenTelemetry agent
         run: |
@@ -58,7 +53,7 @@ jobs:
           OTEL_TRACES_EXPORTER: "none"
           OTEL_METRICS_EXPORTER: "none"
           OTEL_LOGS_EXPORTER: "none"
-        run: ./gradlew build -x :integration-tests:test --no-daemon
+        run: ./gradlew build -x :integration-tests:test
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -169,7 +164,7 @@ jobs:
 
       - name: Run Checkstyle + SpotBugs
         continue-on-error: true
-        run: ./gradlew lint --no-daemon
+        run: ./gradlew lint
 
       - name: Upload lint reports
         if: always()
