@@ -33,8 +33,7 @@ class IdempotencyRoutingSpec extends Specification {
 
     def setup() {
         restClientBuilder.build() >> restClient
-        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer)
-        writer.batchSize = 500
+        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer, 500, 500)
     }
 
     def "given FredClient writes same observation twice, when routed through writer, then no duplicate"() {

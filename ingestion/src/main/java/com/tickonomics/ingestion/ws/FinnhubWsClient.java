@@ -5,6 +5,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import com.tickonomics.cdm.adapter.raw.FinnhubTrade;
 import com.tickonomics.contracts.client.EquityWsClient;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +46,10 @@ public class FinnhubWsClient implements EquityWsClient {
 
   private final StandardWebSocketClient wsClient;
   private final ObjectMapper objectMapper;
-  private final Executor asyncExecutor;
+  private final String wsUrl;
+  private final int reconnectBackoffMaxMs;
+  private final ExecutorService asyncExecutor;
   private final ScheduledExecutorService reconnectScheduler;
-
-  @Value("${monitor.finnhub.ws-url:wss://ws.finnhub.io}")
-  private String wsUrl;
 
   private volatile WebSocketSession session;
   private volatile int reconnectDelayMs = 1000;
@@ -58,18 +58,26 @@ public class FinnhubWsClient implements EquityWsClient {
   private final Set<Consumer<FinnhubTrade>> handlers = new CopyOnWriteArraySet<>();
   private final Set<String> subscribedSymbols = ConcurrentHashMap.newKeySet();
 
-  @Value("${monitor.finnhub.ws-reconnect-backoff-max:60000}")
-  private int reconnectBackoffMaxMs;
-
-  public FinnhubWsClient(ObjectMapper objectMapper) {
+  public FinnhubWsClient(
+      ObjectMapper objectMapper,
+      @Value("${monitor.finnhub.ws-url:wss://ws.finnhub.io}") String wsUrl,
+      @Value("${monitor.finnhub.ws-reconnect-backoff-max:60000}") int reconnectBackoffMaxMs) {
     this.wsClient = new StandardWebSocketClient();
     this.objectMapper = objectMapper;
+    this.wsUrl = wsUrl;
+    this.reconnectBackoffMaxMs = reconnectBackoffMaxMs;
     this.asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
     this.reconnectScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
       var t = new Thread(r, "finnhub-ws-reconnect");
       t.setDaemon(true);
       return t;
     });
+  }
+
+  @PreDestroy
+  public void destroy() {
+    reconnectScheduler.shutdownNow();
+    asyncExecutor.close();
   }
 
   @Override
@@ -144,11 +152,13 @@ public class FinnhubWsClient implements EquityWsClient {
   }
 
   private void sendSubscribe(String symbol) {
-    sendMessage("{\"type\":\"subscribe\",\"symbol\":\"" + symbol + "\"}");
+    sendMessage("""
+        {"type":"subscribe","symbol":"%s"}""".formatted(symbol));
   }
 
   private void sendUnsubscribe(String symbol) {
-    sendMessage("{\"type\":\"unsubscribe\",\"symbol\":\"" + symbol + "\"}");
+    sendMessage("""
+        {"type":"unsubscribe","symbol":"%s"}""".formatted(symbol));
   }
 
   private void sendMessage(String message) {

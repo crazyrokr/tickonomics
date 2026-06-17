@@ -2,7 +2,6 @@ package com.tickonomics.persistence.repository;
 
 import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.TickData;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

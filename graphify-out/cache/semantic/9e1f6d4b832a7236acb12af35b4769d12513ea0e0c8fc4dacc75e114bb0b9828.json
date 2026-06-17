@@ -1,1 +1,0 @@
-{"nodes": [{"id": "tickonomics_docker_compose_base_tickonomics_net", "label": "tickonomics-net \u2014 Docker bridge network", "file_type": "code", "source_file": "docker-compose.yml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

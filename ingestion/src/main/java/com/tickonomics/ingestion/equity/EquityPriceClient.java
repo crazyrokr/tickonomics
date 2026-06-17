@@ -4,6 +4,7 @@ import com.tickonomics.cdm.adapter.raw.FinnhubQuote;
 import com.tickonomics.cdm.adapter.raw.YahooOhlcv;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Abstraction over equity price data sources. Implementations fetch OHLCV or quote data from
@@ -24,9 +25,9 @@ public interface EquityPriceClient {
    * Fetches a real-time quote snapshot for the given symbol.
    *
    * @param symbol equity symbol
-   * @return current quote, or null if unavailable
+   * @return current quote, or empty if unavailable
    */
-  FinnhubQuote fetchQuote(String symbol);
+  Optional<FinnhubQuote> fetchQuote(String symbol);
 
   /**
    * Returns the name of this data source (for logging and circuit-breaker identification).

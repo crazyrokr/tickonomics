@@ -7,11 +7,12 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Component
 public class AlgorithmicSanityGuard {
@@ -27,7 +28,7 @@ public class AlgorithmicSanityGuard {
     private final Clock clock;
     private final Map<String, PriceTracker> priceTrackers = new ConcurrentHashMap<>();
     private final Map<String, RateTracker> rateTrackers = new ConcurrentHashMap<>();
-    private final List<SanityBreach> breaches = new ArrayList<>();
+    private final Deque<SanityBreach> breaches = new ConcurrentLinkedDeque<>();
 
     AlgorithmicSanityGuard() {
         this(Clock.systemUTC());

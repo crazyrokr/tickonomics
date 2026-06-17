@@ -23,8 +23,7 @@ class TimescaleDbWriterSpec extends Specification {
     TimescaleDbWriter writer
 
     def setup() {
-        writer = new TimescaleDbWriter(tickRepository, rateRepository, guard, tracer)
-        writer.batchSize = 2
+        writer = new TimescaleDbWriter(tickRepository, rateRepository, guard, tracer, 2, 500)
     }
 
     private static TickData tick(String symbol, Instant time) {

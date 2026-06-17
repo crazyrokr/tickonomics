@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -113,7 +112,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenOpenBuyPosition_whenClosePosition_thenRealizedPnlPositive() {
-      VirtualPortfolioPosition openPos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
+      VirtualPortfolioPosition openPos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null,
+          new BigDecimal("475.0"), new BigDecimal("550.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(openPos));
       when(tradeRepository.save(any())).thenReturn(2L);
 
@@ -126,7 +127,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenOpenSellPosition_whenClosePosition_thenRealizedPnlPositive() {
-      VirtualPortfolioPosition openPos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, new BigDecimal("550.0"), new BigDecimal("450.0"), null, null);
+      VirtualPortfolioPosition openPos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null,
+          new BigDecimal("550.0"), new BigDecimal("450.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(openPos));
       when(tradeRepository.save(any())).thenReturn(2L);
 
@@ -148,7 +151,8 @@ class VirtualPortfolioTest {
 
     @Test
     void givenOpenPositionsWithPrices_whenMarkToMarket_thenUnrealizedPnlUpdated() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, null, null, null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, null, null, null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       portfolio.markToMarket(Map.of("SPY", new BigDecimal("520.0")));
@@ -160,7 +164,8 @@ class VirtualPortfolioTest {
 
     @Test
     void givenOpenPositionWithoutPrice_whenMarkToMarket_thenNoUpdate() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, null, null, null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), null, null, null, null, null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       portfolio.markToMarket(Map.of("AAPL", new BigDecimal("180.0")));
@@ -174,7 +179,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenBuyPositionAtStopLoss_whenCheck_thenPositionFlagged() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(
@@ -186,7 +193,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenBuyPositionAtTakeProfit_whenCheck_thenPositionFlagged() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(
@@ -197,7 +206,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenPositionWithinBounds_whenCheck_thenNotFlagged() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(
@@ -208,7 +219,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenSellPositionAtStopLoss_whenCheck_thenPositionFlagged() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("105.0"), new BigDecimal("90.0"), null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("105.0"), new BigDecimal("90.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(
@@ -219,7 +232,9 @@ class VirtualPortfolioTest {
 
     @Test
     void givenSellPositionAtTakeProfit_whenCheck_thenPositionFlagged() {
-      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("105.0"), new BigDecimal("90.0"), null, null);
+      VirtualPortfolioPosition pos = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "SELL",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("105.0"), new BigDecimal("90.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(pos));
 
       List<VirtualPortfolioPosition> breached = portfolio.checkStopLossTakeProfit(
@@ -251,8 +266,12 @@ class VirtualPortfolioTest {
     void givenWinningAndLosingTrades_whenGetSummary_thenCorrectWinRate() {
       when(positionRepository.findOpenPositions()).thenReturn(List.of());
 
-      VirtualPortfolioTrade win = new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL", new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("100.0"), null, null, "PAPER");
-      VirtualPortfolioTrade loss = new VirtualPortfolioTrade(2L, Instant.now(), "AAPL", "BUY", new BigDecimal("10.0"), new BigDecimal("180.0"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("-50.0"), null, null, "PAPER");
+      VirtualPortfolioTrade win = new VirtualPortfolioTrade(1L, Instant.now(), "SPY", "SELL",
+          new BigDecimal("10.0"), new BigDecimal("500.0"), BigDecimal.ZERO, BigDecimal.ZERO,
+          new BigDecimal("100.0"), null, null, "PAPER");
+      VirtualPortfolioTrade loss = new VirtualPortfolioTrade(2L, Instant.now(), "AAPL", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("180.0"), BigDecimal.ZERO, BigDecimal.ZERO,
+          new BigDecimal("-50.0"), null, null, "PAPER");
 
       when(tradeRepository.countByTradeType("PAPER")).thenReturn(2);
       when(tradeRepository.findLatest(2, 0)).thenReturn(List.of(win, loss));

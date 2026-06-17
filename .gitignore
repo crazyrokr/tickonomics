@@ -53,3 +53,6 @@ frontend/tsconfig.tsbuildinfo
 # Local GitHub Actions verification (act)
 /.actrc.local
 /.secrets
+
+graphify-out/cache/
+graphify-out/.rebuild.lock

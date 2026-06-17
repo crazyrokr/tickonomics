@@ -2,10 +2,10 @@
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-6DB33F.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.0-6DB33F.svg)](https://spring.io/projects/spring-boot)
 [![Gradle](https://img.shields.io/badge/Gradle-multi--project-02303A.svg)](build.gradle)
 [![Python](https://img.shields.io/badge/Python-FastAPI-3776AB.svg)](analytics/requirements.txt)
-[![Frontend](https://img.shields.io/badge/Next.js-16-000000.svg)](frontend/package.json)
+[![Frontend](https://img.shields.io/badge/Next.js-16.2.6-000000.svg)](frontend/package.json)
 [![Version](https://img.shields.io/badge/version-0.0.1--SNAPSHOT-lightgrey.svg)](build.gradle)
 
 Tickonomics is a quantitative-research platform: it ingests market and rates data, computes alpha
@@ -22,15 +22,18 @@ for backtesting; a standalone Python FastAPI worker handles research and model t
 
 ## Highlights
 
-- **Multi-project Gradle build** (Java 25 toolchain, Spring Boot 3.5.0) split into focused modules
+- **Multi-project Gradle build** (Java 25 toolchain, Spring Boot 4.0.0) split into focused modules
   with a strict dependency flow.
 - **Native quant engine** (`computation`): 50+ strategies, `TalibAdapter` (JNA bridge to the TA-Lib C
-  library), `BacktestEngine`, Intersubjective Liquidity Index (ILI), and signal generation.
-- **Contract-first API**: `openapi.yaml` is the hand-maintained source of truth for the REST surface;
-  frontend types are generated from it.
-- **Scheduler-driven ingestion** of free data sources → CDM record types → TimescaleDB hypertables
-  with continuous aggregates and compression.
-- **Realtime broadcast** over WebSockets (Finnhub trades + generated signals → dashboard).
+  library), `BacktestEngine` (updated), Intersubjective Liquidity Index (ILI), and signal generation.
+- **Robust Ingestion**: Refactored clients with improved error handling, time management
+  (`EventBasedTimeConverter`), and extended test coverage.
+- **Contract-first API**: `openapi.yaml` is the source of truth for the REST surface.
+- **Realtime broadcast**: WebSocket support (Finnhub trades + generated signals → dashboard).
+- **Security**: Updated security configurations with refined access control and tested controllers.
+- **Documentation**: Includes Java best practice reviews and ADR-034 licensing strategy.
+- **Automated Infrastructure**: `graphify` knowledge graph updates configured via Git hooks
+  (`post-checkout`, `post-merge`) for seamless synchronization.
 - **Local GitHub-Actions verification** with `act` + `actionlint`, enforced by git hooks
   (see [ADR-026](docs/adr/ADR-026-local-github-actions-verification.md)).
 
@@ -61,11 +64,11 @@ is no second backtest path in Python (see [ADR-007](docs/adr/ADR-007-backtesting
 
 | Layer | Technology |
 | --- | --- |
-| Backend | Java 25, Spring Boot 3.5.0, Spring Security (OAuth2/Keycloak) |
+| Backend | Java 25, Spring Boot 4.0.0, Spring Security (OAuth2/Keycloak) |
 | Quant engine | TA-Lib (native C via JNA), BacktestEngine, ILI |
 | Persistence | TimescaleDB (PostgreSQL 16), Flyway (`V1`…`V35`) |
 | Analytics worker | FastAPI 0.136, PyTorch 2.6, NumPy, SciPy, statsmodels, pyarrow |
-| Frontend | Next.js 16.2, React 19.2, TanStack Query, FinOS Perspective, lightweight-charts, Tailwind |
+| Frontend | Next.js 16.2.6, React 19.2, TanStack Query, FinOS Perspective, lightweight-charts, Tailwind |
 | Observability | Micrometer, OpenTelemetry → Jaeger, Prometheus |
 | Infra | Terraform (multi-cloud AWS/GCP/Azure) via Atlantis |
 

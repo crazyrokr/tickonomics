@@ -85,7 +85,9 @@ class VirtualPortfolioLeverageRotationTest {
     void givenPriceBelowSma_whenApplyLeverageRotation_thenPositionsFlattened() {
       when(priceLookup.closingPrices(eq("SPY"), any(), any()))
           .thenReturn(flatHistory(200, 100.0));
-      VirtualPortfolioPosition open = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY", new BigDecimal("10.0"), new BigDecimal("100.0"), null, null, new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
+      VirtualPortfolioPosition open = new VirtualPortfolioPosition(1L, Instant.now(), "SPY", "BUY",
+          new BigDecimal("10.0"), new BigDecimal("100.0"), null, null,
+          new BigDecimal("95.0"), new BigDecimal("110.0"), null, null);
       when(positionRepository.findOpenPositions()).thenReturn(List.of(open));
       when(tradeRepository.save(any())).thenReturn(2L);
 

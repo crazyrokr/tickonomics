@@ -14,10 +14,6 @@ public class EquityStrategyRegistry {
 
   private final UniverseAggregator aggregator;
 
-  public EquityStrategyRegistry() {
-    this(new UniverseAggregator());
-  }
-
   public EquityStrategyRegistry(UniverseAggregator aggregator) {
     this.aggregator = aggregator;
     registerDefaults();

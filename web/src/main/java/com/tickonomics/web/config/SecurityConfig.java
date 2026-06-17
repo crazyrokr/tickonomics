@@ -17,12 +17,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final SecurityProperties securityProperties;
+  private final List<String> allowedOrigins;
 
-  @Value("${security.cors.allowed-origins:http://localhost:3000,http://localhost:3001}")
-  private List<String> allowedOrigins;
-
-  public SecurityConfig(SecurityProperties securityProperties) {
+  public SecurityConfig(
+      SecurityProperties securityProperties,
+      @Value("${security.cors.allowed-origins:http://localhost:3000,http://localhost:3001}")
+      List<String> allowedOrigins) {
     this.securityProperties = securityProperties;
+    this.allowedOrigins = allowedOrigins;
   }
 
   @Bean

@@ -31,94 +31,90 @@ public class EventBasedTimeConverter {
         }
 
         List<TickEvent> events = new ArrayList<>();
-        double lastExtremum = prices[0];
-        boolean expectingUp = prices[1] >= prices[0];
-        boolean inOvershoot = false;
-        double overshootStart = prices[0];
+        var state = new DirectionalState(prices[0], prices[1] >= prices[0]);
 
         for (int i = 1; i < prices.length; i++) {
             double price = prices[i];
-            double change = (price - lastExtremum) / lastExtremum;
+            double change = (price - state.lastExtremum) / state.lastExtremum;
 
-            if (!inOvershoot) {
-                if (expectingUp && change >= theta) {
-                    events.add(new TickEvent(
-                            timestamps[i], price,
-                            EventType.DIRECTIONAL_CHANGE_UP,
-                            Math.abs(change), theta));
-                    lastExtremum = price;
-                    inOvershoot = true;
-                    overshootStart = price;
-                    expectingUp = true;
-                } else if (!expectingUp && change <= -theta) {
-                    events.add(new TickEvent(
-                            timestamps[i], price,
-                            EventType.DIRECTIONAL_CHANGE_DOWN,
-                            Math.abs(change), theta));
-                    lastExtremum = price;
-                    inOvershoot = true;
-                    overshootStart = price;
-                    expectingUp = false;
-                } else if (expectingUp && change <= -theta) {
-                    events.add(new TickEvent(
-                            timestamps[i], price,
-                            EventType.DIRECTIONAL_CHANGE_DOWN,
-                            Math.abs(change), theta));
-                    lastExtremum = price;
-                    inOvershoot = true;
-                    overshootStart = price;
-                    expectingUp = false;
-                } else if (!expectingUp && change >= theta) {
-                    events.add(new TickEvent(
-                            timestamps[i], price,
-                            EventType.DIRECTIONAL_CHANGE_UP,
-                            Math.abs(change), theta));
-                    lastExtremum = price;
-                    inOvershoot = true;
-                    overshootStart = price;
-                    expectingUp = true;
+            if (!state.inOvershoot) {
+                if (state.expectingUp && change >= theta) {
+                    state.recordDirectionalChange(events, timestamps[i], price, change, theta,
+                            EventType.DIRECTIONAL_CHANGE_UP, true);
+                } else if (!state.expectingUp && change <= -theta) {
+                    state.recordDirectionalChange(events, timestamps[i], price, change, theta,
+                            EventType.DIRECTIONAL_CHANGE_DOWN, false);
+                } else if (state.expectingUp && change <= -theta) {
+                    state.recordDirectionalChange(events, timestamps[i], price, change, theta,
+                            EventType.DIRECTIONAL_CHANGE_DOWN, false);
+                } else if (!state.expectingUp && change >= theta) {
+                    state.recordDirectionalChange(events, timestamps[i], price, change, theta,
+                            EventType.DIRECTIONAL_CHANGE_UP, true);
                 }
 
-                if (price > lastExtremum && expectingUp) {
-                    lastExtremum = price;
-                } else if (price < lastExtremum && !expectingUp) {
-                    lastExtremum = price;
+                if (price > state.lastExtremum && state.expectingUp) {
+                    state.lastExtremum = price;
+                } else if (price < state.lastExtremum && !state.expectingUp) {
+                    state.lastExtremum = price;
                 }
             } else {
-                double overshootChange = (price - overshootStart) / overshootStart;
+                double overshootChange = (price - state.overshootStart) / state.overshootStart;
 
-                if (expectingUp && overshootChange > 0) {
+                if (state.expectingUp && overshootChange > 0) {
                     events.add(new TickEvent(
                             timestamps[i], price,
                             EventType.OVERSHOOT,
                             overshootChange, theta));
-                    overshootStart = price;
-                } else if (!expectingUp && overshootChange < 0) {
+                    state.overshootStart = price;
+                } else if (!state.expectingUp && overshootChange < 0) {
                     events.add(new TickEvent(
                             timestamps[i], price,
                             EventType.OVERSHOOT,
                             Math.abs(overshootChange), theta));
-                    overshootStart = price;
+                    state.overshootStart = price;
                 }
 
-                if (expectingUp && price > lastExtremum) {
-                    lastExtremum = price;
-                } else if (!expectingUp && price < lastExtremum) {
-                    lastExtremum = price;
+                if (state.expectingUp && price > state.lastExtremum) {
+                    state.lastExtremum = price;
+                } else if (!state.expectingUp && price < state.lastExtremum) {
+                    state.lastExtremum = price;
                 }
 
-                double reversalFromExtremum = (price - lastExtremum) / lastExtremum;
-                if ((expectingUp && reversalFromExtremum <= -theta)
-                        || (!expectingUp && reversalFromExtremum >= theta)) {
-                    inOvershoot = false;
-                    lastExtremum = price;
-                    expectingUp = !expectingUp;
+                double reversalFromExtremum = (price - state.lastExtremum) / state.lastExtremum;
+                if ((state.expectingUp && reversalFromExtremum <= -theta)
+                        || (!state.expectingUp && reversalFromExtremum >= theta)) {
+                    state.inOvershoot = false;
+                    state.lastExtremum = price;
+                    state.expectingUp = !state.expectingUp;
                 }
             }
         }
 
         log.debug("Converted {} prices into {} events with theta={}", prices.length, events.size(), theta);
         return events;
+    }
+
+    private static class DirectionalState {
+        double lastExtremum;
+        boolean expectingUp;
+        boolean inOvershoot;
+        double overshootStart;
+
+        DirectionalState(double lastExtremum, boolean expectingUp) {
+            this.lastExtremum = lastExtremum;
+            this.expectingUp = expectingUp;
+            this.overshootStart = lastExtremum;
+        }
+
+        void recordDirectionalChange(
+                List<TickEvent> events, long timestamp, double price,
+                double change, double theta, EventType eventType, boolean newExpectingUp) {
+            events.add(new TickEvent(timestamp, price, eventType, Math.abs(change), theta));
+            this.lastExtremum = price;
+            this.inOvershoot = true;
+            this.overshootStart = price;
+            this.expectingUp = newExpectingUp;
+        }
     }
 
     public enum EventType {

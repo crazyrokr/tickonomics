@@ -17,7 +17,7 @@ class FinnhubWsClientSpec extends Specification {
   FinnhubWsClient client
 
   def setup() {
-    client = new FinnhubWsClient(objectMapper)
+    client = new FinnhubWsClient(objectMapper, "wss://ws.finnhub.io", 60000)
   }
 
   def "given connected, when subscribe, then symbol is tracked"() {

@@ -15,7 +15,7 @@ class EquityStrategyRegistryTest {
 
   @BeforeEach
   void setUp() {
-    registry = new EquityStrategyRegistry();
+    registry = new EquityStrategyRegistry(new UniverseAggregator());
   }
 
   @Nested
