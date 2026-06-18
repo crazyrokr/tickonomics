@@ -1,0 +1,115 @@
+name: Coverage Report
+
+on:
+  workflow_run:
+    workflows: ["PR Checks"]
+    types: [completed]
+
+permissions:
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  publish:
+    name: Publish Coverage
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Download PR metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download ${{ github.event.workflow_run.id }} \
+            -n pr-metadata -D pr-metadata/ || {
+            echo "No pr-metadata artifact — exiting"
+            exit 0
+          }
+
+      - name: Validate PR number
+        id: validate
+        run: |
+          PR_NUM=$(cat pr-metadata/pr-number 2>/dev/null || true)
+          if [ -z "$PR_NUM" ]; then
+            echo "Missing PR number — exiting"
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! echo "$PR_NUM" | grep -qE '^[0-9]+$'; then
+            echo "PR number is not numeric: $PR_NUM — exiting"
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "PR number: $PR_NUM"
+          echo "valid=true" >> "$GITHUB_OUTPUT"
+          echo "pr-number=$PR_NUM" >> "$GITHUB_OUTPUT"
+
+      - name: Check if Java files changed
+        id: java-check
+        if: steps.validate.outputs.valid == 'true'
+        run: |
+          if [ ! -s pr-metadata/changed-java.txt ]; then
+            echo "No Java files changed — exiting"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Java files changed:"
+          cat pr-metadata/changed-java.txt
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Download test and coverage artifacts
+        if: steps.java-check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_ID=${{ github.event.workflow_run.id }}
+          gh run download "$RUN_ID" -n jacoco-reports -D jacoco-reports/ || \
+            echo "No jacoco-reports artifact"
+          gh run download "$RUN_ID" -n java-test-results -D test-results/ || \
+            echo "No java-test-results artifact"
+
+      - name: Check if changed files have coverage data
+        id: coverage-check
+        if: steps.java-check.outputs.changed == 'true'
+        run: |
+          AGGREGATED="jacoco-reports/test-coverage/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml"
+          if [ ! -f "$AGGREGATED" ]; then
+            echo "No aggregated coverage report — skipping"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED=$(cat pr-metadata/changed-java.txt | xargs -I{} basename {} | sort -u)
+          COVERED=$(grep -oP '<sourcefile name="\K[^"]*' "$AGGREGATED" | sort -u || true)
+          OVERLAP=$(comm -12 <(echo "$CHANGED") <(echo "$COVERED") | head -1)
+          if [ -n "$OVERLAP" ]; then
+            echo "Changed files appear in coverage report — publishing"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "None of the changed files have coverage data — skipping"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate test report
+        if: steps.java-check.outputs.changed == 'true' && hashFiles('test-results/**/test/TEST-*.xml') != ''
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: 'test-results/**/test/TEST-*.xml'
+          summary: true
+          detailed_summary: true
+          require_passed_tests: true
+          include_passed: true
+
+      - name: Add coverage to PR
+        if: steps.coverage-check.outputs.publish == 'true'
+        uses: madrapps/jacoco-report@v1.7.2
+        with:
+          paths: ${{ github.workspace }}/jacoco-reports/test-coverage/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ steps.validate.outputs.pr-number }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+          update-comment: true
+          title: Test Coverage Report

@@ -20,6 +20,19 @@ subprojects {
   apply plugin: 'com.github.spotbugs'
   apply plugin: 'io.spring.dependency-management'
 
+  // analytics is Python-only; jacoco requires Java source sets
+  if (name != 'analytics') {
+    apply plugin: 'jacoco'
+
+    jacocoTestReport {
+      dependsOn test
+      reports {
+        xml.required = true
+        html.required = true
+      }
+    }
+  }
+
   group = 'io.tickonomics'
   version = '0.0.1-SNAPSHOT'
 
