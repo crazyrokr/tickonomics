@@ -66,19 +66,19 @@ jobs:
           git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
             | grep '\.java$' > pr-metadata/changed-java.txt || true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: pr-metadata
           path: pr-metadata/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: jacoco-reports
           path: '**/build/reports/jacoco/**'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: java-test-results
@@ -111,7 +111,7 @@ jobs:
         working-directory: analytics
         run: python -m pytest tests -m "not benchmark" --junitxml=build/test-results/pytest/results.xml -q
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: python-test-results
@@ -191,7 +191,7 @@ jobs:
 
       - name: Upload lint reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lint-reports
           path: |
