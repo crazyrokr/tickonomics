@@ -27,11 +27,7 @@ export function useWebSocket(path: string, token?: string) {
   }, [path, token]);
 
   const send = useCallback((data: unknown) => {
-    if (managerRef.current?.getState() === "connected") {
-      const socket = (managerRef.current as unknown as { socket: WebSocket })
-        .socket;
-      socket?.send(JSON.stringify(data));
-    }
+    managerRef.current?.send(data);
   }, []);
 
   return { connectionState, lastMessage, send };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { SignalMarker, SignalStatusCode } from "@/types/api";
 
 interface SignalToastProps {
@@ -28,20 +28,35 @@ export function SignalToast({
   );
 
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  // One independent dismissal timer per signal id, so a newly-arrived signal never resets the
+  // countdown for the signals already on screen.
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
-    if (visibleSignals.length === 0) return;
-    const timer = setTimeout(() => {
-      setDismissed((prev) => {
-        const next = new Set(prev);
-        for (const s of visibleSignals) {
-          next.add(s.id);
-        }
-        return next;
-      });
-    }, autoDismissMs);
-    return () => clearTimeout(timer);
-  }, [visibleSignals, autoDismissMs]);
+    for (const signal of visibleSignals) {
+      if (dismissed.has(signal.id) || timersRef.current.has(signal.id)) {
+        continue;
+      }
+      const timer = setTimeout(() => {
+        setDismissed((prev) => {
+          const next = new Set(prev);
+          next.add(signal.id);
+          return next;
+        });
+        timersRef.current.delete(signal.id);
+      }, autoDismissMs);
+      timersRef.current.set(signal.id, timer);
+    }
+  }, [visibleSignals, dismissed, autoDismissMs]);
+
+  // Clear any pending timers on unmount.
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+      timers.clear();
+    };
+  }, []);
 
   const toasts = visibleSignals.filter((s) => !dismissed.has(s.id));
 

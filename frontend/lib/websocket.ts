@@ -67,6 +67,13 @@ export class WebSocketManager {
     this.socket = null;
   }
 
+  /** Sends a JSON-serialized payload when the socket is open. No-ops otherwise. */
+  send(data: unknown): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(data));
+    }
+  }
+
   onConnectionChange(listener: ConnectionListener): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);

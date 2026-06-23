@@ -14,7 +14,7 @@ import { SignalToast } from "@/components/signals/SignalToast";
 
 export function DashboardClient() {
   const [activeSection, setActiveSection] = useState<SectionId>(DEFAULT_SECTION);
-  const data = useDashboardData();
+  const data = useDashboardData(undefined, activeSection);
 
   return (
     <>
