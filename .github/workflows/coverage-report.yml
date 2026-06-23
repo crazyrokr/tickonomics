@@ -104,7 +104,7 @@ jobs:
 
       - name: Add coverage to PR
         if: steps.coverage-check.outputs.publish == 'true'
-        uses: madrapps/jacoco-report@v1.7.2
+        uses: madrapps/jacoco-report@v1.8.0
         with:
           paths: ${{ github.workspace }}/jacoco-reports/test-coverage/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
