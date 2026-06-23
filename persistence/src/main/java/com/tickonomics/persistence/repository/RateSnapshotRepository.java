@@ -1,19 +1,25 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RateSnapshotRepository {
 
+  private static final Logger log = LoggerFactory.getLogger(RateSnapshotRepository.class);
+
   private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
 
   private static final String SELECT_COLUMNS =
       "time, rate_type, value, source, anomaly_score, is_suspect_anomaly";
@@ -27,8 +33,9 @@ public class RateSnapshotRepository {
           + "VALUES (:time, :rateType, :value, :source, :anomalyScore, :isSuspectAnomaly, :idempotencyKey) "
           + "ON CONFLICT (time, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING";
 
-  public RateSnapshotRepository(NamedParameterJdbcTemplate jdbc) {
+  public RateSnapshotRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public void save(RateSnapshot snapshot) {
@@ -38,10 +45,10 @@ public class RateSnapshotRepository {
   public void saveAll(List<RateSnapshot> snapshots) {
     jdbc.batchUpdate(
         INSERT_SQL,
-        SqlParameterSourceUtils.createBatch(snapshots
+        snapshots
             .stream()
             .map(this::toParams)
-            .toList()));
+            .toArray(SqlParameterSource[]::new));
   }
 
   /**
@@ -54,18 +61,25 @@ public class RateSnapshotRepository {
     }
     return jdbc.batchUpdate(
         IDEMPOTENT_INSERT_SQL,
-        SqlParameterSourceUtils.createBatch(rows
+        rows
             .stream()
             .map(this::toIdempotentParams)
-            .toList()));
+            .toArray(SqlParameterSource[]::new));
   }
 
   public List<RateSnapshot> findByRateTypeAndTimeBetween(String rateType, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT " + SELECT_COLUMNS + " "
-            + "FROM rate_snapshots WHERE rate_type = :rateType AND time BETWEEN :from AND :to ORDER BY time",
-        Map.of("rateType", rateType, "from", from, "to", to),
-        this::mapRow);
+    return findByRateTypeAndTimeBetween(rateType, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<RateSnapshot> findByRateTypeAndTimeBetween(
+      String rateType, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("rateType", rateType)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = "SELECT " + SELECT_COLUMNS + " "
+        + "FROM rate_snapshots WHERE rate_type = :rateType AND time BETWEEN :from AND :to ORDER BY time";
+    return BoundedRangeQuery.execute(jdbc, sql, params, this::mapRow, limit, offset, log, "RateSnapshot.findByRateTypeAndTimeBetween");
   }
 
   public List<RateSnapshot> findLatestByRateType(String rateType, int limit) {

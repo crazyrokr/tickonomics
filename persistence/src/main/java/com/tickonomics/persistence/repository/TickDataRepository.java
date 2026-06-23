@@ -1,17 +1,23 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.IdempotentRow;
 import com.tickonomics.persistence.entity.TickData;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class TickDataRepository {
+
+  private static final Logger log = LoggerFactory.getLogger(TickDataRepository.class);
 
   private static final String INSERT_SQL =
       "INSERT INTO tick_data (time, symbol, price, price_num, volume, conditions) "
@@ -23,9 +29,18 @@ public class TickDataRepository {
           + "ON CONFLICT (time, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING";
 
   private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
 
-  public TickDataRepository(NamedParameterJdbcTemplate jdbc) {
+  private final RowMapper<TickData> rowMapper = (rs, rowNum) -> new TickData(
+      rs.getTimestamp("time").toInstant(),
+      rs.getString("symbol"),
+      rs.getBigDecimal("price_num"),
+      rs.getLong("volume"),
+      (int[]) rs.getArray("conditions").getArray());
+
+  public TickDataRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public void save(TickData tick) {
@@ -35,10 +50,10 @@ public class TickDataRepository {
   public void saveAll(List<TickData> ticks) {
     jdbc.batchUpdate(
         INSERT_SQL,
-        SqlParameterSourceUtils.createBatch(ticks
+        ticks
             .stream()
             .map(this::toParams)
-            .toList()));
+            .toArray(SqlParameterSource[]::new));
   }
 
   /**
@@ -51,27 +66,25 @@ public class TickDataRepository {
     }
     return jdbc.batchUpdate(
         IDEMPOTENT_INSERT_SQL,
-        SqlParameterSourceUtils.createBatch(rows
+        rows
             .stream()
             .map(this::toIdempotentParams)
-            .toList()));
+            .toArray(SqlParameterSource[]::new));
   }
 
   public List<TickData> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT time, symbol, price_num, volume, conditions FROM tick_data WHERE symbol = :symbol AND time BETWEEN :from "
-            + "AND :to ORDER BY time",
-        Map.of("symbol", symbol, "from", from, "to", to),
-        (rs, rowNum) -> new TickData(
-            rs
-                .getTimestamp("time")
-                .toInstant(),
-            rs.getString("symbol"),
-            rs.getBigDecimal("price_num"),
-            rs.getLong("volume"),
-            (int[]) rs
-                .getArray("conditions")
-                .getArray()));
+    return findBySymbolAndTimeBetween(symbol, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<TickData> findBySymbolAndTimeBetween(
+      String symbol, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("symbol", symbol)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = "SELECT time, symbol, price_num, volume, conditions FROM tick_data WHERE symbol = :symbol "
+        + "AND time BETWEEN :from AND :to ORDER BY time";
+    return BoundedRangeQuery.execute(jdbc, sql, params, rowMapper, limit, offset, log, "TickData.findBySymbolAndTimeBetween");
   }
 
   public List<TickData> findLatestBySymbol(String symbol, int limit) {
@@ -79,16 +92,7 @@ public class TickDataRepository {
         "SELECT time, symbol, price_num, volume, conditions FROM tick_data WHERE symbol = :symbol ORDER BY time DESC "
             + "LIMIT :limit",
         Map.of("symbol", symbol, "limit", limit),
-        (rs, rowNum) -> new TickData(
-            rs
-                .getTimestamp("time")
-                .toInstant(),
-            rs.getString("symbol"),
-            rs.getBigDecimal("price_num"),
-            rs.getLong("volume"),
-            (int[]) rs
-                .getArray("conditions")
-                .getArray()));
+        rowMapper);
   }
 
   private MapSqlParameterSource toParams(TickData tick) {

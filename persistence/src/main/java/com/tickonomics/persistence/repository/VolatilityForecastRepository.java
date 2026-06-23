@@ -1,9 +1,12 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.VolatilityForecast;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,10 +14,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class VolatilityForecastRepository {
 
-  private final NamedParameterJdbcTemplate jdbc;
+  private static final Logger log = LoggerFactory.getLogger(VolatilityForecastRepository.class);
 
-  public VolatilityForecastRepository(NamedParameterJdbcTemplate jdbc) {
+  private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
+
+  public VolatilityForecastRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public void save(VolatilityForecast forecast) {
@@ -27,13 +34,20 @@ public class VolatilityForecastRepository {
   }
 
   public List<VolatilityForecast> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT time, symbol, model, horizon_days, forecast_vol, realized_vol, mae_vs_baseline, "
-            + "n_observations, parameters, git_sha, created_at "
-            + "FROM volatility_forecasts WHERE symbol = :symbol AND time BETWEEN :from AND :to "
-            + "ORDER BY time, horizon_days",
-        Map.of("symbol", symbol, "from", from, "to", to),
-        this::mapRow);
+    return findBySymbolAndTimeBetween(symbol, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<VolatilityForecast> findBySymbolAndTimeBetween(
+      String symbol, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("symbol", symbol)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = "SELECT time, symbol, model, horizon_days, forecast_vol, realized_vol, mae_vs_baseline, "
+        + "n_observations, parameters, git_sha, created_at "
+        + "FROM volatility_forecasts WHERE symbol = :symbol AND time BETWEEN :from AND :to "
+        + "ORDER BY time, horizon_days";
+    return BoundedRangeQuery.execute(jdbc, sql, params, this::mapRow, limit, offset, log, "VolatilityForecast.findBySymbolAndTimeBetween");
   }
 
   public List<VolatilityForecast> findLatestBySymbol(String symbol, int limit) {

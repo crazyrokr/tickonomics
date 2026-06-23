@@ -41,7 +41,7 @@ public class MarkovStopCalibrationRepository {
   public long save(MarkovStopCalibration calibration) {
     Instant calibratedAt = calibration.calibratedAt() != null
         ? calibration.calibratedAt() : Instant.now();
-    return jdbc.queryForObject(
+    Long generatedId = jdbc.queryForObject(
         "INSERT INTO markov_stop_calibrations "
             + "(symbol, optimal_stop_loss, optimal_take_profit, signal_drift, decay_intensity, "
             + "converged, iterations, calibrated_at) VALUES "
@@ -57,5 +57,10 @@ public class MarkovStopCalibrationRepository {
             "iterations", calibration.iterations(),
             "calibratedAt", calibratedAt),
         Long.class);
+    if (generatedId == null) {
+      throw new IllegalStateException(
+          "INSERT RETURNING id produced no result for symbol=" + calibration.symbol());
+    }
+    return generatedId;
   }
 }

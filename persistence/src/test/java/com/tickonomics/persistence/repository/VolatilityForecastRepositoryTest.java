@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.VolatilityForecast;
 import java.time.Instant;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,13 +28,15 @@ class VolatilityForecastRepositoryTest {
   @Mock
   private NamedParameterJdbcTemplate jdbc;
 
+  private final QueryLimits queryLimits = new QueryLimits(10_000);
+
   private VolatilityForecastRepository repository;
 
   private static final Instant NOW = Instant.now();
 
   @BeforeEach
   void setUp() {
-    repository = new VolatilityForecastRepository(jdbc);
+    repository = new VolatilityForecastRepository(jdbc, queryLimits);
   }
 
   private VolatilityForecast buildForecast() {
@@ -60,13 +64,13 @@ class VolatilityForecastRepositoryTest {
     @Test
     @SuppressWarnings("unchecked")
     void givenValidRange_whenFindBySymbol_thenQueryCalled() {
-      when(jdbc.query(anyString(), any(Map.class), any(RowMapper.class)))
+      when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class)))
           .thenReturn(List.of());
 
       List<VolatilityForecast> results = repository.findBySymbolAndTimeBetween(
           "SPY", NOW.minusSeconds(86400), NOW);
 
-      verify(jdbc).query(anyString(), any(Map.class), any(RowMapper.class));
+      verify(jdbc).query(anyString(), any(SqlParameterSource.class), any(RowMapper.class));
       assertEquals(0, results.size());
     }
   }

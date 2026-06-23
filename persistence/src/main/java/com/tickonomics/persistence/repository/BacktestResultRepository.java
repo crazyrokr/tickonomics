@@ -1,10 +1,13 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.BacktestResultRecord;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,7 +17,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class BacktestResultRepository {
 
+  private static final Logger log = LoggerFactory.getLogger(BacktestResultRepository.class);
+
+  /**
+   * Search strategy name inside {@code strategy_config} JSONB. The column holds
+   * {@code {"strategy":"<name>"}} (see BacktestEngine), so {@code ->>'strategy'} extracts the value
+   * for an indexable {@code ILIKE} instead of scanning the casted JSON text with a leading wildcard.
+   * A GIN trigram index backs this (see V40 migration).
+   */
+  private static final String NAME_PREDICATE = "strategy_config->>'strategy' ILIKE :namePattern";
+
+  private static final String SELECT_SQL =
+      "SELECT id, run_at, strategy_config, date_range, sharpe_ratio, max_drawdown, win_rate, "
+          + "profit_factor, equity_curve, git_sha, dataset_hash, model_hyperparams, rds_score, "
+          + "parameter_slice_metadata, adjusted_p_values FROM backtest_results";
+
   private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
 
   private final RowMapper<BacktestResultRecord> rowMapper = (rs, rowNum) -> new BacktestResultRecord(
       rs.getLong("id"),
@@ -33,8 +52,9 @@ public class BacktestResultRepository {
       rs.getString("parameter_slice_metadata"),
       rs.getString("adjusted_p_values"));
 
-  public BacktestResultRepository(NamedParameterJdbcTemplate jdbc) {
+  public BacktestResultRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public long save(BacktestResultRecord record) {
@@ -55,10 +75,7 @@ public class BacktestResultRepository {
 
   public Optional<BacktestResultRecord> findById(long id) {
     List<BacktestResultRecord> results = jdbc.query(
-        "SELECT id, run_at, strategy_config, date_range, sharpe_ratio, max_drawdown, win_rate, "
-            + "profit_factor, equity_curve, git_sha, dataset_hash, model_hyperparams, rds_score, "
-            + "parameter_slice_metadata, adjusted_p_values "
-            + "FROM backtest_results WHERE id = :id",
+        SELECT_SQL + " WHERE id = :id",
         Map.of("id", id),
         rowMapper);
     return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
@@ -66,23 +83,48 @@ public class BacktestResultRepository {
 
   public List<BacktestResultRecord> findByStrategyNameAndTimeBetween(
       String strategyName, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT id, run_at, strategy_config, date_range, sharpe_ratio, max_drawdown, win_rate, "
-            + "profit_factor, equity_curve, git_sha, dataset_hash, model_hyperparams, rds_score, "
-            + "parameter_slice_metadata, adjusted_p_values "
-            + "FROM backtest_results "
-            + "WHERE strategy_config::text LIKE :namePattern AND run_at BETWEEN :from AND :to "
-            + "ORDER BY run_at DESC",
-        Map.of("namePattern", "%" + strategyName + "%", "from", from, "to", to),
+    return findByStrategyNameAndTimeBetween(strategyName, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<BacktestResultRecord> findByStrategyNameAndTimeBetween(
+      String strategyName, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("namePattern", "%" + strategyName + "%")
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = SELECT_SQL + " WHERE " + NAME_PREDICATE + " AND run_at BETWEEN :from AND :to ORDER BY run_at DESC";
+    return BoundedRangeQuery.execute(
+        jdbc, sql, params, rowMapper, limit, offset, log, "BacktestResult.findByStrategyNameAndTimeBetween");
+  }
+
+  /**
+   * Explicit pagination over backtest runs by strategy name, with a full {@code total} row count.
+   * Use this when a caller needs page metadata; prefer the bounded {@code findByStrategyNameAndTimeBetween}
+   * overload for a simple capped slice.
+   */
+  public PaginatedResponse<BacktestResultRecord> findPageByStrategyNameAndTimeBetween(
+      String strategyName, Instant from, Instant to, int limit, int offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("namePattern", "%" + strategyName + "%")
+        .addValue("from", from)
+        .addValue("to", to)
+        .addValue("limit", limit)
+        .addValue("offset", Math.max(0, offset));
+    Long total = jdbc.queryForObject(
+        "SELECT COUNT(*) FROM backtest_results WHERE " + NAME_PREDICATE + " AND run_at BETWEEN :from AND :to",
+        params,
+        Long.class);
+    List<BacktestResultRecord> items = jdbc.query(
+        SELECT_SQL + " WHERE " + NAME_PREDICATE + " AND run_at BETWEEN :from AND :to "
+            + "ORDER BY run_at DESC LIMIT :limit OFFSET :offset",
+        params,
         rowMapper);
+    return new PaginatedResponse<>(items, total != null ? total : 0L, limit, offset);
   }
 
   public List<BacktestResultRecord> findLatest(int limit) {
     return jdbc.query(
-        "SELECT id, run_at, strategy_config, date_range, sharpe_ratio, max_drawdown, win_rate, "
-            + "profit_factor, equity_curve, git_sha, dataset_hash, model_hyperparams, rds_score, "
-            + "parameter_slice_metadata, adjusted_p_values "
-            + "FROM backtest_results ORDER BY run_at DESC LIMIT :limit",
+        SELECT_SQL + " ORDER BY run_at DESC LIMIT :limit",
         Map.of("limit", limit),
         rowMapper);
   }
