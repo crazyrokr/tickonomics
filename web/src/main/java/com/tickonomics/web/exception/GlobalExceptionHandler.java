@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, "Invalid request", ex.getMessage());
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ProblemDetail handleRateLimit(RateLimitExceededException ex) {
+        log.warn("Rate limit exceeded: {}", ex.getMessage());
+        return problem(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded", ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
         log.error("Unhandled controller exception", ex);

@@ -1,11 +1,11 @@
 package com.tickonomics.web.controller;
 
-import com.tickonomics.computation.audit.AuditEntry;
 import com.tickonomics.computation.audit.IntersubjectiveAuditService;
-import com.tickonomics.computation.strategy.AlphaSignal;
+import com.tickonomics.web.controller.dto.IntersubjectivePathResponse;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,58 +24,62 @@ public class QuantController {
     this.auditService = auditService;
   }
 
+  /**
+   * Several quant endpoints are declared in the contract (openapi.yaml) but not yet backed by
+   * wired services. They return HTTP 501 rather than a misleading 200 with empty data, so callers
+   * can distinguish "no data" from "not implemented".
+   */
+  private static ResponseEntity<ProblemDetail> notImplemented(String operation) {
+    var problem = ProblemDetail.forStatusAndDetail(
+        HttpStatus.NOT_IMPLEMENTED,
+        operation + " is declared in the API contract but not yet implemented.");
+    problem.setTitle("Not implemented");
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(problem);
+  }
+
   @GetMapping("/signals/active")
-  public ResponseEntity<List<AlphaSignal>> getActiveSignals(
+  public ResponseEntity<ProblemDetail> getActiveSignals(
       @RequestParam(required = false) String category) {
-    return ResponseEntity.ok(List.of());
+    return notImplemented("GET /api/v1/quant/signals/active");
   }
 
   @GetMapping("/strategies/active")
-  public ResponseEntity<List<Map<String, Object>>> getActiveStrategies() {
-    return ResponseEntity.ok(List.of());
+  public ResponseEntity<ProblemDetail> getActiveStrategies() {
+    return notImplemented("GET /api/v1/quant/strategies/active");
   }
 
   @PostMapping("/strategies/options/butterfly")
-  public ResponseEntity<AlphaSignal> computeButterflySignal(
+  public ResponseEntity<ProblemDetail> computeButterflySignal(
       @RequestParam String underlying) {
-    return ResponseEntity.ok(AlphaSignal.neutral(UUID.randomUUID(), underlying));
+    return notImplemented("POST /api/v1/quant/strategies/options/butterfly");
   }
 
   @GetMapping("/risk/tail-parameters")
-  public ResponseEntity<Map<String, Object>> getTailParameters() {
-    return ResponseEntity.ok(Map.of());
+  public ResponseEntity<ProblemDetail> getTailParameters() {
+    return notImplemented("GET /api/v1/quant/risk/tail-parameters");
   }
 
   @GetMapping("/risk/evt-tail")
-  public ResponseEntity<Map<String, Object>> getEvtTail() {
-    return ResponseEntity.ok(Map.of());
+  public ResponseEntity<ProblemDetail> getEvtTail() {
+    return notImplemented("GET /api/v1/quant/risk/evt-tail");
   }
 
   @GetMapping("/audit/intersubjective-reproducibility/{id}")
-  public ResponseEntity<Map<String, Object>> getAuditPath(@PathVariable UUID id) {
-    List<AuditEntry> path = auditService.reconstructPath(id);
+  public ResponseEntity<IntersubjectivePathResponse> getAuditPath(@PathVariable UUID id) {
     double irScore = auditService.computeCompositeIrScore(id);
-
-    List<Map<String, Object>> pathEntries = path
-        .stream()
-        .map(e -> Map.<String, Object>of(
-            "ruleName",
+    List<IntersubjectivePathResponse.PathEntry> path = auditService.reconstructPath(id).stream()
+        .map(e -> new IntersubjectivePathResponse.PathEntry(
             e.codingRule(),
-            "ruleVersion",
             e.ruleVersion(),
-            "inputHash",
             e.inputHash(),
-            "outputValue",
             e.outputValue(),
-            "irScore",
             e.irScore()))
         .toList();
-
-    return ResponseEntity.ok(Map.of("signalId", id.toString(), "path", pathEntries, "compositeIrScore", irScore));
+    return ResponseEntity.ok(new IntersubjectivePathResponse(id, path, irScore));
   }
 
   @GetMapping("/macro/shock-response")
-  public ResponseEntity<Map<String, Object>> getShockResponse() {
-    return ResponseEntity.ok(Map.of());
+  public ResponseEntity<ProblemDetail> getShockResponse() {
+    return notImplemented("GET /api/v1/quant/macro/shock-response");
   }
 }
