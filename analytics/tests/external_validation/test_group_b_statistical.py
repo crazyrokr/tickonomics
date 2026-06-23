@@ -272,7 +272,7 @@ def test_step23_quantile_regression_vs_linprog():
     noise = rng.normal(0, 1, n)
     y = 2.0 * x + 3.0 + noise
 
-    x_data = [[1.0, float(xi)] for xi in x]
+    x_data = [[float(xi)] for xi in x]
     y_data = y.tolist()
 
     # When — service

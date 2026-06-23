@@ -1,4 +1,20 @@
-"""Drift-diffusion simulation: Ito process via Euler-Maruyama discretization."""
+"""Drift-diffusion simulation via Euler-Maruyama discretization.
+
+The simulated process is **arithmetic Brownian motion (ABM)**, an Ito process with the additive
+SDE
+
+    dX = mu * dt + sigma * dW
+
+whose closed-form solution is X(t) = X(0) + mu*t + sigma*W(t), with
+
+    E[X(t)] = X(0) + mu*t        (theoretical_mean)
+    Std[X(t)] = sigma * sqrt(t)   (theoretical_std)
+
+The additive (not geometric) form is intentional: the defaults (initial_value 0.5, mu 0.001) model
+a normalized index/coordinate on an unbounded scale rather than a positive price, so a multiplicative
+GBM (dX/X = mu*dt + sigma*dW) would be the wrong model here. The public function name ``simulate_ito``
+is kept for API stability; every Ito-process discretization is ABM in this module.
+"""
 
 import numpy as np
 
@@ -12,6 +28,20 @@ def simulate_ito(
     n_paths: int = 100,
     seed: int | None = None,
 ) -> dict:
+    """Simulate ``n_paths`` of arithmetic Brownian motion (ABM) via Euler-Maruyama.
+
+    Args:
+        mu: Additive drift coefficient (per unit time).
+        sigma: Additive diffusion coefficient (per sqrt(time)).
+        initial_value: Starting value X(0).
+        t_max: Horizon length.
+        n_steps: Discretization steps over the horizon.
+        n_paths: Number of independent paths to simulate.
+        seed: Optional RNG seed for reproducibility.
+
+    Returns:
+        Simulated paths (first 10) plus empirical and theoretical terminal moments.
+    """
     rng = np.random.default_rng(seed)
 
     dt = t_max / n_steps
@@ -50,6 +80,11 @@ def barrier_hitting_probability(
     n_paths: int = 1000,
     seed: int | None = None,
 ) -> dict:
+    """Monte-Carlo estimate of the probability ABM reaches ``barrier_level`` within ``t_max``.
+
+    Same additive ABM dynamics as :func:`simulate_ito`; each path stops at the first barrier hit.
+    Returns the hit probability and the mean first-hitting time over paths that hit.
+    """
     rng = np.random.default_rng(seed)
 
     dt = t_max / n_steps
@@ -58,14 +93,12 @@ def barrier_hitting_probability(
 
     for _ in range(n_paths):
         x = initial_value
-        hit = False
         for t in range(1, n_steps + 1):
             dW = rng.standard_normal() * np.sqrt(dt)
             x = x + mu * dt + sigma * dW
             if x >= barrier_level:
                 n_hit += 1
                 hitting_times.append(t * dt)
-                hit = True
                 break
 
     hit_prob = n_hit / n_paths
