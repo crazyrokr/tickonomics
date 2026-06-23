@@ -32,3 +32,32 @@ analytics:
 monitor:
   demo:
     enabled: false
+  # A startup smoke test must not trigger external ingestion (no API keys / no network
+  # guarantees); disabling every conditional source keeps the context boot clean instead of
+  # flooding the writer with records it cannot flush.
+  equity-price:
+    enabled: false
+  yahoo-finance:
+    enabled: false
+  finnhub:
+    rest-enabled: false
+    ws-enabled: false
+    news-enabled: false
+  news:
+    enabled: false
+  fed-rss:
+    enabled: false
+  ken-french:
+    enabled: false
+  yield-curve:
+    enabled: false
+  alpha-vantage:
+    enabled: false
+  datahub:
+    enabled: false
+  # fred/nyfed poll unconditionally on a @Scheduled cadence (first fire at startup); disable
+  # them so they do not call out without an API key during the smoke test.
+  fred:
+    enabled: false
+  nyfed:
+    enabled: false

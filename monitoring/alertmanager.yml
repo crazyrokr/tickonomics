@@ -1,0 +1,46 @@
+# Alertmanager configuration for Tickonomics.
+# Alerts are routed from Prometheus via the alerting block in prometheus.yml.
+
+global:
+  # ResolveTimeout is the default time an alert is considered firing
+  # after it was last seen. 5 minutes by default.
+  resolve_timeout: 5m
+
+# The root route. All incoming alerts match this route and are
+# dispatched to the default receiver. Add child routes for
+# severity-based or team-based routing.
+route:
+  group_by: ["alertname", "severity"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: "default"
+
+# Inhibit rules suppress notifications for alerts that are
+# downstream of a higher-severity alert.
+inhibit_rules:
+  - source_match:
+      severity: "critical"
+    target_match:
+      severity: "warning"
+    equal: ["alertname"]
+
+receivers:
+  - name: "default"
+    # No notifier configured — alerts will be visible in the Alertmanager UI
+    # at :9093 but will not be delivered externally.
+    #
+    # To enable notifications, add one or more of:
+    #
+    # slack_configs:
+    #   - api_url: ${SLACK_WEBHOOK_URL}
+    #     channel: "#alerts"
+    #
+    # email_configs:
+    #   - to: "alerts@example.com"
+    #     from: "alertmanager@tickonomics.io"
+    #     smarthost: "smtp.example.com:587"
+    #     auth_username: "${SMTP_USER}"
+    #     auth_password: "${SMTP_PASSWORD}"
+    #
+    # See https://prometheus.io/docs/alerting/latest/configuration/ for all options.

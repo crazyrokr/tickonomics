@@ -115,9 +115,39 @@ resource "aws_iam_role_policy" "backup_runner" {
           "logs:PutLogEvents"
         ]
         Resource = ["arn:aws:logs:*:*:*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage"
+        ]
+        Resource = [aws_sqs_queue.backup_dlq.arn]
       }
     ]
   })
+}
+
+# Dead-letter queue for backup invocations that exhaust retries.
+resource "aws_sqs_queue" "backup_dlq" {
+  name = "${var.name_prefix}-backup-dlq"
+
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}-backup-dlq"
+  })
+}
+
+# Retry twice, then route permanently-failed invocations to the DLQ so a silent backup
+# failure is observable instead of lost.
+resource "aws_lambda_event_invoke_config" "backup_runner" {
+  function_name                = aws_lambda_function.backup_runner.function_name
+  maximum_retry_attempts       = 2
+  maximum_event_age_in_seconds = 21600
+
+  destination_config {
+    on_failure {
+      destination = aws_sqs_queue.backup_dlq.arn
+    }
+  }
 }
 
 resource "aws_lambda_function" "backup_runner" {
@@ -183,4 +213,9 @@ output "backup_bucket_name" {
 output "lambda_function_name" {
   description = "Name of the backup runner Lambda function"
   value       = aws_lambda_function.backup_runner.function_name
+}
+
+output "backup_dlq_url" {
+  description = "URL of the SQS dead-letter queue receiving failed backup invocations"
+  value       = aws_sqs_queue.backup_dlq.url
 }

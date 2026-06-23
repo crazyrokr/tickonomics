@@ -1,6 +1,24 @@
 <FindBugsFilter>
+  <!-- Spock-generated feature classes -->
   <Match>
     <Class name="~.*\$__spock_feature.*" />
     <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
+
+  <!-- Text-block format strings with literal newlines are not real \n escapes.
+       SpotBugs flags the line-break characters inside text blocks as if they were
+       escape sequences in a format string — a known limitation. -->
+  <Match>
+    <Class name="com.tickonomics.computation.demo.SignalQualityAnalyzer" />
+    <Method name="buildVerificationProgress" />
+    <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE" />
+  </Match>
+
+  <!--
+    NOTE: ~89 EI_EXPOSE_REP / EI_EXPOSE_REP2 warnings remain across persistence,
+    ingestion, computation, and web modules. These are genuine record-defensive-copy
+    concerns (mutable arrays/Dates in records) that require the ADR-021 cross-cutting
+    record-hygiene workstream. They are intentionally NOT excluded — the build stays
+    advisory (ignoreFailures=true) until ADR-021 delivers the systematic fix.
+  -->
 </FindBugsFilter>
