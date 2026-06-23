@@ -15,7 +15,7 @@ public class TieredIngestionBuffer<T> implements IngestionBuffer<T> {
     private final FileOverflowBuffer<T> fileOverflow;
 
     public TieredIngestionBuffer(int memoryCapacity, Path overflowPath, Class<T> itemClass) {
-        this.memoryBuffer = new InMemoryIngestionBuffer<>(memoryCapacity);
+        this.memoryBuffer = InMemoryIngestionBuffer.create(memoryCapacity);
         this.fileOverflow = new FileOverflowBuffer<>(overflowPath, itemClass);
         recoverFromOverflow();
     }
