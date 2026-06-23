@@ -170,7 +170,7 @@ module "hosting" {
   registry_url         = split("/", module.container_registry.backend_repository_url)[0]
   backend_image        = "${module.container_registry.backend_repository_url}:${var.image_tag}"
   analytics_image      = "${module.container_registry.analytics_repository_url}:${var.image_tag}"
-  dashboard_image      = "${module.container_registry.backend_repository_url}-dashboard:${var.image_tag}"
+  dashboard_image      = "${module.container_registry.dashboard_repository_url}:${var.image_tag}"
   postgres_password    = var.postgres_password
   finnhub_api_key      = var.finnhub_api_key
   alphavantage_api_key = var.alphavantage_api_key

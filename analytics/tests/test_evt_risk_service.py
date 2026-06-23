@@ -48,6 +48,23 @@ def test_no_tail_returns_error():
     assert result["status"] in ("ERROR", "FIT_FAILURE")
 
 
+def test_gumbel_fallback_when_xi_near_zero():
+    """Given near-Gumbel tail data (xi ≈ 0), when fit, then tail_var is finite and
+    the Gumbel-limit formula is used without division-by-zero."""
+    # Given: exponential tail (GPD with xi=0 is the exponential/Gumbel domain)
+    rng = np.random.default_rng(99)
+    data = rng.exponential(scale=1.0, size=500).tolist()
+    service = EvtRiskService()
+
+    # When
+    result = service.fit_tail_distribution(data, quantile_u=0.95)
+
+    # Then
+    assert result["status"] == "SUCCESS"
+    assert np.isfinite(result["tail_var_999"])
+    assert result["tail_var_999"] > result["threshold_u"]
+
+
 def test_simulate_tail_paths_returns_correct_length():
     """Given shape and scale, when simulate 100 paths, then returns 100 values."""
     # Given

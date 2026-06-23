@@ -5,13 +5,13 @@ from app.services.statistical.quantile_regression_service import calculate_quant
 
 def test_quantile_bands_computation():
     """Given 200 samples of linear relationship with noise, when compute bands at [0.05, 0.95],
-    then returns 2 coefficient vectors."""
+    then returns 2 coefficient vectors with intercept + 2 slopes."""
     # Given
     rng = np.random.default_rng(42)
     n = 200
     x1 = rng.normal(0, 1, size=n)
     x2 = rng.normal(0, 1, size=n)
-    y = 2.0 * x1 + 3.0 * x2 + rng.normal(0, 0.5, size=n)
+    y = 1.0 + 2.0 * x1 + 3.0 * x2 + rng.normal(0, 0.5, size=n)
 
     x_data = [[float(a), float(b)] for a, b in zip(x1, x2)]
     y_data = y.tolist()
@@ -22,17 +22,18 @@ def test_quantile_bands_computation():
     # Then
     assert result["quantiles"] == [0.05, 0.95]
     assert len(result["coefficients"]) == 2
+    assert all(len(c) == 3 for c in result["coefficients"])  # intercept + 2 slopes
     assert len(result["pseudo_r2"]) == 2
     assert all(r2 >= 0 for r2 in result["pseudo_r2"])
 
 
 def test_single_quantile():
-    """Given data and quantiles=[0.5], when compute, then returns 1 coefficient vector."""
+    """Given data and quantiles=[0.5], when compute, then returns 1 coefficient vector with intercept + 1 slope."""
     # Given
     rng = np.random.default_rng(7)
     n = 150
     x1 = rng.normal(0, 1, size=n)
-    y = 1.5 * x1 + rng.normal(0, 1, size=n)
+    y = 0.5 + 1.5 * x1 + rng.normal(0, 1, size=n)
 
     x_data = [[float(v)] for v in x1]
     y_data = y.tolist()
@@ -42,6 +43,7 @@ def test_single_quantile():
 
     # Then
     assert len(result["coefficients"]) == 1
+    assert len(result["coefficients"][0]) == 2  # intercept + slope
     assert len(result["pseudo_r2"]) == 1
 
 
@@ -51,7 +53,7 @@ def test_bands_monotone():
     rng = np.random.default_rng(42)
     n = 200
     x1 = rng.normal(0, 1, size=n)
-    y = 2.0 * x1 + rng.normal(0, 0.5, size=n)
+    y = 1.0 + 2.0 * x1 + rng.normal(0, 0.5, size=n)
 
     # When
     result = calculate_quantile_bands(
@@ -60,10 +62,11 @@ def test_bands_monotone():
 
     # Then: 0.5-quantile slope should be between 0.1 and 0.9
     assert len(result["coefficients"]) == 3
+    assert all(len(c) == 2 for c in result["coefficients"])  # intercept + slope
 
 
 def test_bands_known_linear():
-    """Given y = 2x + noise, when 0.5-quantile regression, then slope ≈ 2."""
+    """Given y = 2x + noise, when 0.5-quantile regression with intercept, then slope ≈ 2."""
     # Given
     rng = np.random.default_rng(42)
     n = 300
@@ -76,5 +79,7 @@ def test_bands_known_linear():
     )
 
     # Then
-    slope = result["coefficients"][0][0]
+    coefficients = result["coefficients"][0]
+    intercept, slope = coefficients[0], coefficients[1]
     assert abs(slope - 2.0) < 0.5
+    assert abs(intercept) < 0.5

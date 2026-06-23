@@ -1,20 +1,30 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.AlphaSignalRecord;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class AlphaSignalRepository {
 
+  private static final Logger log = LoggerFactory.getLogger(AlphaSignalRepository.class);
+
+  private static final String SELECT_SQL =
+      "SELECT time, strategy_id, symbol, direction, strength, confidence, expected_move, metadata "
+          + "FROM alpha_signals";
+
   private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
 
   private final RowMapper<AlphaSignalRecord> rowMapper = (rs, rowNum) -> new AlphaSignalRecord(
       rs.getTimestamp("time").toInstant(),
@@ -26,8 +36,9 @@ public class AlphaSignalRepository {
       rs.getObject("expected_move") != null ? rs.getDouble("expected_move") : null,
       rs.getString("metadata"));
 
-  public AlphaSignalRepository(NamedParameterJdbcTemplate jdbc) {
+  public AlphaSignalRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public void save(AlphaSignalRecord signal) {
@@ -45,30 +56,40 @@ public class AlphaSignalRepository {
             + "expected_move, metadata) "
             + "VALUES (:time, :strategyId, :symbol, :direction, :strength, :confidence, "
             + ":expectedMove, :metadata::jsonb)",
-        SqlParameterSourceUtils.createBatch(signals
+        signals
             .stream()
             .map(this::toParams)
-            .toList()));
+            .toArray(SqlParameterSource[]::new));
   }
 
   public List<AlphaSignalRecord> findByStrategyIdAndTimeBetween(
       UUID strategyId, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT time, strategy_id, symbol, direction, strength, confidence, expected_move, metadata "
-            + "FROM alpha_signals WHERE strategy_id = :strategyId AND time BETWEEN :from AND :to "
-            + "ORDER BY time",
-        Map.of("strategyId", strategyId, "from", from, "to", to),
-        rowMapper);
+    return findByStrategyIdAndTimeBetween(strategyId, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<AlphaSignalRecord> findByStrategyIdAndTimeBetween(
+      UUID strategyId, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("strategyId", strategyId)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = SELECT_SQL + " WHERE strategy_id = :strategyId AND time BETWEEN :from AND :to ORDER BY time";
+    return BoundedRangeQuery.execute(jdbc, sql, params, rowMapper, limit, offset, log, "AlphaSignal.findByStrategyIdAndTimeBetween");
   }
 
   public List<AlphaSignalRecord> findBySymbolAndTimeBetween(
       String symbol, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT time, strategy_id, symbol, direction, strength, confidence, expected_move, metadata "
-            + "FROM alpha_signals WHERE symbol = :symbol AND time BETWEEN :from AND :to "
-            + "ORDER BY time",
-        Map.of("symbol", symbol, "from", from, "to", to),
-        rowMapper);
+    return findBySymbolAndTimeBetween(symbol, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<AlphaSignalRecord> findBySymbolAndTimeBetween(
+      String symbol, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("symbol", symbol)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = SELECT_SQL + " WHERE symbol = :symbol AND time BETWEEN :from AND :to ORDER BY time";
+    return BoundedRangeQuery.execute(jdbc, sql, params, rowMapper, limit, offset, log, "AlphaSignal.findBySymbolAndTimeBetween");
   }
 
   public List<AlphaSignalRecord> findLatestByStrategyId(UUID strategyId, int limit) {

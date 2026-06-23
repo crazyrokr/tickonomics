@@ -48,7 +48,7 @@ public class YahooOptionsCdmAdapter implements CdmAdapter<YahooOptionContract, C
 
   private double computeTtmYears(LocalDate expiry) {
     long days = ChronoUnit.DAYS.between(LocalDate.now(), expiry);
-    return Math.max(0, days / 365.25);
+    return Math.max(0, days / 365.0);
   }
 
   private static OptionType parseOptionType(String raw) {

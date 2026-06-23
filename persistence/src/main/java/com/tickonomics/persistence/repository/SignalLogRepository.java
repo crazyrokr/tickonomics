@@ -1,9 +1,12 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.SignalLog;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,7 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SignalLogRepository {
 
+  private static final Logger log = LoggerFactory.getLogger(SignalLogRepository.class);
+
   private final NamedParameterJdbcTemplate jdbc;
+  private final QueryLimits queryLimits;
 
   private final RowMapper<SignalLog> rowMapper = (rs, rowNum) -> new SignalLog(
       rs.getTimestamp("created_at").toInstant(),
@@ -26,8 +32,9 @@ public class SignalLogRepository {
       rs.getDouble("estimated_cost"),
       rs.getString("signal_metadata"));
 
-  public SignalLogRepository(NamedParameterJdbcTemplate jdbc) {
+  public SignalLogRepository(NamedParameterJdbcTemplate jdbc, QueryLimits queryLimits) {
     this.jdbc = jdbc;
+    this.queryLimits = queryLimits;
   }
 
   public long save(SignalLog signal) {
@@ -44,21 +51,31 @@ public class SignalLogRepository {
   }
 
   public List<SignalLog> findBySymbolAndTimeBetween(String symbol, Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, estimated_cost, "
-            + "signal_metadata "
-            + "FROM signal_log WHERE symbol = :symbol AND created_at BETWEEN :from AND :to ORDER BY created_at DESC",
-        Map.of("symbol", symbol, "from", from, "to", to),
-        rowMapper);
+    return findBySymbolAndTimeBetween(symbol, from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<SignalLog> findBySymbolAndTimeBetween(
+      String symbol, Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource()
+        .addValue("symbol", symbol)
+        .addValue("from", from)
+        .addValue("to", to);
+    String sql = "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, estimated_cost, "
+        + "signal_metadata "
+        + "FROM signal_log WHERE symbol = :symbol AND created_at BETWEEN :from AND :to ORDER BY created_at DESC";
+    return BoundedRangeQuery.execute(jdbc, sql, params, rowMapper, limit, offset, log, "SignalLog.findBySymbolAndTimeBetween");
   }
 
   public List<SignalLog> findByCreatedAtBetween(Instant from, Instant to) {
-    return jdbc.query(
-        "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, "
-            + "estimated_cost, signal_metadata "
-            + "FROM signal_log WHERE created_at BETWEEN :from AND :to ORDER BY created_at",
-        Map.of("from", from, "to", to),
-        rowMapper);
+    return findByCreatedAtBetween(from, to, queryLimits.defaultLimit(), 0);
+  }
+
+  public List<SignalLog> findByCreatedAtBetween(Instant from, Instant to, int limit, Integer offset) {
+    var params = new MapSqlParameterSource().addValue("from", from).addValue("to", to);
+    String sql = "SELECT created_at, symbol, direction, status, ili_percentile, ili_value, expected_move, "
+        + "estimated_cost, signal_metadata "
+        + "FROM signal_log WHERE created_at BETWEEN :from AND :to ORDER BY created_at";
+    return BoundedRangeQuery.execute(jdbc, sql, params, rowMapper, limit, offset, log, "SignalLog.findByCreatedAtBetween");
   }
 
   public List<SignalLog> findLatestByStatus(String status, int limit) {

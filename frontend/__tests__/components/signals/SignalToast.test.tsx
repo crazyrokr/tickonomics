@@ -1,7 +1,16 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, act } from "@testing-library/react";
 import { SignalToast } from "@/components/signals/SignalToast";
 import type { SignalMarker } from "@/types/api";
+
+const actionable = (id: string, symbol = "SPY"): SignalMarker => ({
+  id,
+  timestamp: "2026-05-30T12:00:00Z",
+  statusCode: "ACTIONABLE",
+  direction: "LONG",
+  symbol,
+  iliValue: 0.8,
+});
 
 describe("SignalToast", () => {
   it("renders nothing when no signals", () => {
@@ -36,5 +45,53 @@ describe("SignalToast", () => {
     ];
     render(<SignalToast signals={signals} />);
     expect(screen.getByText(/SPY @ ILI 0\.800/)).toBeInTheDocument();
+  });
+
+  it("dismisses a signal after its own autoDismissMs countdown", () => {
+    vi.useFakeTimers();
+    try {
+      render(<SignalToast signals={[actionable("sig-1")]} autoDismissMs={1000} />);
+      expect(screen.getByTestId("toast-sig-1")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.queryByTestId("toast-sig-1")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not reset an existing signal's timer when a new signal arrives", () => {
+    vi.useFakeTimers();
+    try {
+      const { rerender } = render(
+        <SignalToast signals={[actionable("sig-1")]} autoDismissMs={1000} />,
+      );
+      // Advance 700ms so sig-1 is most of the way through its 1000ms countdown.
+      act(() => {
+        vi.advanceTimersByTime(700);
+      });
+
+      // A second signal arrives — sig-1's countdown must NOT restart.
+      rerender(
+        <SignalToast
+          signals={[actionable("sig-1"), actionable("sig-2", "QQQ")]}
+          autoDismissMs={1000}
+        />,
+      );
+
+      // 400ms more: sig-1 reaches its original 1000ms and is dismissed;
+      // sig-2 (scheduled at +700ms) still has ~600ms left and stays visible.
+      act(() => {
+        vi.advanceTimersByTime(400);
+      });
+
+      expect(screen.queryByTestId("toast-sig-1")).not.toBeInTheDocument();
+      expect(screen.getByTestId("toast-sig-2")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

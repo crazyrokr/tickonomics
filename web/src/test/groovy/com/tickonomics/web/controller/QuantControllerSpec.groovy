@@ -26,52 +26,42 @@ class QuantControllerSpec extends Specification {
   @Autowired
   IntersubjectiveAuditService auditService
 
-  def "GET /api/v1/quant/signals/active returns empty array when no active signals exist"() {
+  def "GET /api/v1/quant/signals/active returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/signals/active"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$').isArray())
-            .andExpect(jsonPath('$').isEmpty())
+            .andExpect(status().isNotImplemented())
   }
 
   def "GET /api/v1/quant/signals/active accepts optional category query parameter"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/signals/active")
             .param("category", "OPTIONS"))
-            .andExpect(status().isOk())
+            .andExpect(status().isNotImplemented())
   }
 
-  def "GET /api/v1/quant/strategies/active returns empty array when no active strategies exist"() {
+  def "GET /api/v1/quant/strategies/active returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/strategies/active"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$').isArray())
-            .andExpect(jsonPath('$').isEmpty())
+            .andExpect(status().isNotImplemented())
   }
 
-  def "POST /api/v1/quant/strategies/options/butterfly returns 200 with neutral alpha signal for given underlying"() {
+  def "POST /api/v1/quant/strategies/options/butterfly returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(post("/api/v1/quant/strategies/options/butterfly")
             .param("underlying", "SPY"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$.symbol').value("SPY"))
-            .andExpect(jsonPath('$.direction').value("NEUTRAL"))
-            .andExpect(jsonPath('$.strength').value(0.0))
-            .andExpect(jsonPath('$.confidence').value(0.0))
+            .andExpect(status().isNotImplemented())
   }
 
-  def "GET /api/v1/quant/risk/tail-parameters returns 200 with empty map"() {
+  def "GET /api/v1/quant/risk/tail-parameters returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/risk/tail-parameters"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$').isEmpty())
+            .andExpect(status().isNotImplemented())
   }
 
-  def "GET /api/v1/quant/risk/evt-tail returns 200 with empty map"() {
+  def "GET /api/v1/quant/risk/evt-tail returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/risk/evt-tail"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$').isEmpty())
+            .andExpect(status().isNotImplemented())
   }
 
   def "GET /api/v1/quant/audit/intersubjective-reproducibility/{id} returns empty path for unknown data point"() {
@@ -106,11 +96,10 @@ class QuantControllerSpec extends Specification {
             .andExpect(jsonPath('$.compositeIrScore').value(1.0))
   }
 
-  def "GET /api/v1/quant/macro/shock-response returns 200 with empty map"() {
+  def "GET /api/v1/quant/macro/shock-response returns 501 (declared but not implemented)"() {
     expect:
         mockMvc.perform(get("/api/v1/quant/macro/shock-response"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath('$').isEmpty())
+            .andExpect(status().isNotImplemented())
   }
 
   def "GET /health returns UP status"() {
@@ -120,4 +109,3 @@ class QuantControllerSpec extends Specification {
             .andExpect(jsonPath('$.status').value("UP"))
   }
 }
-

@@ -1,3 +1,14 @@
+"""Transfer entropy (TE) estimation for directional information flow.
+
+TE(Y -> X) quantifies how much the future of X is predicted by the past of Y beyond what X's own
+past already explains. This implementation uses a discrete histogram (plugin / maximum-likelihood)
+estimator with a **Miller-Madow bias correction**: the plugin estimator is biased upward for finite
+samples, and Miller-Madow subtracts an O(1/N) term derived from the number of occupied bins in each
+joint and marginal distribution. The binning rule (sqrt(N/10) + 1) is a heuristic; results are
+approximate for small N and should be interpreted alongside the permutation p-value returned by
+:func:`compute_transfer_entropy`.
+"""
+
 import numpy as np
 
 
@@ -44,7 +55,18 @@ def _transfer_entropy(source: np.ndarray, target: np.ndarray, lag: int = 1) -> f
                     if p_cond_marginal > 0:
                         te += p_joint[i, j, k] * np.log(p_cond_joint / p_cond_marginal)
 
-    return max(0.0, te)
+    # Miller-Madow bias correction. TE expands as
+    #   H(Xf,Xp) - H(Xp) - H(Xf,Xp,Yp) + H(Xp,Yp);
+    # applying the Miller-Madow term (K-1)/(2N) to each entropy and collecting the constant
+    # offsets yields correction = (K_xfxp - K_xp - K_3 + K_xpyp) / (2N), where K_* are the counts
+    # of occupied bins in each distribution and N is the sample count.
+    k_3 = int(np.count_nonzero(joint_3d))
+    k_xfxp = int(np.count_nonzero(joint_2d_xf_xp))
+    k_xpyp = int(np.count_nonzero(joint_2d_xp_yp))
+    k_xp = int(np.count_nonzero(marginal_xp))
+    correction = (k_xfxp - k_xp - k_3 + k_xpyp) / (2.0 * total)
+
+    return max(0.0, te + correction)
 
 
 def compute_transfer_entropy(

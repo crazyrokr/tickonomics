@@ -2,17 +2,25 @@ package com.tickonomics.web.controller;
 
 import com.tickonomics.computation.demo.KillSwitch;
 import com.tickonomics.computation.demo.MarketPriceLookup;
-import com.tickonomics.computation.demo.PaperTradingEngine;
 import com.tickonomics.computation.demo.SignalQualityAnalyzer;
 import com.tickonomics.computation.demo.SystemicResilienceMonitor;
 import com.tickonomics.computation.demo.VirtualPortfolio;
 import com.tickonomics.computation.leverage.LeverageSignaler;
 import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
-import com.tickonomics.persistence.repository.SignalLogRepository;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
+import com.tickonomics.web.config.AuthenticatedWrite;
+import com.tickonomics.web.controller.dto.DemoCloseResultResponse;
+import com.tickonomics.web.controller.dto.DemoPortfolioResponse;
+import com.tickonomics.web.controller.dto.DemoPositionResponse;
+import com.tickonomics.web.controller.dto.DemoTradeResponse;
+import com.tickonomics.web.controller.dto.KillSwitchResponse;
+import com.tickonomics.web.controller.dto.LeverageRotationResponse;
+import com.tickonomics.web.controller.dto.SafeModeStatusResponse;
+import com.tickonomics.web.controller.dto.SafeModeToggleResponse;
+import com.tickonomics.web.exception.RateLimitExceededException;
+import com.tickonomics.web.security.RateLimitGuard;
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
@@ -29,176 +37,174 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
 
   private final VirtualPortfolio portfolio;
-  private final PaperTradingEngine tradingEngine;
   private final SignalQualityAnalyzer qualityAnalyzer;
   private final VirtualPortfolioTradeRepository tradeRepository;
-  private final SignalLogRepository signalLogRepository;
   private final KillSwitch killSwitch;
   private final MarketPriceLookup priceLookup;
   private final LeverageSignaler leverageSignaler;
   private final SystemicResilienceMonitor resilienceMonitor;
+  private final RateLimitGuard rateLimiter;
 
   public DemoController(
       VirtualPortfolio portfolio,
-      PaperTradingEngine tradingEngine,
       SignalQualityAnalyzer qualityAnalyzer,
       VirtualPortfolioTradeRepository tradeRepository,
-      SignalLogRepository signalLogRepository,
       KillSwitch killSwitch,
       MarketPriceLookup priceLookup,
       LeverageSignaler leverageSignaler,
-      SystemicResilienceMonitor resilienceMonitor) {
+      SystemicResilienceMonitor resilienceMonitor,
+      RateLimitGuard rateLimiter) {
     this.portfolio = portfolio;
-    this.tradingEngine = tradingEngine;
     this.qualityAnalyzer = qualityAnalyzer;
     this.tradeRepository = tradeRepository;
-    this.signalLogRepository = signalLogRepository;
     this.killSwitch = killSwitch;
     this.priceLookup = priceLookup;
     this.leverageSignaler = leverageSignaler;
     this.resilienceMonitor = resilienceMonitor;
+    this.rateLimiter = rateLimiter;
   }
 
   @GetMapping("/portfolio")
-  public ResponseEntity<Map<String, Object>> getPortfolioSummary() {
+  public ResponseEntity<DemoPortfolioResponse> getPortfolioSummary() {
     VirtualPortfolio.PortfolioSummary summary = portfolio.getPortfolioSummary();
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("balance", summary.currentBalance());
-    body.put("initialBalance", summary.initialBalance());
-    body.put("realizedPnl", summary.realizedPnl());
-    body.put("unrealizedPnl", summary.unrealizedPnl());
-    body.put("totalPnl", summary.realizedPnl().add(summary.unrealizedPnl()));
-    body.put("openPositions", summary.openPositions());
-    body.put("totalTrades", summary.totalTrades());
-    body.put("winRate", summary.winRate());
-    body.put("enabled", summary.enabled());
-    return ResponseEntity.ok(body);
+    return ResponseEntity.ok(new DemoPortfolioResponse(
+        summary.currentBalance(),
+        summary.initialBalance(),
+        summary.realizedPnl(),
+        summary.unrealizedPnl(),
+        summary.realizedPnl().add(summary.unrealizedPnl()),
+        summary.openPositions(),
+        summary.totalTrades(),
+        summary.winRate(),
+        summary.enabled()));
   }
 
   @GetMapping("/positions")
-  public ResponseEntity<List<Map<String, Object>>> getOpenPositions() {
-    List<VirtualPortfolioPosition> positions = portfolio.findOpenPositions();
-    List<Map<String, Object>> result = positions.stream().map(pos -> {
-      Map<String, Object> map = new LinkedHashMap<>();
-      map.put("id", pos.id());
-      map.put("symbol", pos.symbol());
-      map.put("direction", pos.direction());
-      map.put("quantity", pos.quantity());
-      map.put("entryPrice", pos.entryPrice());
-      map.put("currentPrice", pos.currentPrice());
-      map.put("unrealizedPnl", pos.unrealizedPnl());
-      map.put("stopLossPrice", pos.stopLossPrice());
-      map.put("takeProfitPrice", pos.takeProfitPrice());
-      map.put("openedAt", pos.openedAt());
-      return map;
-    }).toList();
+  public ResponseEntity<List<DemoPositionResponse>> getOpenPositions() {
+    List<DemoPositionResponse> result = portfolio.findOpenPositions().stream()
+        .map(pos -> new DemoPositionResponse(
+            pos.id(),
+            pos.symbol(),
+            pos.direction(),
+            pos.quantity(),
+            pos.entryPrice(),
+            pos.currentPrice(),
+            pos.unrealizedPnl(),
+            pos.stopLossPrice(),
+            pos.takeProfitPrice(),
+            pos.openedAt()))
+        .toList();
     return ResponseEntity.ok(result);
   }
 
   @GetMapping("/trades")
-  public ResponseEntity<List<Map<String, Object>>> getTrades(
+  public ResponseEntity<List<DemoTradeResponse>> getTrades(
       @RequestParam(defaultValue = "50") int limit,
       @RequestParam(defaultValue = "0") int offset) {
-    List<VirtualPortfolioTrade> trades = tradeRepository.findLatest(limit, offset);
-    List<Map<String, Object>> result = trades.stream().map(trade -> {
-      Map<String, Object> map = new LinkedHashMap<>();
-      map.put("id", trade.id());
-      map.put("symbol", trade.symbol());
-      map.put("direction", trade.direction());
-      map.put("quantity", trade.quantity());
-      map.put("fillPrice", trade.fillPrice());
-      map.put("commission", trade.commission());
-      map.put("slippage", trade.slippage());
-      map.put("realizedPnl", trade.realizedPnl());
-      map.put("executedAt", trade.executedAt());
-      map.put("tradeType", trade.tradeType());
-      return map;
-    }).toList();
+    List<DemoTradeResponse> result = tradeRepository.findLatest(limit, offset).stream()
+        .map(trade -> new DemoTradeResponse(
+            trade.id(),
+            trade.symbol(),
+            trade.direction(),
+            trade.quantity(),
+            trade.fillPrice(),
+            trade.commission(),
+            trade.slippage(),
+            trade.realizedPnl(),
+            trade.executedAt(),
+            trade.tradeType()))
+        .toList();
     return ResponseEntity.ok(result);
   }
 
   @GetMapping("/signal-quality")
   public ResponseEntity<Map<String, Object>> getSignalQuality() {
+    // SignalQuality is a free-form report (contract schema: additionalProperties: true), so the
+    // analyzer's native Map is the correct typed surface here.
     return qualityAnalyzer.findLatestReport()
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.ok(Map.of()));
   }
 
+  @AuthenticatedWrite
   @PostMapping("/close-position/{positionId}")
-  public ResponseEntity<Map<String, Object>> closePosition(
+  public ResponseEntity<DemoCloseResultResponse> closePosition(
       @PathVariable long positionId,
       @RequestParam BigDecimal price) {
-    VirtualPortfolioTrade trade = portfolio.closePosition(positionId, price);
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("tradeId", trade.id());
-    body.put("positionId", positionId);
-    body.put("realizedPnl", trade.realizedPnl());
-    body.put("fillPrice", trade.fillPrice());
-    return ResponseEntity.ok(body);
-  }
-
-  @PostMapping("/kill-switch/activate")
-  public ResponseEntity<Map<String, Object>> activateKillSwitch(
-      @RequestBody(required = false) Map<String, BigDecimal> prices) {
-    killSwitch.activate();
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("active", true);
-    if (prices != null && !prices.isEmpty()) {
-      List<VirtualPortfolioTrade> liquidated = killSwitch.liquidateAll(portfolio, prices);
-      body.put("liquidatedTrades", liquidated.size());
+    if (!rateLimiter.tryAcquire("demo.close-position")) {
+      throw new RateLimitExceededException("close-position rate limit exceeded; retry later");
     }
-    return ResponseEntity.ok(body);
+    VirtualPortfolioTrade trade = portfolio.closePosition(positionId, price);
+    return ResponseEntity.ok(new DemoCloseResultResponse(
+        trade.id(), positionId, trade.realizedPnl(), trade.fillPrice()));
   }
 
+  @AuthenticatedWrite
+  @PostMapping("/kill-switch/activate")
+  public ResponseEntity<KillSwitchResponse> activateKillSwitch(
+      @RequestBody(required = false) Map<String, BigDecimal> prices) {
+    if (!rateLimiter.tryAcquire("demo.kill-switch")) {
+      throw new RateLimitExceededException("kill-switch rate limit exceeded; retry later");
+    }
+    killSwitch.activate();
+    Integer liquidatedTrades = null;
+    if (prices != null && !prices.isEmpty()) {
+      liquidatedTrades = killSwitch.liquidateAll(portfolio, prices).size();
+    }
+    return ResponseEntity.ok(new KillSwitchResponse(true, liquidatedTrades));
+  }
+
+  @AuthenticatedWrite
   @PostMapping("/kill-switch/deactivate")
-  public ResponseEntity<Map<String, Object>> deactivateKillSwitch() {
+  public ResponseEntity<KillSwitchResponse> deactivateKillSwitch() {
     killSwitch.deactivate();
-    return ResponseEntity.ok(Map.of("active", false));
+    return ResponseEntity.ok(new KillSwitchResponse(false, null));
   }
 
   @GetMapping("/kill-switch/status")
-  public ResponseEntity<Map<String, Object>> killSwitchStatus() {
-    return ResponseEntity.ok(Map.of("active", killSwitch.isActive()));
+  public ResponseEntity<KillSwitchResponse> killSwitchStatus() {
+    return ResponseEntity.ok(new KillSwitchResponse(killSwitch.isActive(), null));
   }
 
   @GetMapping("/safe-mode/status")
-  public ResponseEntity<Map<String, Object>> safeModeStatus() {
+  public ResponseEntity<SafeModeStatusResponse> safeModeStatus() {
     SystemicResilienceMonitor.StatusReport report = resilienceMonitor.status();
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("active", report.active());
-    body.put("autoActivated", report.autoActivated());
-    body.put("manualOverride", report.manualOverride());
-    body.put("enabled", report.enabled());
-    body.put("lastReason", report.lastReason());
-    body.put("lastActivationAt", report.lastActivationAt());
-    body.put("degradedIndicators", report.degradedIndicators());
-    body.put("recoveryReady", report.recoveryReady());
-    return ResponseEntity.ok(body);
+    return ResponseEntity.ok(new SafeModeStatusResponse(
+        report.active(),
+        report.autoActivated(),
+        report.manualOverride(),
+        report.enabled(),
+        report.lastReason(),
+        report.lastActivationAt(),
+        report.degradedIndicators(),
+        report.recoveryReady()));
   }
 
+  @AuthenticatedWrite
   @PostMapping("/safe-mode/activate")
-  public ResponseEntity<Map<String, Object>> activateSafeMode() {
+  public ResponseEntity<SafeModeToggleResponse> activateSafeMode() {
     resilienceMonitor.activateManual();
-    return ResponseEntity.ok(Map.of("active", true, "source", "manual_override"));
+    return ResponseEntity.ok(new SafeModeToggleResponse(true, "manual_override"));
   }
 
+  @AuthenticatedWrite
   @PostMapping("/safe-mode/deactivate")
-  public ResponseEntity<Map<String, Object>> deactivateSafeMode() {
+  public ResponseEntity<SafeModeToggleResponse> deactivateSafeMode() {
     resilienceMonitor.deactivateManual();
-    return ResponseEntity.ok(Map.of("active", false, "source", "manual_ack"));
+    return ResponseEntity.ok(new SafeModeToggleResponse(false, "manual_ack"));
   }
 
+  @AuthenticatedWrite
   @PostMapping("/leverage-rotation/evaluate")
-  public ResponseEntity<Map<String, Object>> evaluateLeverageRotation(
+  public ResponseEntity<LeverageRotationResponse> evaluateLeverageRotation(
       @RequestBody(required = false) Map<String, BigDecimal> prices) {
-    VirtualPortfolio.LeverageRotationOutcome outcome = portfolio.applyLeverageRotation(
-        priceLookup, leverageSignaler, prices);
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("signal", outcome.signal().signal().name());
-    body.put("benchmarkPrice", outcome.signal().currentPrice());
-    body.put("sma200", outcome.signal().sma200());
-    body.put("deviation", outcome.signal().deviation());
-    body.put("closedTrades", outcome.closedTrades().size());
-    return ResponseEntity.ok(body);
+    VirtualPortfolio.LeverageRotationOutcome outcome =
+        portfolio.applyLeverageRotation(priceLookup, leverageSignaler, prices);
+    return ResponseEntity.ok(new LeverageRotationResponse(
+        outcome.signal().signal().name(),
+        outcome.signal().currentPrice(),
+        outcome.signal().sma200(),
+        outcome.signal().deviation(),
+        outcome.closedTrades().size()));
   }
 }

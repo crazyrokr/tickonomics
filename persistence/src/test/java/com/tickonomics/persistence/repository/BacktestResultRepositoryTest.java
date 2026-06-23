@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.BacktestResultRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import java.time.Instant;
@@ -21,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,13 +33,15 @@ class BacktestResultRepositoryTest {
   @Mock
   private NamedParameterJdbcTemplate jdbc;
 
+  private final QueryLimits queryLimits = new QueryLimits(10_000);
+
   private BacktestResultRepository repository;
 
   private static final Instant NOW = Instant.now();
 
   @BeforeEach
   void setUp() {
-    repository = new BacktestResultRepository(jdbc);
+    repository = new BacktestResultRepository(jdbc, queryLimits);
   }
 
   @Nested
@@ -100,14 +105,40 @@ class BacktestResultRepositoryTest {
     @Test
     @SuppressWarnings("unchecked")
     void givenValidRange_whenFindByStrategyName_thenQueryCalled() {
-      when(jdbc.query(anyString(), any(Map.class), any(RowMapper.class)))
+      when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class)))
           .thenReturn(List.of());
 
       List<BacktestResultRecord> results = repository.findByStrategyNameAndTimeBetween(
           "RSI", NOW.minusSeconds(86400), NOW);
 
-      verify(jdbc).query(anyString(), any(Map.class), any(RowMapper.class));
+      verify(jdbc).query(anyString(), any(SqlParameterSource.class), any(RowMapper.class));
       assertEquals(0, results.size());
+    }
+  }
+
+  @Nested
+  class FindPageByStrategyNameAndTimeBetween {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void givenRangeAndPaging_whenFindPage_thenReturnsTotalAndSlice() {
+      BacktestResultRecord row = new BacktestResultRecord(
+          1L, NOW, "{\"strategy\":\"RSI\"}", "[]", null, null, null, null, null,
+          null, null, null, null, null, null);
+      when(jdbc.queryForObject(anyString(), any(SqlParameterSource.class), eq(Long.class)))
+          .thenReturn(42L);
+      when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class)))
+          .thenReturn(List.of(row));
+
+      PaginatedResponse<BacktestResultRecord> page =
+          repository.findPageByStrategyNameAndTimeBetween("RSI", NOW.minusSeconds(86400), NOW, 10, 0);
+
+      assertEquals(42L, page.total());
+      assertEquals(1, page.items().size());
+      assertEquals(10, page.limit());
+      assertEquals(0, page.offset());
+      assertEquals(5, page.totalPages());
+      assertTrue(page.hasNext());
     }
   }
 

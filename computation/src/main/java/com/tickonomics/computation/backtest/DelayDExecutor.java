@@ -127,7 +127,7 @@ public class DelayDExecutor {
         sharpe,
         cumReturn,
         maxDD,
-        n > 0 ? (double) wins / n : 0.0,
+        (double) wins / n,
         cumReturn,
         totalAdjustedReturn,
         avgSlippageBps,

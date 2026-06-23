@@ -1,5 +1,6 @@
 package com.tickonomics.computation.risk;
 
+import com.tickonomics.computation.util.StatisticsUtils;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +51,7 @@ public class RiskPremiumResidualMonitor {
     }
 
     double computeStd(List<Double> values) {
-        double mean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        double variance = values.stream()
-                .mapToDouble(v -> (v - mean) * (v - mean))
-                .average().orElse(0.0);
-        return Math.sqrt(variance);
+        return StatisticsUtils.populationStdDev(values);
     }
 
     String classifyDislocation(double residual, boolean dislocated) {

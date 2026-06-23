@@ -12,6 +12,15 @@ import java.util.Map;
 public class AumfScenarioEngine {
 
     private static final Logger log = LoggerFactory.getLogger(AumfScenarioEngine.class);
+
+    /**
+     * Scale factor mapping a crisis profile's {@code volatility_zscore} threshold onto the
+     * {@code volatilityRegime} KPI value scale (the profile stores a z-score threshold; the KPI is on
+     * a wider scale). TODO(P2 review K-H3): validate this factor against the volatilityRegime KPI's
+     * calibrated range and document the reference; the value is empirically carried over.
+     */
+    private static final double VOLATILITY_ZSCORE_SCALE = 15.0;
+
     private static final List<CrisisProfile> PROFILES = List.of(
             CrisisProfile.COVID_2020, CrisisProfile.SNB_2015, CrisisProfile.BLACK_MONDAY_1987);
 
@@ -69,7 +78,7 @@ public class AumfScenarioEngine {
         return switch (metric) {
             case "volatility_zscore" -> {
                 var vol = kpis.get("volatilityRegime");
-                yield vol != null && Math.abs(vol.value()) > threshold * 15;
+                yield vol != null && Math.abs(vol.value()) > threshold * VOLATILITY_ZSCORE_SCALE;
             }
             case "spread_widening_bps" -> {
                 var gap = kpis.get("efficiencyGap");

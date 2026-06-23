@@ -6,7 +6,7 @@ public record CorrelationOutput(
     Instant time,
     String symbol,
     String metric,
-    double correlation,
+    Double correlation,
     Double pValue,
     Integer sampleSize,
     Integer lagOrder,

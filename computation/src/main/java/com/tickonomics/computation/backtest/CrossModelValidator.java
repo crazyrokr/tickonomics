@@ -1,5 +1,6 @@
 package com.tickonomics.computation.backtest;
 
+import com.tickonomics.computation.util.StatisticsUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -114,16 +115,7 @@ public class CrossModelValidator {
     }
 
     double computeSharpe(List<Double> returns) {
-        double mean = returns.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        double variance = returns.stream()
-                .mapToDouble(r -> (r - mean) * (r - mean))
-                .average().orElse(0.0);
-        double std = Math.sqrt(variance);
-
-        if (std < 1e-12) {
-            return 0.0;
-        }
-        return (mean / std) * ANNUALIZATION_FACTOR;
+        return StatisticsUtils.sharpe(returns, 0.0) * ANNUALIZATION_FACTOR;
     }
 
     double computeHitRate(List<Double> returns) {

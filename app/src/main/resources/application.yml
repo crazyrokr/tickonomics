@@ -36,6 +36,15 @@ security:
   auth-disabled: ${AUTH_DISABLED:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+  rate-limit:
+    # In-memory token bucket for the most dangerous demo write endpoints (kill-switch,
+    # close-position). capacity tokens refill every refill-seconds.
+    capacity: 5
+    refill-seconds: 60
+
+websocket:
+  # Server ping cadence keeping idle WS subscribers alive and evicting half-open sockets.
+  heartbeat-interval-ms: 30000
 
 analytics:
   worker:
@@ -63,6 +72,12 @@ management:
 
 guard:
   evict-interval-ms: 3600000
+
+persistence:
+  query:
+    # Row cap applied to every findBy*Between range scan so an unbounded time range
+    # can never load an arbitrary number of rows. Override for workloads that need more.
+    default-limit: 10000
 
 monitor:
   ingestion:

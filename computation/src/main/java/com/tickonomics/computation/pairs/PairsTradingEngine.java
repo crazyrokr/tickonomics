@@ -1,5 +1,6 @@
 package com.tickonomics.computation.pairs;
 
+import com.tickonomics.computation.util.StatisticsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,10 @@ public class PairsTradingEngine {
             return new PairsSignal(symbolA, symbolB, 0.0, entryThreshold, 0.0, PairsSignalType.HOLD);
         }
 
-        double meanA = mean(seriesA);
-        double stdA = stdDev(seriesA, meanA);
-        double meanB = mean(seriesB);
-        double stdB = stdDev(seriesB, meanB);
+        double meanA = StatisticsUtils.mean(seriesA);
+        double stdA = StatisticsUtils.populationStdDev(seriesA, meanA);
+        double meanB = StatisticsUtils.mean(seriesB);
+        double stdB = StatisticsUtils.populationStdDev(seriesB, meanB);
 
         double lastA = seriesA.get(seriesA.size() - 1);
         double lastB = seriesB.get(seriesB.size() - 1);
@@ -63,16 +64,5 @@ public class PairsTradingEngine {
             return PairsSignalType.CLOSE;
         }
         return PairsSignalType.HOLD;
-    }
-
-    double mean(List<Double> values) {
-        return values.stream().mapToDouble(d -> d).average().orElse(0.0);
-    }
-
-    double stdDev(List<Double> values, double mean) {
-        double variance = values.stream()
-                .mapToDouble(d -> Math.pow(d - mean, 2))
-                .average().orElse(0.0);
-        return Math.sqrt(variance);
     }
 }

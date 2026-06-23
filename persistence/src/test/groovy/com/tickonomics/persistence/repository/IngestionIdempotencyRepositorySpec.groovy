@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository
 
+import com.tickonomics.persistence.config.QueryLimits
 import com.tickonomics.persistence.entity.IdempotentRow
 import com.tickonomics.persistence.entity.RateSnapshot
 import com.tickonomics.persistence.entity.TickData
@@ -17,12 +18,13 @@ class IngestionIdempotencyRepositorySpec extends Specification {
     static final UUID KEY = UUID.fromString("00000000-0000-0000-0000-000000000001")
 
     NamedParameterJdbcTemplate jdbc = Mock()
+    QueryLimits queryLimits = new QueryLimits(10_000)
 
     @Subject
-    TickDataRepository tickRepository = new TickDataRepository(jdbc)
+    TickDataRepository tickRepository = new TickDataRepository(jdbc, queryLimits)
 
     @Subject
-    RateSnapshotRepository rateRepository = new RateSnapshotRepository(jdbc)
+    RateSnapshotRepository rateRepository = new RateSnapshotRepository(jdbc, queryLimits)
 
     def "given idempotent tick rows, when saveAllIdempotent, then uses ON CONFLICT dedup sql"() {
         given:

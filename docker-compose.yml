@@ -53,7 +53,7 @@ services:
       - tickonomics-net
 
   timescaledb:
-    image: timescale/timescaledb:latest-pg16
+    image: timescale/timescaledb:2.16.1-pg16
     environment:
       POSTGRES_DB: tickonomics
       POSTGRES_USER: tickonomics
@@ -78,10 +78,14 @@ services:
     networks:
       - tickonomics-net
 
+# Named volumes are the correct persistence mechanism for single-host Docker Compose
+# deployments. In cloud environments (AWS ECS/EKS), persistent storage is managed by
+# Terraform via EBS CSI volumes or EFS bind-mounts — see infra/terraform/ for those configs.
 volumes:
   timescaledb_data:
   ingestion_overflow:
   prometheus_data:
+  alertmanager_data:
   grafana_data:
   loki_data:
   caddy_data:

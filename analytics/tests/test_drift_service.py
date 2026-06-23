@@ -1,5 +1,3 @@
-import numpy as np
-
 from app.services.drift.drift_service import barrier_hitting_probability, simulate_ito
 
 
@@ -94,7 +92,7 @@ def test_ito_reproducibility():
 
 
 def test_ito_positive_initial():
-    """Given positive initial value with small noise, when simulating GBM, then paths stay positive."""
+    """Given positive initial value with small noise, when simulating ABM, then paths stay positive."""
     # Given
     result = simulate_ito(
         mu=0.05, sigma=0.01, initial_value=100.0,

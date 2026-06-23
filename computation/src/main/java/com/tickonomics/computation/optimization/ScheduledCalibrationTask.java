@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import com.tickonomics.computation.util.StatisticsUtils;
 import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -215,18 +216,8 @@ public class ScheduledCalibrationTask {
         if (returns.length == 0) {
             return 0.0;
         }
-        double sum = 0;
-        for (double r : returns) {
-            sum += r;
-        }
-        double mean = sum / returns.length;
-
-        double sumSqDiff = 0;
-        for (double r : returns) {
-            sumSqDiff += (r - mean) * (r - mean);
-        }
-        double std = Math.sqrt(sumSqDiff / returns.length);
-
+        double mean = StatisticsUtils.mean(returns);
+        double std = StatisticsUtils.populationStdDev(returns, mean);
         return std > 1e-10 ? mean / std : 0.0;
     }
 

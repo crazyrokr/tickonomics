@@ -29,7 +29,14 @@ class EvtRiskService:
         n = len(series)
         nu = len(exceedances)
         p = 0.999
-        tail_var = u + (beta / xi) * (((n / nu) * (1 - p)) ** (-xi) - 1)
+
+        # Gumbel fallback: when xi ≈ 0, the GPD limit is the Gumbel distribution.
+        # The standard GPD VaR formula divides by xi and is numerically unstable for |xi| < 1e-6.
+        # Reference: Coles (2001), Section 4.3.3; Embrechts, Klüppelberg & Mikosch (1997).
+        if abs(xi) < 1e-6:
+            tail_var = u - beta * np.log((n / nu) * (1 - p))
+        else:
+            tail_var = u + (beta / xi) * (((n / nu) * (1 - p)) ** (-xi) - 1)
 
         return {
             "status": "SUCCESS",

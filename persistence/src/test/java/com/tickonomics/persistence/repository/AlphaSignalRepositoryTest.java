@@ -1,5 +1,6 @@
 package com.tickonomics.persistence.repository;
 
+import com.tickonomics.persistence.config.QueryLimits;
 import com.tickonomics.persistence.entity.AlphaSignalRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +30,8 @@ class AlphaSignalRepositoryTest {
   @Mock
   private NamedParameterJdbcTemplate jdbc;
 
+  private final QueryLimits queryLimits = new QueryLimits(10_000);
+
   private AlphaSignalRepository repository;
 
   private static final UUID STRATEGY_ID = UUID.randomUUID();
@@ -36,7 +39,7 @@ class AlphaSignalRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    repository = new AlphaSignalRepository(jdbc);
+    repository = new AlphaSignalRepository(jdbc, queryLimits);
   }
 
   @Nested
@@ -76,13 +79,13 @@ class AlphaSignalRepositoryTest {
     @Test
     @SuppressWarnings("unchecked")
     void givenValidRange_whenFindByStrategyId_thenQueryCalled() {
-      when(jdbc.query(anyString(), any(Map.class), any(RowMapper.class)))
+      when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class)))
           .thenReturn(List.of());
 
       List<AlphaSignalRecord> results = repository.findByStrategyIdAndTimeBetween(
           STRATEGY_ID, NOW.minusSeconds(86400), NOW);
 
-      verify(jdbc).query(anyString(), any(Map.class), any(RowMapper.class));
+      verify(jdbc).query(anyString(), any(SqlParameterSource.class), any(RowMapper.class));
       assertEquals(0, results.size());
     }
   }
@@ -93,13 +96,13 @@ class AlphaSignalRepositoryTest {
     @Test
     @SuppressWarnings("unchecked")
     void givenValidRange_whenFindBySymbol_thenQueryCalled() {
-      when(jdbc.query(anyString(), any(Map.class), any(RowMapper.class)))
+      when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class)))
           .thenReturn(List.of());
 
       List<AlphaSignalRecord> results = repository.findBySymbolAndTimeBetween(
           "SPY", NOW.minusSeconds(86400), NOW);
 
-      verify(jdbc).query(anyString(), any(Map.class), any(RowMapper.class));
+      verify(jdbc).query(anyString(), any(SqlParameterSource.class), any(RowMapper.class));
       assertEquals(0, results.size());
     }
   }

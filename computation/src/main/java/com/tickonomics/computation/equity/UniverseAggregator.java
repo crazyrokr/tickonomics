@@ -1,5 +1,6 @@
 package com.tickonomics.computation.equity;
 
+import com.tickonomics.computation.util.StatisticsUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,20 +19,9 @@ public class UniverseAggregator {
       throw new IllegalArgumentException("Symbol count exceeds cap: " + symbolReturns.size());
     }
 
-    double rBar = symbolReturns
-        .values()
-        .stream()
-        .mapToDouble(d -> d)
-        .average()
-        .orElse(0.0);
+    double rBar = StatisticsUtils.mean(symbolReturns.values());
 
-    double variance = symbolReturns
-        .values()
-        .stream()
-        .mapToDouble(r -> Math.pow(r - rBar, 2))
-        .average()
-        .orElse(0.0);
-    double sigmaR = Math.sqrt(variance);
+    double sigmaR = StatisticsUtils.populationStdDev(symbolReturns.values(), rBar);
 
     currentContext.set(new UniverseContext(Instant.now(), rBar, sigmaR, symbolReturns.size()));
   }

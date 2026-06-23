@@ -11,7 +11,12 @@ public class PhantomLiquidityService {
     private static final double PLI_DISCOUNT_FACTOR = 0.5;
 
     public double computePli(double canceledVolume, double totalVolumeAtBest) {
-        double pli = canceledVolume / Math.max(1.0, totalVolumeAtBest);
+        if (totalVolumeAtBest <= 0.0) {
+            log.warn("PLI undefined for non-positive totalVolumeAtBest={}; returning NaN sentinel",
+                    totalVolumeAtBest);
+            return Double.NaN;
+        }
+        double pli = canceledVolume / totalVolumeAtBest;
         log.debug("PLI computed: canceledVolume={}, totalVolumeAtBest={}, pli={}",
                 canceledVolume, totalVolumeAtBest, pli);
         return pli;

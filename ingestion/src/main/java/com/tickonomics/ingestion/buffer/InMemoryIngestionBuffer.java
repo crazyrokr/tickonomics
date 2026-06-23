@@ -9,11 +9,15 @@ public class InMemoryIngestionBuffer<T> implements IngestionBuffer<T> {
     private final ConcurrentLinkedQueue<T> queue = new ConcurrentLinkedQueue<>();
     private final int capacity;
 
-    public InMemoryIngestionBuffer(int capacity) {
+    private InMemoryIngestionBuffer(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public static <T> InMemoryIngestionBuffer<T> create(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("capacity must be positive, got " + capacity);
         }
-        this.capacity = capacity;
+        return new InMemoryIngestionBuffer<>(capacity);
     }
 
     @Override

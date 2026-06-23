@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -47,6 +48,28 @@ public abstract class BroadcastWebSocketHandler<T> extends TextWebSocketHandler 
 
   public int subscriberCount() {
     return sessions.size();
+  }
+
+  /**
+   * Sends a WebSocket ping to every connected subscriber. Drives the heartbeat scheduled by
+   * {@link WebSocketHeartbeatScheduler}; dead sessions are evicted when the ping write fails.
+   */
+  public void sendHeartbeat() {
+    if (sessions.isEmpty()) {
+      return;
+    }
+    PingMessage ping = new PingMessage();
+    for (WebSocketSession session : sessions.values()) {
+      try {
+        synchronized (session) {
+          if (session.isOpen()) {
+            session.sendMessage(ping);
+          }
+        }
+      } catch (IOException e) {
+        sessions.remove(session.getId());
+      }
+    }
   }
 
   private String serialize(T payload) {

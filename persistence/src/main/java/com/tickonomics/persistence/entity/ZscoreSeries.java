@@ -3,7 +3,7 @@ package com.tickonomics.persistence.entity;
 import java.time.Instant;
 
 public record ZscoreSeries(
-    Instant time, String component, double rawValue, double zScore, int lookbackDays) {
+    Instant time, String component, Double rawValue, Double zScore, int lookbackDays) {
   public ZscoreSeries {
     if (time == null) {
       throw new NullPointerException("time must not be null");
