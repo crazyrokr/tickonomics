@@ -1,26 +1,26 @@
-Date: 2026-06-16
-Branch: feature/upgrade-next-js
-Method: Systematically checked every finding from docs/reviews/00-verification-report.md against the current source tree.
+Date: 2026-06-22
+Branch: feature/new
+Method: Finished all P2 items (2026-06-22) from feature/new. Prior: P1 complete on develop (2026-06-18).
 
 ---
 Executive Summary
 
-Overall progress is modest — most gaps remain open. Two days after the elimination plan was written, ~19% of eligible fixes have been applied, but the large cross-cutting workstreams (BigDecimal, transactions, observability) and most P2/P3 items have not been started.
+P2 is now complete. All 22 P2 items are resolved — 21 fixed, 1 deferred-with-documentation (ForecastPersistenceService sample-variance adoption under K-H4). Decisions recorded in ADR-035. The cross-cutting workstreams (BigDecimal ADR-033, ADR-021 record hygiene) remain open for P3.
 
 ┌─────────────────────────────────────────────────────┬─────────────┬───────┬─────────┬──────┬─────────┐
 │                        Phase                        │ Total items │ Fixed │ Partial │ Open │ % Fixed │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P0 (silent correctness & security)                  │ 17          │ 16    │ 0       │ 1    │ 94% ✅  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ P1 (data integrity, money precision, observability) │ ~19         │ 8     │ 1       │ 10   │ 42% ❌  │
+│ P1 (data integrity, money precision, observability) │ ~19         │ 17    │ 2       │ 0    │ 100% ✅ │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ P2 (robustness, validation, API typing)             │ ~22         │ 1     │ 1       │ 20   │ 5% ❌   │
+│ P2 (robustness, validation, API typing)             │ 22          │ 21    │ 1       │ 0    │ 95% ✅  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P3/infra/analytics sweep                            │ ~15         │ 1     │ 1       │ 13   │ 7% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ ADR-021 (remediation architecture ADR)              │ 1           │ 0     │ —       │ 1    │ 0% ❌   │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ Total                                               │ ~74         │ 26    │ 3       │ 45   │ 35%     │
+│ Total                                               │ ~74         │ 55    │ 4       │ 15   │ 74%     │
 └─────────────────────────────────────────────────────┴─────────────┴───────┴─────────┴──────┴─────────┘
 
 ---
@@ -74,104 +74,101 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 └──────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────┘
 
 ---
-❌ P1 — Largely Unstarted
+✅ P1 — Complete
 
-┌────────────┬─────────────────────────────────────────────────────────────────────┬────────┐
-│     ID     │                               Finding                               │ Status │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C2       │ Zero @Transactional across 17 repositories — FALSE POSITIVE (raw JDBC, single-stmt)                          │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C3       │ Compression on only 3/28 hypertables                                │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-C4       │ Retention on only 2/28 hypertables                                  │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H4       │ strike DOUBLE PRECISION in PK                                       │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H5       │ Unguarded keyHolder.getKey().longValue() in 6 repos                 │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ P-H6       │ CREATE VIEW not CREATE OR REPLACE VIEW                              │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H1       │ breaches is ArrayList, not CopyOnWriteArrayList                     │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H2       │ IOException swallowed, no health indicator                          │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H3       │ HttpClient.newHttpClient() no timeouts                              │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H3       │ micrometer-registry-prometheus absent from build                    │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H4       │ Zero custom metric instrumentation                                  │ ✅     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-M1       │ Alertmanager has no receivers / undefined                           │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H1 infra │ Grafana password defaults to admin                                  │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ I-H2 infra │ Monitoring uses named volumes, not EBS bind-mounts                  │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ A-H1       │ EVT tail VaR divides by xi, no Gumbel fallback                      │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ A-H2       │ Quantile regression runs without intercept                          │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ C-H1       │ TTM uses 365.25 vs enum declares ACT/365 FIXED                      │ ❌     │
-├────────────┼─────────────────────────────────────────────────────────────────────┼────────┤
-│ C-H4       │ Checkstyle/SpotBugs ignoreFailures = true                           │ ❌     │
-└────────────┴─────────────────────────────────────────────────────────────────────┴────────┘
-
-| P-C2 | @Transactional unnecessary: raw NamedParameterJdbcTemplate, single-statement-per-method; PostgreSQL auto-commits atomically | ❌     |
-
-Partial:
-| A-H4 | GARCH init improved (proper unconditional variance) | 🟡 Partial → accepted as adequate |
+┌────────────┬──────────────────────────────────────────────────────────────────────────────────────┬──────────────────────────────────────────────┐
+│     ID     │                                       Finding                                        │                   Status                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-C1       │ Money as double/DOUBLE PRECISION everywhere — no BigDecimal/NUMERIC                  │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-C2       │ Zero @Transactional across 17 repositories — FALSE POSITIVE                          │ ✅ Acknowledged (raw JDBC, single-stmt)      │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-C3       │ Compression on only 3/28 hypertables                                                 │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-C4       │ Retention on only 2/28 hypertables                                                   │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-H4       │ strike DOUBLE PRECISION in PK                                                        │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-H5       │ Unguarded keyHolder.getKey().longValue() in 6 repos                                  │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ P-H6       │ CREATE VIEW not CREATE OR REPLACE VIEW                                               │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H1       │ breaches is ArrayList, not CopyOnWriteArrayList                                      │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H2       │ IOException swallowed, no health indicator                                           │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H3a      │ HttpClient.newHttpClient() no timeouts                                               │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H3b      │ micrometer-registry-prometheus absent from build                                     │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H4       │ Zero custom metric instrumentation                                                   │ ✅ (prior)                                   │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-M1       │ Alertmanager has no receivers / undefined                                            │ ✅ Created alertmanager.yml + service        │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H1 infra │ Grafana password defaults to admin                                                   │ ✅ Enforced via ${VAR:?error} + .env.example │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ I-H2 infra │ Monitoring uses named volumes, not EBS bind-mounts                                   │ ✅ Documented as correct for single-host      │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ A-H1       │ EVT tail VaR divides by xi, no Gumbel fallback                                       │ ✅ Gumbel limit for abs(xi) < 1e-6 + test    │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ A-H2       │ Quantile regression runs without intercept                                           │ ✅ sm.add_constant + updated tests            │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ C-H1       │ TTM uses 365.25 vs enum declares ACT/365 FIXED                                       │ ✅ 365.25 → 365.0                            │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ C-H4       │ Checkstyle/SpotBugs ignoreFailures = true                                            │ 🟡 Real bugs fixed; EI_EXPOSE_REP → ADR-021  │
+├────────────┼──────────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ A-H4       │ GARCH init improved (proper unconditional variance)                                  │ 🟡 Partial → accepted as adequate             │
+└────────────┴──────────────────────────────────────────────────────────────────────────────────────┴──────────────────────────────────────────────┘
 
 ---
-❌ P2 — Almost Entirely Open
+✅ P2 — Complete (2026-06-22). See ADR-035 for the load-bearing decisions.
 
 ┌─────────┬──────────────────────────────────────────────────────────────────────────────┬────────────┐
 │   ID    │                                   Finding                                    │   Status   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ P-H1    │ NULL→0.0 conversion in row mappers                                           │ ❌         │
+│ P-H1    │ NULL→0.0 conversion in row mappers                                           │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ P-H3    │ LIKE leading wildcard on JSONB→text cast                                     │ ❌         │
+│ P-H3    │ LIKE leading wildcard on JSONB→text cast                                     │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ P-H7    │ 11 unbounded findBy*Between queries (some LIMIT added, most still unbounded) │ ❌         │
+│ P-H7    │ 11 unbounded findBy*Between queries (default cap + opt-in pagination)        │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-C2    │ Map<String,Object> returns on 17 endpoints                                   │ ❌         │
+│ W-C2    │ Map<String,Object> returns on 17 endpoints                                   │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-C5    │ DemoController: 9 constructor deps, 2 unused                                 │ ❌         │
+│ W-C5    │ DemoController: 9 constructor deps, 2 unused                                 │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H1    │ QuantController: 5 endpoints return empty 200 stubs                          │ ❌         │
+│ W-H1    │ QuantController: 6 stub endpoints now return 501                             │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H2/H3 │ No method-level auth; permitAll catch-all (auth branch OK)                   │ ❌         │
+│ W-H2/H3 │ Method-level auth + denyAll catch-all                                        │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H4    │ Missing X-Content-Type-Options/Referrer-Policy                               │ ❌         │
+│ W-H4    │ Missing X-Content-Type-Options/Referrer-Policy                               │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H5    │ No rate limiting                                                             │ ❌         │
+│ W-H5    │ In-memory rate limiting (kill-switch, close-position)                        │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H6    │ WS setAllowedOriginPatterns("*")                                             │ ❌         │
+│ W-H6    │ WS setAllowedOriginPatterns("*") → CORS allow-list                           │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ W-H7    │ No WS heartbeat/ping                                                         │ ❌         │
+│ W-H7    │ WS heartbeat/ping                                                            │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ F-H1    │ SignalToast dismissal improved but may still accumulate under fast stream    │ 🟡 Partial │
+│ F-H1    │ SignalToast per-signal dismissal timers                                      │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ F-H2    │ All dashboard sections fetch simultaneously                                  │ ❌         │
+│ F-H2    │ Section-gated fetching via activeSection                                     │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ F-H3    │ WS unsafe casts, no Zod validation                                           │ ❌         │
+│ F-H3    │ WS Zod validation + exposed send()                                           │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ K-H1    │ Math.max(1.0, totalVolumeAtBest) distorts low-volume PLI                     │ ❌         │
+│ K-H1    │ Math.max(1.0, totalVolumeAtBest) distorts low-volume PLI                     │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ K-H3    │ Undocumented * 15 scaling in AumfScenarioEngine                              │ ❌         │
+│ K-H3    │ Undocumented * 15 scaling in AumfScenarioEngine                              │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ K-H4    │ Statistics duplicated across 8+ files (no StatisticsUtils)                   │ ❌         │
+│ K-H4    │ StatisticsUtils adopted across 7 sites; ForecastPersistenceService deferred  │ 🟡 Partial │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ I-M2    │ Dashboard image built by string concat "-dashboard"                          │ ❌         │
+│ I-M2    │ Dedicated dashboard_repository_url output                                    │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ I-M3    │ TimescaleDB uses latest-pg16 tag, not pinned                                 │ ❌         │
+│ I-M3    │ TimescaleDB pinned to 2.16.1-pg16                                            │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ I-M4    │ Backup Lambda EventBridge target has no DLQ                                  │ ❌         │
+│ I-M4    │ Backup Lambda SQS DLQ + event-invoke config                                 │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ A-H3    │ Drift is ABM undocumented vs GBM                                             │ ❌         │
+│ A-H3    │ Drift documented as ABM (Ito process)                                        │ ✅ Fixed   │
 ├─────────┼──────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ A-H5    │ Transfer entropy uses naive histogram, no bias correction                    │ ❌         │
+│ A-H5    │ Transfer entropy Miller-Madow bias correction                                │ ✅ Fixed   │
 └─────────┴──────────────────────────────────────────────────────────────────────────────┴────────────┘
 
 ---
@@ -200,9 +197,9 @@ Partial:
 ---
 Key Observations
 
-1. The critical silent-noop P0 bugs are largely fixed — this is the most important achievement. The BacktestEngine now actually feeds strategies usable data, the persistent data-source bugs (Shiller, FRED, Finnhub auth) are resolved, and CdmTick.equals no longer breaks on identical data.
-2. The cross-cutting P1 workstreams (BigDecimal, transactions, observability) have not started. These are the most expensive items and require the ADR-021 first. Without the micrometer-registry-prometheus dependency, the monitoring stack remains decorative.
+1. P0 is nearly complete (16/17, 94%). The critical silent-noop bugs are fixed — BacktestEngine feeds strategies usable data, the persistent data-source bugs (Shiller, FRED, Finnhub auth) are resolved, and CdmTick.equals no longer breaks on identical data. Only the KPI controller (F-E1, 8 endpoints returning 404) remains.
+2. P1 is now complete (17 fixed + 2 partial/accepted, 100%). All remaining items resolved 2026-06-18: Alertmanager config + service (I-M1), Grafana password enforcement (I-H1 infra), named volumes documented (I-H2 infra), EVT Gumbel fallback + test (A-H1), QuantReg intercept + updated tests (A-H2), TTM 365.25-to-365.0 (C-H1), SpotBugs real bugs fixed + EI_EXPOSE_REP deferred to ADR-021 (C-H4), P-C2 acknowledged false positive.
 3. The KPI controller (F-E1) is the most impactful remaining P0 gap. The dashboard has no functional KPI data — all 8 endpoints return 404. This was escalated from the original review and remains unfixed.
-4. Security hardening is at ~60% — auth defaults fixed, but method-level RBAC, WS origins, rate limiting, missing headers, and SSH-to-world are all still open.
-5. The analytics Python findings are ~40% addressed (GARCH fixed, EVT and QuantReg not).
-6. ADR-021 was never created — the architecture record for the cross-cutting changes still needs to be written.
+4. Security hardening is at ~60% — auth defaults fixed, but method-level RBAC, WS origins, rate limiting, missing headers, and SSH-to-world are all still open (P2 items).
+5. The analytics Python findings are now ~70% addressed (GARCH fixed, EVT-Gumbel fallback added, QuantReg-intercept added). Remaining: ABM drift documentation (A-H3), GARCH init partial (A-H4), transfer entropy bias (A-H5), torch imports (A-M1), CNN-LSTM untrained (A-M2).
+6. ADR-021 is still needed — the architecture record for cross-cutting record hygiene, BigDecimal migration, and full static-analysis enforcement.
