@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class PhantomLiquidityServiceTest {
@@ -34,15 +35,27 @@ class PhantomLiquidityServiceTest {
         }
 
         @Test
-        void givenZeroTotalVolume_whenComputePli_thenDividesByMaxOne() {
+        void givenZeroTotalVolume_whenComputePli_thenReturnsNanSentinel() {
             /*
-             * Given: totalVolumeAtBest=0
+             * Given: totalVolumeAtBest=0 (the ratio is undefined)
              * When: computePli() is called
-             * Then: pli = canceledVolume / max(1, 0) = canceledVolume
+             * Then: pli is the NaN sentinel, not a distorted finite value from a Math.max floor
              */
             double pli = service.computePli(500.0, 0.0);
 
-            assertEquals(500.0, pli, 1e-10);
+            assertTrue(Double.isNaN(pli));
+        }
+
+        @Test
+        void givenSmallPositiveVolume_whenComputePli_thenUndistortedRatio() {
+            /*
+             * Given: totalVolumeAtBest=0.1 (below the former Math.max(1.0, ...) floor)
+             * When: computePli() is called
+             * Then: pli = canceledVolume / 0.1 (undistorted, not floored to divide by 1.0)
+             */
+            double pli = service.computePli(50.0, 0.1);
+
+            assertEquals(500.0, pli, 1e-6);
         }
 
         @Test

@@ -168,23 +168,4 @@ class PairsTradingEngineTest {
                     engine.determineSignal(1.0, 1.0, 1.5, 0.5));
         }
     }
-
-    @Nested
-    class MeanAndStdDev {
-        @Test
-        void givenEmptyList_whenMean_thenZero() {
-            /* Given empty list */
-            /* When computing mean */
-            /* Then result is zero */
-            assertEquals(0.0, engine.mean(List.of()), 0.01);
-        }
-
-        @Test
-        void givenUniformValues_whenStdDev_thenZero() {
-            /* Given all same values */
-            /* When computing standard deviation */
-            /* Then result is zero */
-            assertEquals(0.0, engine.stdDev(List.of(5.0, 5.0, 5.0), 5.0), 0.01);
-        }
-    }
 }

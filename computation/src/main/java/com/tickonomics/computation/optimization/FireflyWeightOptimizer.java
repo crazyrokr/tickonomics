@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.tickonomics.computation.util.StatisticsUtils;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -142,14 +143,8 @@ public class FireflyWeightOptimizer {
             portfolioReturns[t] = sum;
         }
 
-        double mean = Arrays.stream(portfolioReturns).average().orElse(0.0);
-        double variance = 0.0;
-        for (double r : portfolioReturns) {
-            variance += (r - mean) * (r - mean);
-        }
-        variance /= portfolioReturns.length;
-
-        double stdDev = Math.sqrt(variance);
+        double mean = StatisticsUtils.mean(portfolioReturns);
+        double stdDev = StatisticsUtils.populationStdDev(portfolioReturns, mean);
         if (stdDev < 1e-12) {
             return 0.0;
         }
