@@ -30,6 +30,12 @@ public class IngestionMetrics {
     private final Counter writeFailureRates;
     private final Counter duplicateTicks;
     private final Counter duplicateRates;
+    private final Counter writeSuccessPredictionMarket;
+    private final Counter writeSuccessNews;
+    private final Counter writeFailurePredictionMarket;
+    private final Counter writeFailureNews;
+    private final Counter duplicatePredictionMarket;
+    private final Counter duplicateNews;
     private final Counter breachCounter;
     private final Counter wsMessagesReceived;
     private final Counter wsIoErrors;
@@ -37,6 +43,8 @@ public class IngestionMetrics {
 
     private final AtomicInteger tickBufferSize = new AtomicInteger(0);
     private final AtomicInteger rateBufferSize = new AtomicInteger(0);
+    private final AtomicInteger predictionMarketBufferSize = new AtomicInteger(0);
+    private final AtomicInteger newsBufferSize = new AtomicInteger(0);
     private final AtomicInteger wsConnected = new AtomicInteger(0);
 
     public IngestionMetrics(MeterRegistry registry) {
@@ -66,6 +74,30 @@ public class IngestionMetrics {
                 .tag("type", "rate")
                 .description("Duplicate rates skipped")
                 .register(registry);
+        this.writeSuccessPredictionMarket = Counter.builder("ingestion.write.success")
+                .tag("type", "prediction_market")
+                .description("Successful prediction-market quote writes")
+                .register(registry);
+        this.writeSuccessNews = Counter.builder("ingestion.write.success")
+                .tag("type", "news")
+                .description("Successful news event writes")
+                .register(registry);
+        this.writeFailurePredictionMarket = Counter.builder("ingestion.write.failure")
+                .tag("type", "prediction_market")
+                .description("Failed prediction-market quote write attempts")
+                .register(registry);
+        this.writeFailureNews = Counter.builder("ingestion.write.failure")
+                .tag("type", "news")
+                .description("Failed news event write attempts")
+                .register(registry);
+        this.duplicatePredictionMarket = Counter.builder("ingestion.write.duplicate")
+                .tag("type", "prediction_market")
+                .description("Duplicate prediction-market quotes skipped")
+                .register(registry);
+        this.duplicateNews = Counter.builder("ingestion.write.duplicate")
+                .tag("type", "news")
+                .description("Duplicate news events skipped")
+                .register(registry);
         this.breachCounter = Counter.builder("ingestion.sanity.breach")
                 .description("Algorithmic sanity breaches detected")
                 .register(registry);
@@ -84,6 +116,12 @@ public class IngestionMetrics {
                 .register(registry);
         Gauge.builder("ingestion.buffer.rate.size", rateBufferSize, AtomicInteger::get)
                 .description("Pending rates in write buffer")
+                .register(registry);
+        Gauge.builder("ingestion.buffer.prediction_market.size", predictionMarketBufferSize, AtomicInteger::get)
+                .description("Pending prediction-market quotes in write buffer")
+                .register(registry);
+        Gauge.builder("ingestion.buffer.news.size", newsBufferSize, AtomicInteger::get)
+                .description("Pending news events in write buffer")
                 .register(registry);
         Gauge.builder("ingestion.ws.connected", wsConnected, AtomicInteger::get)
                 .description("WebSocket connection state (1 = connected)")
@@ -126,6 +164,38 @@ public class IngestionMetrics {
 
     public void setRateBufferSize(int size) {
         rateBufferSize.set(size);
+    }
+
+    public void recordWriteSuccessPredictionMarket() {
+        writeSuccessPredictionMarket.increment();
+    }
+
+    public void recordWriteSuccessNews() {
+        writeSuccessNews.increment();
+    }
+
+    public void recordWriteFailurePredictionMarket() {
+        writeFailurePredictionMarket.increment();
+    }
+
+    public void recordWriteFailureNews() {
+        writeFailureNews.increment();
+    }
+
+    public void recordDuplicatePredictionMarket() {
+        duplicatePredictionMarket.increment();
+    }
+
+    public void recordDuplicateNews() {
+        duplicateNews.increment();
+    }
+
+    public void setPredictionMarketBufferSize(int size) {
+        predictionMarketBufferSize.set(size);
+    }
+
+    public void setNewsBufferSize(int size) {
+        newsBufferSize.set(size);
     }
 
     // -- Quality guard ------------------------------------------------------

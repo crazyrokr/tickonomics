@@ -1,8 +1,12 @@
 package com.tickonomics.ingestion.writer;
 
 import com.tickonomics.persistence.entity.IdempotentRow;
+import com.tickonomics.persistence.entity.NewsEvent;
+import com.tickonomics.persistence.entity.PredictionMarketQuote;
 import com.tickonomics.persistence.entity.RateSnapshot;
 import com.tickonomics.persistence.entity.TickData;
+import com.tickonomics.persistence.repository.NewsEventRepository;
+import com.tickonomics.persistence.repository.PredictionMarketQuoteRepository;
 import com.tickonomics.persistence.repository.RateSnapshotRepository;
 import com.tickonomics.persistence.repository.TickDataRepository;
 import com.tickonomics.ingestion.tracing.IngestionMetrics;
@@ -26,12 +30,17 @@ public class TimescaleDbWriter {
 
   private final TickDataRepository tickDataRepository;
   private final RateSnapshotRepository rateSnapshotRepository;
+  private final PredictionMarketQuoteRepository predictionMarketQuoteRepository;
+  private final NewsEventRepository newsEventRepository;
   private final IdempotencyGuard idempotencyGuard;
   private final IngestionTracer tracer;
   private final IngestionMetrics metrics;
 
   private final ConcurrentLinkedQueue<IdempotentRow<TickData>> tickBuffer = new ConcurrentLinkedQueue<>();
   private final ConcurrentLinkedQueue<IdempotentRow<RateSnapshot>> rateBuffer = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<IdempotentRow<PredictionMarketQuote>> predictionMarketBuffer =
+      new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<IdempotentRow<NewsEvent>> newsBuffer = new ConcurrentLinkedQueue<>();
 
   private final int batchSize;
 
@@ -40,6 +49,8 @@ public class TimescaleDbWriter {
   public TimescaleDbWriter(
       TickDataRepository tickDataRepository,
       RateSnapshotRepository rateSnapshotRepository,
+      PredictionMarketQuoteRepository predictionMarketQuoteRepository,
+      NewsEventRepository newsEventRepository,
       IdempotencyGuard idempotencyGuard,
       IngestionTracer tracer,
       IngestionMetrics metrics,
@@ -47,6 +58,8 @@ public class TimescaleDbWriter {
       @Value("${writer.flush-interval-ms:500}") int flushIntervalMs) {
     this.tickDataRepository = tickDataRepository;
     this.rateSnapshotRepository = rateSnapshotRepository;
+    this.predictionMarketQuoteRepository = predictionMarketQuoteRepository;
+    this.newsEventRepository = newsEventRepository;
     this.idempotencyGuard = idempotencyGuard;
     this.tracer = tracer;
     this.metrics = metrics;
@@ -82,11 +95,41 @@ public class TimescaleDbWriter {
     }
   }
 
+  public void writePredictionMarketQuote(PredictionMarketQuote quote) {
+    String key = idempotencyGuard.buildKey("PREDICTION_MARKET", quote.marketId(), quote.time());
+    if (idempotencyGuard.isDuplicate(key)) {
+      metrics.recordDuplicatePredictionMarket();
+      log.debug("Skipping duplicate prediction-market quote: {}", key);
+      return;
+    }
+    predictionMarketBuffer.add(new IdempotentRow<>(deterministicUuid(key), quote));
+    metrics.setPredictionMarketBufferSize(predictionMarketBuffer.size());
+    if (predictionMarketBuffer.size() >= batchSize) {
+      flushPredictionMarketQuotes();
+    }
+  }
+
+  public void writeNewsEvent(NewsEvent event) {
+    String key = idempotencyGuard.buildKey("NEWS", event.eventId(), event.time());
+    if (idempotencyGuard.isDuplicate(key)) {
+      metrics.recordDuplicateNews();
+      log.debug("Skipping duplicate news event: {}", key);
+      return;
+    }
+    newsBuffer.add(new IdempotentRow<>(deterministicUuid(key), event));
+    metrics.setNewsBufferSize(newsBuffer.size());
+    if (newsBuffer.size() >= batchSize) {
+      flushNewsEvents();
+    }
+  }
+
   @Scheduled(fixedDelayString = "${writer.flush-interval-ms:500}")
   public void flushAll() {
     try (var scope = tracer.span(IngestionTracingConfig.SPAN_TIMESCALEDB_WRITE)) {
       flushTicks();
       flushRates();
+      flushPredictionMarketQuotes();
+      flushNewsEvents();
     }
   }
 
@@ -130,12 +173,60 @@ public class TimescaleDbWriter {
     }
   }
 
+  void flushPredictionMarketQuotes() {
+    List<IdempotentRow<PredictionMarketQuote>> batch = drainBuffer(predictionMarketBuffer);
+    metrics.setPredictionMarketBufferSize(predictionMarketBuffer.size());
+    if (batch.isEmpty()) {
+      return;
+    }
+
+    long start = System.nanoTime();
+    try {
+      int[] affected = predictionMarketQuoteRepository.saveAllIdempotent(batch);
+      metrics.recordWriteSuccessPredictionMarket();
+      metrics.recordFlushDuration(System.nanoTime() - start);
+      log.debug("Flushed {} prediction-market quotes ({} new)", batch.size(), countNew(affected));
+    } catch (Exception e) {
+      metrics.recordWriteFailurePredictionMarket();
+      log.error("Failed to flush {} prediction-market quotes: {}", batch.size(), e.getMessage());
+      predictionMarketBuffer.addAll(batch);
+    }
+  }
+
+  void flushNewsEvents() {
+    List<IdempotentRow<NewsEvent>> batch = drainBuffer(newsBuffer);
+    metrics.setNewsBufferSize(newsBuffer.size());
+    if (batch.isEmpty()) {
+      return;
+    }
+
+    long start = System.nanoTime();
+    try {
+      int[] affected = newsEventRepository.saveAllIdempotent(batch);
+      metrics.recordWriteSuccessNews();
+      metrics.recordFlushDuration(System.nanoTime() - start);
+      log.debug("Flushed {} news events ({} new)", batch.size(), countNew(affected));
+    } catch (Exception e) {
+      metrics.recordWriteFailureNews();
+      log.error("Failed to flush {} news events: {}", batch.size(), e.getMessage());
+      newsBuffer.addAll(batch);
+    }
+  }
+
   public int pendingTickCount() {
     return tickBuffer.size();
   }
 
   public int pendingRateCount() {
     return rateBuffer.size();
+  }
+
+  public int pendingPredictionMarketCount() {
+    return predictionMarketBuffer.size();
+  }
+
+  public int pendingNewsCount() {
+    return newsBuffer.size();
   }
 
   /**
