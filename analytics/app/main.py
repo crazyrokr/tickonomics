@@ -17,6 +17,7 @@ from app.routers.liquidity import liquidity
 from app.routers.ml import volatility
 from app.routers.optimizer import optimizer
 from app.routers.performance import performance
+from app.routers.perspex import perspex
 from app.routers.regime import regime
 from app.routers.reproducibility import reproducibility
 from app.routers.risk import risk
@@ -79,3 +80,4 @@ app.include_router(diagnostics.router, prefix="/api/v1/diagnostics", tags=["diag
 app.include_router(volatility.router, prefix="/api/v1/analytics", tags=["volatility"])
 app.include_router(tournament.router, prefix="/api/v1/tournament", tags=["tournament"])
 app.include_router(explainability.router, prefix="/api/v1/explainability", tags=["explainability"])
+app.include_router(perspex.router, prefix="/api/v1/perspex", tags=["perspex"])
