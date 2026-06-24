@@ -79,8 +79,14 @@ variable "results_retention_days" {
 }
 
 variable "ssh_public_key" {
-  description = "SSH public key for VM access"
+  description = "SSH public key for VM access (used by OS Login / IAP-tunneled sessions)"
   type        = string
+}
+
+variable "iap_authorized_member" {
+  description = "Principal (user/group/SA) granted roles/iap.tunnelResourceAccessor for IAP SSH access; empty disables the binding"
+  type        = string
+  default     = ""
 }
 
 variable "alert_email" {

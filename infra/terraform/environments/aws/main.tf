@@ -34,7 +34,6 @@ module "compute_spot" {
   subnet_id             = module.networking.public_subnet_id
   security_group_ids    = [module.networking.spot_security_group_id]
   ebs_volume_id         = module.storage.ebs_volume_id
-  ssh_public_key        = var.ssh_public_key
   registry_url          = split("/", module.container_registry.backend_repository_url)[0]
   backend_image         = "${module.container_registry.backend_repository_url}:${var.image_tag}"
   analytics_image       = "${module.container_registry.analytics_repository_url}:${var.image_tag}"

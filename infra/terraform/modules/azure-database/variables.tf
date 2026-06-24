@@ -1,18 +1,22 @@
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+variable "resource_group_name" {
+  description = "Resource group containing the managed disk"
   type        = string
-  default     = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidr" {
-  description = "CIDR block for the public subnet"
+variable "location" {
+  description = "Azure region"
   type        = string
-  default     = "10.0.1.0/24"
 }
 
 variable "availability_zone" {
-  description = "Availability zone for subnet and EBS volume"
+  description = "Azure availability zone (must match the spot VM)"
   type        = string
+}
+
+variable "db_volume_size_gb" {
+  description = "Managed disk size in GB"
+  type        = number
+  default     = 50
 }
 
 variable "name_prefix" {
