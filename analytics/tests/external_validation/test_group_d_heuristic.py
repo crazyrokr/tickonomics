@@ -226,7 +226,7 @@ def test_step33_garch_regime_runs():
 
 
 def test_step33_cnn_lstm_regime_produces_output():
-    """cnn_lstm_regime should produce valid regime output (UNVERIFIABLE: untrained model)."""
+    """cnn_lstm_regime should produce valid regime output from a trained checkpoint."""
     # Given — 200 synthetic returns
     rng = np.random.default_rng(42)
     returns = rng.normal(0.0001, 0.02, size=200).tolist()
