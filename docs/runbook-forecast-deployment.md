@@ -179,6 +179,17 @@ docker build -t tickonomicsregistry.azurecr.io/tickonomics/backend:latest .
 docker push tickonomicsregistry.azurecr.io/tickonomics/backend:latest
 ```
 
+The `forecast-deploy.yml` workflow pushes via `docker/login-action` and expects three repository
+secrets (the registry has `admin_enabled = true`, so the admin username is the ACR name unless a
+service principal is used):
+
+| Secret | Value |
+|---|---|
+| `ACR_NAME` | Registry hostname (e.g. `tickonomicsregistry`) — used to form `<ACR_NAME>.azurecr.io` |
+| `ACR_USERNAME` | Registry login username (admin username **or** service-principal clientId) — distinct from `ACR_NAME` |
+| `ACR_PASSWORD` | Registry login password (admin password **or** service-principal secret) |
+
+
 ---
 
 ## 5. Monitor the Running Forecast
