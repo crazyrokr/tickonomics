@@ -881,6 +881,44 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/IntersubjectivePath' }
 
+  /api/v1/perspex/mismatches:
+    get:
+      tags: [perspex]
+      operationId: getPerspexMismatches
+      summary: Current perspective-mismatch signals (prediction-market vs OSINT news divergence).
+      description: >-
+        On-demand deterministic divergence between market-implied probability and news-tone-derived
+        probability. Real-time delivery is the /ws/signals WebSocket; this endpoint is for ad-hoc
+        inspection (ADR-037).
+      responses:
+        '200':
+          description: Deterministic perspective-mismatch verdicts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mismatches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        market_id: { type: string }
+                        question: { type: string }
+                        tickers: { type: array, items: { type: string } }
+                        market_probability: { type: number, format: double }
+                        news_probability: { type: number, format: double }
+                        divergence: { type: number, format: double }
+                        direction: { type: string, enum: [bullish, bearish] }
+                        confidence: { type: number, format: double }
+                  evaluated_markets: { type: integer }
+                  skipped_thin: { type: integer }
+                  skipped_no_ticker: { type: integer }
+                  skipped_no_news: { type: integer }
+                  skipped_aligned: { type: integer }
+        '503':
+          description: Analytics worker unavailable.
+
 components:
   parameters:
     Limit:
