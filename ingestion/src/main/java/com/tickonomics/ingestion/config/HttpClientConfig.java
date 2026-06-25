@@ -6,6 +6,8 @@ import com.tickonomics.cdm.adapter.FredCdmAdapter;
 import com.tickonomics.cdm.adapter.FrenchFactorCdmAdapter;
 import com.tickonomics.cdm.adapter.NewsArticleCdmAdapter;
 import com.tickonomics.cdm.adapter.NyFedCdmAdapter;
+import com.tickonomics.cdm.adapter.OsintCdmAdapter;
+import com.tickonomics.cdm.adapter.PolymarketCdmAdapter;
 import com.tickonomics.cdm.adapter.YahooEquityCdmAdapter;
 import com.tickonomics.cdm.adapter.YahooOptionsCdmAdapter;
 import java.net.http.HttpClient;
@@ -68,5 +70,15 @@ public class HttpClientConfig {
   @Bean
   public YahooOptionsCdmAdapter yahooOptionsCdmAdapter() {
     return new YahooOptionsCdmAdapter();
+  }
+
+  @Bean
+  public PolymarketCdmAdapter polymarketCdmAdapter() {
+    return new PolymarketCdmAdapter();
+  }
+
+  @Bean
+  public OsintCdmAdapter osintCdmAdapter() {
+    return new OsintCdmAdapter();
   }
 }

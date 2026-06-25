@@ -47,16 +47,8 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_security_group" "spot" {
   name_prefix = "${var.name_prefix}-spot-"
-  description = "Security group for spot forecast instance"
+  description = "Security group for spot forecast instance (no inbound SSH; access via SSM Session Manager)"
   vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description = "SSH access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ssh_cidr_blocks
-  }
 
   egress {
     from_port   = 0

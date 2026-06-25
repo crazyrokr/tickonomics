@@ -7,7 +7,9 @@ public enum CodingRule {
   GAP_FILL_LINEAR("03B", "1.0", 0.5),
   NORMALIZATION("04", "1.0", 1.0),
   GREEKS_CALC("05", "1.0", 1.0),
-  SIGNAL_GENERATION("06", "1.0", 1.0);
+  SIGNAL_GENERATION("06", "1.0", 1.0),
+  PERSPECTIVE_MISMATCH_DETERMINISTIC("07", "1.0", 0.95),
+  PERSPECTIVE_MISMATCH_AGENT("08", "1.0", 0.70);
 
   private final String ruleId;
   private final String version;

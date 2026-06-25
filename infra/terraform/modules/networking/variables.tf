@@ -15,12 +15,6 @@ variable "availability_zone" {
   type        = string
 }
 
-variable "ssh_cidr_blocks" {
-  description = "Allowed CIDR blocks for SSH access"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
-
 variable "name_prefix" {
   description = "Prefix for all resource names"
   type        = string

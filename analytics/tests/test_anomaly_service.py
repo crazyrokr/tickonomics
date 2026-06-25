@@ -1,7 +1,13 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import numpy as np
-import pytest
 
 from app.services.anomaly.anomaly_service import detect_anomalies, train_autoencoder
+
+ANALYTICS_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_train_autoencoder_produces_model_state():
@@ -153,3 +159,26 @@ def test_subtle_outlier_detection():
     # Then: 3-sigma outlier should be detected
     assert "error" not in result
     assert result["n_anomalies"] >= 0
+
+
+def _torch_loaded_in_subprocess(module: str) -> tuple[bool, str]:
+    """Import ``module`` in a fresh interpreter and report whether torch ended up loaded."""
+    env = {**os.environ, "PYTHONPATH": str(ANALYTICS_ROOT)}
+    proc = subprocess.run(
+        [sys.executable, "-c", f"import {module}; import sys; print(1 if 'torch' in sys.modules else 0)"],
+        cwd=str(ANALYTICS_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return proc.stdout.strip() == "1", proc.stderr
+
+
+def test_anomaly_service_import_does_not_load_torch():
+    """Given the public anomaly service, when imported fresh, then torch is not loaded eagerly."""
+    # Given / When
+    loaded, stderr = _torch_loaded_in_subprocess("app.services.anomaly.anomaly_service")
+
+    # Then
+    assert not loaded, f"torch was imported eagerly at module load:\n{stderr}"

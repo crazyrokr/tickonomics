@@ -739,7 +739,7 @@ The `google-github-actions/auth@v2` step has no `id:` field. The subsequent `Log
   uses: google-github-actions/auth@v2
 ```
 
-#### Finding CI2 (Low): Azure ACR push uses `secrets.ACR_NAME` as both registry URL and username
+#### Finding CI2 (Low): Azure ACR push uses `secrets.ACR_NAME` as both registry URL and username — RESOLVED
 
 **File:** `.github/workflows/forecast-deploy.yml`
 
@@ -747,12 +747,14 @@ The `google-github-actions/auth@v2` step has no `id:` field. The subsequent `Log
 - name: Login to Azure Container Registry
   with:
     registry: ${{ secrets.ACR_NAME }}.azurecr.io
-    username: ${{ secrets.ACR_NAME }}
+    username: ${{ secrets.ACR_USERNAME }}
 ```
 
 ACR admin usernames typically match the registry name. However, if a service principal is used, the username would be the service principal client ID, not the registry name. This coupling may cause confusion.
 
-**Recommendation:** Use separate secrets for `ACR_REGISTRY` and `ACR_USERNAME`. Document the expected credential type (admin account vs. service principal).
+**Resolution:** Username now reads from a dedicated `ACR_USERNAME` secret, decoupled from `ACR_NAME`
+(which remains the registry hostname). The expected credential type is documented in
+`docs/runbook-forecast-deployment.md` (Azure/ACR section) and ADR-036 D6.
 
 #### Finding CI3 (Low): Backup Lambda has no DLQ
 
@@ -815,6 +817,6 @@ The `/actuator/prometheus` endpoint is now exposed. With `security.auth-disabled
 | DC4 | Convoluted alert volume path | Low | ✅ RESOLVED (fixed during review) |
 | DC5 | TimescaleDB floating tag in new composes | Low | Open |
 | CI1 | GCP auth step missing `id: auth` | Medium | ✅ RESOLVED (fixed during review) |
-| CI2 | ACR secrets naming confusion | Low | Open |
+| CI2 | ACR secrets naming confusion | Low | ✅ RESOLVED (decoupled `ACR_USERNAME` from `ACR_NAME`) |
 | CI3 | Backup EventBridge target no DLQ | Low | Open |
 | AC1 | Prometheus metrics endpoint unauthenticated | Low | Open |

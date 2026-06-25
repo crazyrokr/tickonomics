@@ -7,6 +7,8 @@ import com.tickonomics.ingestion.nyfed.NyFedClient
 import com.tickonomics.ingestion.tracing.IngestionMetrics
 import com.tickonomics.ingestion.tracing.IngestionTracer
 import com.tickonomics.persistence.entity.RateSnapshot
+import com.tickonomics.persistence.repository.NewsEventRepository
+import com.tickonomics.persistence.repository.PredictionMarketQuoteRepository
 import com.tickonomics.persistence.repository.RateSnapshotRepository
 import com.tickonomics.persistence.repository.TickDataRepository
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
@@ -22,6 +24,8 @@ class IdempotencyRoutingSpec extends Specification {
 
     TickDataRepository tickDataRepository = Mock()
     RateSnapshotRepository rateSnapshotRepository = Mock()
+    PredictionMarketQuoteRepository predictionMarketQuoteRepository = Mock()
+    NewsEventRepository newsEventRepository = Mock()
 
     @Subject
     IdempotencyGuard idempotencyGuard = new IdempotencyGuard(86_400_000L)
@@ -36,7 +40,7 @@ class IdempotencyRoutingSpec extends Specification {
 
     def setup() {
         restClientBuilder.build() >> restClient
-        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, idempotencyGuard, tracer, metrics, 500, 500)
+        writer = new TimescaleDbWriter(tickDataRepository, rateSnapshotRepository, predictionMarketQuoteRepository, newsEventRepository, idempotencyGuard, tracer, metrics, 500, 500)
     }
 
     def "given FredClient writes same observation twice, when routed through writer, then no duplicate"() {

@@ -35,11 +35,6 @@ variable "ebs_volume_id" {
   type        = string
 }
 
-variable "ssh_public_key" {
-  description = "SSH public key for instance access"
-  type        = string
-}
-
 variable "registry_url" {
   description = "ECR registry URL for image pulls"
   type        = string

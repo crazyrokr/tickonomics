@@ -78,3 +78,4 @@ components:
         strategyId: { type: string, format: uuid }
         strength: { type: number, format: double }
         confidence: { type: number, format: double }
+        category: { type: string, description: Optional source category, e.g. perspective-mismatch (ADR-037). }

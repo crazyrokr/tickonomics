@@ -11,8 +11,8 @@ resource "google_compute_subnetwork" "public" {
   ip_cidr_range = "10.0.1.0/24"
 }
 
-resource "google_compute_firewall" "ssh" {
-  name    = "${var.name_prefix}-allow-ssh"
+resource "google_compute_firewall" "iap_ssh" {
+  name    = "${var.name_prefix}-allow-iap-ssh"
   network = google_compute_network.main.name
 
   allow {
@@ -20,8 +20,17 @@ resource "google_compute_firewall" "ssh" {
     ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  # IAP TCP forwarding range only — SSH is never reachable from the public internet.
+  # Operators tunnel via: gcloud compute ssh <instance> --tunnel-through-iap
+  source_ranges = ["35.235.240.0/20"]
   target_tags   = ["forecast-spot"]
+}
+
+resource "google_project_iam_member" "iap_tunnel" {
+  count   = var.iap_authorized_member != "" ? 1 : 0
+  project = var.gcp_project_id
+  role    = "roles/iap.tunnelResourceAccessor"
+  member  = var.iap_authorized_member
 }
 
 resource "google_compute_firewall" "egress" {
@@ -238,6 +247,60 @@ resource "google_logging_metric" "preemption" {
   metric_descriptor {
     metric_kind = "DELTA"
     value_type  = "INT64"
+  }
+}
+
+# --- Monitoring & alerting (parity with AWS modules/monitoring + Azure alerts) ---
+resource "google_monitoring_notification_channel" "email" {
+  count        = var.alert_email != "" ? 1 : 0
+  display_name = "${var.name_prefix} forecast alerts"
+  type         = "email"
+  labels = {
+    email_address = var.alert_email
+  }
+}
+
+locals {
+  alert_notification_channels = var.alert_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
+}
+
+resource "google_monitoring_alert_policy" "spot_preemption" {
+  display_name          = "${var.name_prefix} spot preemption"
+  combiner              = "OR"
+  notification_channels = local.alert_notification_channels
+
+  conditions {
+    display_name = "preemption events > 0"
+    condition_threshold {
+      filter          = "metric.type=\"logging.googleapis.com/user/${var.name_prefix}-vm-preemption\" resource.type=\"gce_instance\""
+      duration        = "60s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_DELTA"
+      }
+    }
+  }
+}
+
+resource "google_monitoring_alert_policy" "high_cpu" {
+  display_name          = "${var.name_prefix} high cpu"
+  combiner              = "OR"
+  notification_channels = local.alert_notification_channels
+
+  conditions {
+    display_name = "cpu utilization > 90%"
+    condition_threshold {
+      filter          = "metric.type=\"compute.googleapis.com/instance/cpu/utilization\" resource.type=\"gce_instance\" metric.label.\"instance_name\" = \"${var.name_prefix}-forecast-spot\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0.9
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
   }
 }
 

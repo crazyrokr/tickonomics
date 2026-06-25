@@ -206,6 +206,31 @@ monitor:
     base-url: https://markets.newyorkfed.org/api
     poll-interval-ms: 300000
 
+  polymarket:
+    enabled: false
+    base-url: https://gamma-api.polymarket.com
+    poll-interval-ms: 300000
+    limit: 100
+
+  osint:
+    enabled: false
+    base-url: https://api.gdeltproject.org/api/v2/doc/doc
+    query: stock market earnings
+    max-records: 75
+    poll-interval-ms: 600000
+
+  perspex:
+    enabled: false
+    poll-interval-ms: 600000
+    lookback-minutes: 240
+    divergence-threshold: 0.25
+    min-liquidity: 1000.0
+    min-volume: 500.0
+    max-quotes: 200
+    max-events: 200
+    worker-function: api/v1/perspex/analyze
+    agent-enabled: false
+
 resilience4j:
   bulkhead:
     instances:

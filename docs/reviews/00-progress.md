@@ -1,11 +1,11 @@
 Date: 2026-06-22
 Branch: feature/new
-Method: Finished all P2 items (2026-06-22) from feature/new. Prior: P1 complete on develop (2026-06-18).
+Method: Finished all P2 items (2026-06-22) from feature/new. Prior: P1 complete on develop (2026-06-18). "Other Findings Still Open" resolved 2026-06-24 (Orig-3/4/5, A-M1/A-M2, I-L2 + ADR-036).
 
 ---
 Executive Summary
 
-P2 is now complete. All 22 P2 items are resolved — 21 fixed, 1 deferred-with-documentation (ForecastPersistenceService sample-variance adoption under K-H4). Decisions recorded in ADR-035. The cross-cutting workstreams (BigDecimal ADR-033, ADR-021 record hygiene) remain open for P3.
+P2 is now complete. All 22 P2 items are resolved — 21 fixed, 1 deferred-with-documentation (ForecastPersistenceService sample-variance adoption under K-H4). Decisions recorded in ADR-035. The "Other Findings Still Open" tail is now also resolved (2026-06-24): Orig-3/4/5, A-M1/A-M2, I-L2 are fixed and the post-review remediation architecture is recorded as ADR-036 (the ADR-021 number was taken). The remaining cross-cutting workstream — money-as-`BigDecimal` (ADR-033) — stays open for P3.
 
 ┌─────────────────────────────────────────────────────┬─────────────┬───────┬─────────┬──────┬─────────┐
 │                        Phase                        │ Total items │ Fixed │ Partial │ Open │ % Fixed │
@@ -16,11 +16,11 @@ P2 is now complete. All 22 P2 items are resolved — 21 fixed, 1 deferred-with-d
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
 │ P2 (robustness, validation, API typing)             │ 22          │ 21    │ 1       │ 0    │ 95% ✅  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ P3/infra/analytics sweep                            │ ~15         │ 1     │ 1       │ 13   │ 7% ❌   │
+│ P3/infra/analytics sweep                            │ ~15         │ 7     │ 1       │ 7    │ 47% ❌  │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ ADR-021 (remediation architecture ADR)              │ 1           │ 0     │ —       │ 1    │ 0% ❌   │
+│ ADR-036 (remediation architecture ADR)              │ 1           │ 1     │ —       │ 0    │ 100% ✅ │
 ├─────────────────────────────────────────────────────┼─────────────┼───────┼─────────┼──────┼─────────┤
-│ Total                                               │ ~74         │ 55    │ 4       │ 15   │ 74%     │
+│ Total                                               │ ~74         │ 62    │ 4       │ 8    │ 84%     │
 └─────────────────────────────────────────────────────┴─────────────┴───────┴─────────┴──────┴─────────┘
 
 ---
@@ -172,26 +172,26 @@ The most dangerous silent-noop bugs from P0 have been resolved:
 └─────────┴──────────────────────────────────────────────────────────────────────────────┴────────────┘
 
 ---
-❌ Other Findings Still Open
+✅ Other Findings — Resolved (2026-06-24)
 
 ┌─────────┬──────────────────────────────────────────────────────┬──────────┐
 │   ID    │                       Finding                        │  Status  │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
 │ F-L1    │ Dead snake_case types file — DELETED                 │ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ Orig-3  │ SSH open to 0.0.0.0/0 on spot SG + GCP               │ ❌       │
+│ Orig-3  │ SSH open to 0.0.0.0/0 — removed (SSM/IAP/Bastion)    │ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ Orig-4  │ Azure environment still monolithic                   │ ❌       │
+│ Orig-4  │ Azure refactored into 7 modules (mirrors AWS)        │ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ Orig-5  │ GCP has no monitoring/alerting resources             │ ❌       │
+│ Orig-5  │ GCP monitoring/notification channel + 2 alert policies│ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ A-M1    │ import torch at module level in regimes/anomaly      │ ❌       │
+│ A-M1    │ torch imports deferred to lazy private submodules     │ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ A-M2    │ CNN-LSTM used with random/untrained weights          │ ❌       │
+│ A-M2    │ CNN-LSTM loads a trained checkpoint (no random weights)│ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ I-L2    │ ACR push uses secrets.ACR_NAME for username          │ ❌       │
+│ I-L2    │ ACR username decoupled to secrets.ACR_USERNAME       │ ✅ Fixed │
 ├─────────┼──────────────────────────────────────────────────────┼──────────┤
-│ ADR-021 │ Post-review remediation architecture ADR not created │ ❌       │
+│ ADR-036 │ Post-review remediation architecture ADR created     │ ✅ Fixed │
 └─────────┴──────────────────────────────────────────────────────┴──────────┘
 
 ---
@@ -201,5 +201,5 @@ Key Observations
 2. P1 is now complete (17 fixed + 2 partial/accepted, 100%). All remaining items resolved 2026-06-18: Alertmanager config + service (I-M1), Grafana password enforcement (I-H1 infra), named volumes documented (I-H2 infra), EVT Gumbel fallback + test (A-H1), QuantReg intercept + updated tests (A-H2), TTM 365.25-to-365.0 (C-H1), SpotBugs real bugs fixed + EI_EXPOSE_REP deferred to ADR-021 (C-H4), P-C2 acknowledged false positive.
 3. The KPI controller (F-E1) is the most impactful remaining P0 gap. The dashboard has no functional KPI data — all 8 endpoints return 404. This was escalated from the original review and remains unfixed.
 4. Security hardening is at ~60% — auth defaults fixed, but method-level RBAC, WS origins, rate limiting, missing headers, and SSH-to-world are all still open (P2 items).
-5. The analytics Python findings are now ~70% addressed (GARCH fixed, EVT-Gumbel fallback added, QuantReg-intercept added). Remaining: ABM drift documentation (A-H3), GARCH init partial (A-H4), transfer entropy bias (A-H5), torch imports (A-M1), CNN-LSTM untrained (A-M2).
-6. ADR-021 is still needed — the architecture record for cross-cutting record hygiene, BigDecimal migration, and full static-analysis enforcement.
+5. The analytics Python findings are now ~90% addressed (GARCH fixed, EVT-Gumbel fallback added, QuantReg-intercept added, ABM drift documented, transfer-entropy bias corrected, and now torch lazy-imported (A-M1) + CNN-LSTM running a trained checkpoint (A-M2)). Remaining: GARCH init partial (A-H4).
+6. The post-review remediation architecture is recorded as ADR-036 (ADR-021's number was taken by the commons-lang3/SpotBugs pin). It captures the torch lazy-import boundary, the trained CNN-LSTM checkpoint model, the SSM/IAP/Bastion SSH posture, the Azure modular refactor (+ GCP-monolith known gap), GCP monitoring parity, and the ACR credential decoupling, plus the cross-cutting record-hygiene / static-analysis-enforcement roadmap (coordinating with ADR-033).

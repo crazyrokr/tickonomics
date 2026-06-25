@@ -1,14 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-resource "aws_key_pair" "spot" {
-  key_name   = "${var.name_prefix}-spot-key"
-  public_key = var.ssh_public_key
-
-  tags = merge(var.tags, {
-    Name = "${var.name_prefix}-spot-key"
-  })
-}
-
 resource "aws_iam_role" "spot" {
   name = "${var.name_prefix}-spot-role"
 
@@ -138,7 +129,6 @@ resource "aws_launch_template" "forecast" {
   name                   = "${var.name_prefix}-forecast-spot"
   image_id               = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = aws_key_pair.spot.key_name
   update_default_version = true
 
   iam_instance_profile {

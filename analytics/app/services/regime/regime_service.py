@@ -1,8 +1,10 @@
-"""Regime detection: GARCH regime, CNN-LSTM hybrid, QED quartic potential, RAHF."""
+"""Regime detection: GARCH regime, CNN-LSTM hybrid, QED quartic potential, RAHF.
+
+The CNN-LSTM path delegates to ``_cnn_lstm`` (imported lazily inside the function) so importing this
+module does not load torch; see ADR-036 D1.
+"""
 
 import numpy as np
-import torch
-import torch.nn as nn
 
 
 def garch_regime(returns: list[float], p: int = 1, q: int = 1) -> dict:
@@ -52,35 +54,9 @@ def cnn_lstm_regime(returns: list[float], lookback: int = 60) -> dict:
     if len(returns) < lookback * 2:
         return {"error": f"At least {lookback * 2} returns required"}
 
-    r = np.array(returns)
-    windows = np.array([r[i : i + lookback] for i in range(len(r) - lookback)])
+    from app.services.regime._cnn_lstm import run_cnn_lstm_regime
 
-    n_classes = 3
-    input_size = 1
-
-    model = _RegimeCNNLSTM(input_size, hidden_size=16, num_classes=n_classes)
-    model.eval()
-
-    last_window = torch.tensor(windows[-1], dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
-
-    with torch.no_grad():
-        logits = model(last_window)
-        probs = torch.softmax(logits, dim=-1).numpy()[0]
-
-    labels = ["LOW_VOL", "NORMAL", "HIGH_VOL"]
-    predicted_idx = int(np.argmax(probs))
-    predicted_label = labels[predicted_idx]
-    confidence = float(probs[predicted_idx])
-
-    transition = {labels[i]: round(float(probs[i]), 4) for i in range(n_classes)}
-
-    return {
-        "regime": predicted_label,
-        "confidence": round(confidence, 4),
-        "transition_probability": transition,
-        "lookback": lookback,
-        "n_observations": len(returns),
-    }
+    return run_cnn_lstm_regime(returns, lookback)
 
 
 def qed_regime(
@@ -221,18 +197,3 @@ def _rolling_volatility(returns: np.ndarray, window: int = 21) -> np.ndarray:
     for i in range(window - 1, len(returns)):
         vol[i] = float(np.std(returns[i - window + 1 : i + 1], ddof=1))
     return vol
-
-
-class _RegimeCNNLSTM(torch.nn.Module):
-    def __init__(self, input_size: int, hidden_size: int, num_classes: int):
-        super().__init__()
-        self.conv = torch.nn.Conv1d(input_size, 16, kernel_size=3, padding=1)
-        self.lstm = torch.nn.LSTM(16, hidden_size, batch_first=True)
-        self.fc = torch.nn.Linear(hidden_size, num_classes)
-
-    def forward(self, x):
-        x = x.permute(0, 2, 1)
-        x = torch.relu(self.conv(x))
-        x = x.permute(0, 2, 1)
-        _, (hn, _) = self.lstm(x)
-        return self.fc(hn[-1])

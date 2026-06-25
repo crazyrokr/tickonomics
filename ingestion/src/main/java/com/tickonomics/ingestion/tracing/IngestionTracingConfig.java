@@ -18,4 +18,6 @@ public class IngestionTracingConfig {
   public static final String SPAN_QUALITY_CHECK = "ingestion.quality.check";
   public static final String SPAN_ANOMALY_DETECT = "ingestion.anomaly.detect";
   public static final String SPAN_DISASTER_POLL = "ingestion.disaster.poll";
+  public static final String SPAN_POLYMARKET_FETCH = "ingestion.polymarket.fetch";
+  public static final String SPAN_OSINT_FETCH = "ingestion.osint.fetch";
 }

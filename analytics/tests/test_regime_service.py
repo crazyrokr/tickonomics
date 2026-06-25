@@ -1,5 +1,10 @@
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import numpy as np
-import pytest
 
 from app.services.regime.regime_service import (
     cnn_lstm_regime,
@@ -7,6 +12,8 @@ from app.services.regime.regime_service import (
     qed_regime,
     rahf_regime,
 )
+
+ANALYTICS_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _make_returns(n: int = 500, seed: int = 42) -> list[float]:
@@ -151,3 +158,94 @@ def test_garch_regime_two_clusters():
     # Then
     assert "error" not in result
     assert result["regime"] in ("LOW_VOL", "NORMAL", "ELEVATED", "HIGH_VOL")
+
+
+def _torch_loaded_in_subprocess(module: str) -> tuple[bool, str]:
+    """Import ``module`` in a fresh interpreter and report whether torch ended up loaded."""
+    env = {**os.environ, "PYTHONPATH": str(ANALYTICS_ROOT)}
+    proc = subprocess.run(
+        [sys.executable, "-c", f"import {module}; import sys; print(1 if 'torch' in sys.modules else 0)"],
+        cwd=str(ANALYTICS_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return proc.stdout.strip() == "1", proc.stderr
+
+
+def test_regime_service_import_does_not_load_torch():
+    """Given the public regime service, when imported fresh, then torch is not loaded eagerly."""
+    # Given / When
+    loaded, stderr = _torch_loaded_in_subprocess("app.services.regime.regime_service")
+
+    # Then
+    assert not loaded, f"torch was imported eagerly at module load:\n{stderr}"
+
+
+def test_cnn_lstm_regime_is_deterministic_across_calls():
+    """Given identical input, when CNN-LSTM runs twice, then outputs are identical (trained checkpoint)."""
+    # Given
+    returns = _make_returns(300)
+
+    # When
+    first = cnn_lstm_regime(returns, lookback=30)
+    second = cnn_lstm_regime(returns, lookback=30)
+
+    # Then
+    assert first == second
+
+
+def test_cnn_lstm_regime_missing_checkpoint_returns_error(monkeypatch, tmp_path):
+    """Given no checkpoint at the configured path, when CNN-LSTM runs, then an error is returned."""
+    # Given: a path that does not exist
+    monkeypatch.setenv("REGIME_CNN_LSTM_STATE_PATH", str(tmp_path / "missing.json"))
+
+    # When
+    result = cnn_lstm_regime(_make_returns(300), lookback=30)
+
+    # Then: never falls back to random weights
+    assert "error" in result
+    assert "regime" not in result
+
+
+def test_cnn_lstm_regime_corrupt_checkpoint_returns_error(monkeypatch, tmp_path):
+    """Given a checkpoint file that is not valid JSON, when CNN-LSTM runs, then an error is returned."""
+    # Given
+    bad = tmp_path / "corrupt.json"
+    bad.write_text("{not valid json")
+    monkeypatch.setenv("REGIME_CNN_LSTM_STATE_PATH", str(bad))
+
+    # When
+    result = cnn_lstm_regime(_make_returns(300), lookback=30)
+
+    # Then
+    assert "error" in result
+    assert "regime" not in result
+
+
+def test_cnn_lstm_regime_shape_mismatch_checkpoint_returns_error(monkeypatch, tmp_path):
+    """Given a checkpoint whose tensors do not match the model, when CNN-LSTM runs, then an error is returned."""
+    # Given: valid JSON but a conv weight with the wrong shape
+    bad = tmp_path / "wrong.json"
+    bad.write_text(json.dumps({"conv.weight": [[0.0]]}))
+    monkeypatch.setenv("REGIME_CNN_LSTM_STATE_PATH", str(bad))
+
+    # When
+    result = cnn_lstm_regime(_make_returns(300), lookback=30)
+
+    # Then
+    assert "error" in result
+
+
+def test_shipped_cnn_lstm_checkpoint_loads_into_model():
+    """Given the shipped checkpoint artifact, when loaded, then its keys match the model architecture."""
+    # Given / When
+    from app.services.regime import _cnn_lstm
+
+    state = _cnn_lstm.load_state_dict()
+    model = _cnn_lstm.build_model()
+    model.load_state_dict(state)  # raises on any key/shape mismatch
+
+    # Then
+    assert set(state.keys()) == set(model.state_dict().keys())
