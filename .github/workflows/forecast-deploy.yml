@@ -177,7 +177,7 @@ jobs:
         run: tflint --recursive --format compact
 
       - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
+        uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: infra/terraform
 
