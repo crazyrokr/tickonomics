@@ -2,7 +2,7 @@ plugins {
   id 'java'
   id 'io.tickonomics.git-hooks'
   id 'io.spring.dependency-management' version '1.1.7' apply false
-  id 'org.springframework.boot' version '4.1.0' apply false
+  id 'org.springframework.boot' version '4.1.1' apply false
   id 'com.github.spotbugs' version '6.5.6' apply false
 }
 
@@ -38,7 +38,7 @@ subprojects {
 
   dependencyManagement {
     imports {
-      mavenBom "org.springframework.boot:spring-boot-dependencies:4.1.0"
+      mavenBom "org.springframework.boot:spring-boot-dependencies:4.1.1"
       mavenBom "org.testcontainers:testcontainers-bom:2.0.5"
       mavenBom "org.spockframework:spock-bom:2.4-groovy-5.0"
     }
