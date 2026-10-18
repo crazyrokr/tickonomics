@@ -11,9 +11,9 @@ variable "availability_zone" {
 }
 
 variable "instance_type" {
-  description = "Spot instance type"
+  description = "Spot instance type (Graviton: ECR images are multi-arch amd64/arm64)"
   type        = string
-  default     = "c5.2xlarge"
+  default     = "c6g.2xlarge"
 }
 
 variable "spot_price_max" {
@@ -23,7 +23,7 @@ variable "spot_price_max" {
 }
 
 variable "db_volume_size_gb" {
-  description = "Persistent disk size in GB"
+  description = "Persistent disk size in GB (spot TimescaleDB volume)"
   type        = number
   default     = 50
 }
@@ -79,11 +79,6 @@ variable "results_retention_days" {
   default     = 30
 }
 
-variable "ssh_public_key" {
-  description = "SSH public key for spot instance access"
-  type        = string
-}
-
 variable "alert_email" {
   description = "Email address for SNS alerts"
   type        = string
@@ -102,30 +97,14 @@ variable "tags" {
   default     = {}
 }
 
-# --- Track 14: Production Infrastructure ---
-
-variable "grafana_password" {
-  description = "Grafana admin password for the observability stack"
-  type        = string
-  sensitive   = true
-  default     = ""
+variable "admin_trust_principals" {
+  description = "IAM principal ARNs allowed to assume the operator admin role (empty = trust account root)"
+  type        = list(string)
+  default     = []
 }
 
-variable "oauth_client_secret" {
-  description = "OAuth2 / Keycloak client secret"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "domain_name" {
-  description = "Root domain name for Route53 hosted zone"
-  type        = string
-  default     = "tickonomics.io"
-}
-
-variable "landing_cname_target" {
-  description = "CNAME target for apex domain (e.g. Vercel deployment URL)"
-  type        = string
-  default     = ""
+variable "admin_session_duration_seconds" {
+  description = "Max STS session duration for the operator admin role (>= the client profile's duration_seconds)"
+  type        = number
+  default     = 3600
 }

@@ -49,6 +49,7 @@ resource "aws_lambda_function" "forecast_trigger" {
   role          = aws_iam_role.lambda_trigger.arn
   handler       = "forecast_trigger.handler"
   runtime       = "python3.12"
+  architectures = ["arm64"]
   timeout       = 120
   memory_size   = 256
 
@@ -76,6 +77,7 @@ resource "aws_lambda_function" "forecast_status" {
   role          = aws_iam_role.lambda_status.arn
   handler       = "forecast_status.handler"
   runtime       = "python3.12"
+  architectures = ["arm64"]
   timeout       = 30
   memory_size   = 128
 
@@ -98,6 +100,7 @@ resource "aws_lambda_function" "spot_interruption" {
   role          = aws_iam_role.lambda_interruption.arn
   handler       = "spot_interruption.handler"
   runtime       = "python3.12"
+  architectures = ["arm64"]
   timeout       = 30
   memory_size   = 128
 

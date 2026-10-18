@@ -8,9 +8,11 @@ terraform {
     }
   }
 
+  # State key is stack-specific; the bucket/lock table are bootstrapped once
+  # (see infra/terraform/bootstrap/ and ADR-038). aws-production reads this state.
   backend "s3" {
     bucket         = "tickonomics-terraform-state"
-    key            = "forecast/aws/terraform.tfstate"
+    key            = "aws-forecast/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "tickonomics-terraform-locks"
     encrypt        = true

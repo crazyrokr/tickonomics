@@ -11,11 +11,11 @@ variable "alert_email" {
 variable "environment_name" {
   description = "Environment label for the budget name"
   type        = string
-  default     = "production"
+  default     = "stage"
 
   validation {
-    condition     = contains(["staging", "production", "forecast"], var.environment_name)
-    error_message = "Environment must be 'staging', 'production', or 'forecast'."
+    condition     = contains(["stage", "prod"], var.environment_name)
+    error_message = "Environment must be 'stage' or 'prod'."
   }
 }
 

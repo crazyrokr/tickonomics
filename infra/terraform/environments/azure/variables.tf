@@ -104,5 +104,10 @@ variable "name_prefix" {
 variable "tags" {
   description = "Common tags applied to all resources"
   type        = map(string)
-  default     = {}
+  default     = {
+    Project     = "tickonomics"
+    Environment = "Prod"
+    Service     = "tickonomics"
+    ManagedBy   = "terraform"
+  }
 }

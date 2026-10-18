@@ -46,12 +46,17 @@ The Tickonomics forecast pipeline runs on cloud spot instances (AWS, GCP, or Azu
 | **GCP** | Service account JSON, SSH public key | `GOOGLE_APPLICATION_CREDENTIALS` env var |
 | **Azure** | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID` | Env vars or `az login` |
 
+> **AWS Identity Center (`aws login`):** the simplified `aws login` flow authenticates the
+> CLI but **not** Terraform's SDK, so `terraform init` can still fail with "No valid
+> credential sources found". If you authenticate via `aws login`, add a `credential_process`
+> line to `~/.aws/config` or export session keys before init — see [§7.7](#77-terraform-init-fails-no-valid-credential-sources--ec2-imds-timeout).
+
 ### 2.3 Configuration
 
 Copy the example vars file for your provider and fill in real values:
 
 ```bash
-cd infra/terraform/environments/aws  # or gcp, azure
+cd infra/terraform/environments/aws-forecast  # or gcp, azure
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars — set postgres_password, ssh_public_key, API keys, etc.
 ```
@@ -61,35 +66,79 @@ Required variables for every provider:
 - `ssh_public_key` — Your `~/.ssh/id_ed25519.pub` contents
 - `image_tag` — Container tag to deploy (default: `latest`)
 
+### 2.4 Bootstrap the Terraform state backend (one-time)
+
+The S3 state bucket and DynamoDB lock table referenced by the **AWS** `backend.tf` are **not**
+created by the environment's Terraform — `terraform init` connects to the backend *before* it can
+provision anything, so the backend must already exist. Create it once per AWS account, before the
+first `terraform init`. (GCP's GCS and Azure backends have analogous one-time bootstrap steps.)
+
+> **The account must be signed up for S3.** If `aws s3 ls` returns
+> `NotSignedUp: Your account is not signed up for the S3 service`, the account hasn't finished
+> activation. Finish it in the AWS Console (root → Billing → payment method / activation); S3
+> becomes available automatically once the account is active.
+
+**Recommended: the bootstrap stack** (`infra/terraform/bootstrap/`, see
+[ADR-038](adr/ADR-038-terraform-state-backend-bootstrap.md)). It owns the bucket + table behind a
+local backend, so the state-backend resources are version-controlled and reproducible:
+
+```bash
+cd infra/terraform/bootstrap
+terraform init          # local backend — no S3 access needed
+terraform apply         # creates tickonomics-terraform-state + tickonomics-terraform-locks
+```
+
+**Alternative: manual CLI** (faster, but the resources are untracked):
+
+```bash
+REGION=us-east-1   # must match backend.tf region
+
+aws s3api create-bucket --bucket tickonomics-terraform-state --region "$REGION"
+aws s3api put-bucket-versioning --bucket tickonomics-terraform-state \
+  --versioning-configuration Status=Enabled
+aws s3api put-bucket-encryption --bucket tickonomics-terraform-state \
+  --server-side-encryption-configuration \
+    '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+aws dynamodb create-table --table-name tickonomics-terraform-locks \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST --region "$REGION"
+```
+
+Either way, the names must match `environments/aws-forecast/backend.tf` and `environments/aws-production/backend.tf` exactly (bucket,
+region, table, `encrypt = true`, which the SSE config above satisfies). Verify with
+`terraform init`, which should report `Terraform has been successfully initialized!`.
+
+For local validation only (no AWS resources needed), skip the backend entirely:
+`terraform init -backend=false`.
+
 ---
 
 ## 3. Deploy
 
-### 3.1 Option A: Terraform CLI (full stack)
+### 3.1 Option A: Terraform CLI (two stacks)
+
+The AWS environment is split into two stacks (see ADR-039): **`aws-forecast`** (standalone, ephemeral
+spot — no always-on EC2) and **`aws-production`** (always-on hosting tier, opt-in). Apply forecast
+first; production is optional and consumes the forecast stack's base via remote state.
+
+> **Prerequisite:** the S3 state backend must already exist. Run the
+> [§2.4](#24-bootstrap-the-terraform-state-backend-one-time) bootstrap once before the first
+> `terraform init`.
+
+**Forecast stack** — run a one-shot forecast; ~$0.38/run, no always-on compute:
 
 ```bash
-cd infra/terraform/environments/aws   # or gcp, azure
-
-# Initialize providers and modules
+cd infra/terraform/environments/aws-forecast   # or gcp/azure for their forecast envs
 terraform init
-
-# Preview all resources
-terraform plan -var-file=terraform.tfvars -out=tfplan
-
-# Provision everything
-terraform apply tfplan
+terraform plan  -var-file=terraform.tfvars -out=tfplan
+terraform apply tfplan     # provisions base + spot, runs the forecast, self-terminates
 ```
 
-This creates:
-- VPC, subnet, security groups
-- S3/GCS/Blob results bucket
-- EBS/Persistent disk for TimescaleDB
-- ECR/Artifact Registry/ACR repositories
-- Spot instance (with cloud-init bootstrap)
-- Lambda/Cloud Functions + API Gateway for triggering
-- CloudWatch/Monitor alerts + dashboard
+This creates: VPC/subnet/SGs, S3 results bucket + IAM, ECR repos, the `c5.2xlarge` spot instance
+(with cloud-init), Lambda/API Gateway forecast trigger, and CloudWatch alerts/dashboard.
 
-**Outputs after apply:**
+Forecast outputs (the base ones are also consumed by `aws-production` via remote state):
 
 ```
 spot_instance_public_ip = "54.123.45.67"
@@ -100,6 +149,39 @@ ecr_analytics_url       = "123456789.dkr.ecr.us-east-1.amazonaws.com/tickonomics
 ebs_volume_id           = "vol-0abc123def456"
 cloudwatch_dashboard_url = "https://us-east-1.console.aws.amazon.com/cloudwatch/..."
 ```
+
+**Production stack** — always-on hosting tier (opt-in, ~$72/mo; needs the forecast stack applied):
+
+```bash
+cd infra/terraform/environments/aws-production
+terraform init
+terraform plan  -var-file=terraform.tfvars -out=tfplan
+terraform apply tfplan     # hosting instance + DB/observability/dns/backup/budget/secrets
+```
+
+This creates: persistent `t4g.large`/`t4g.xlarge` hosting instance, TimescaleDB EBS, Grafana
+observability, Route53 DNS + TLS, automated backup Lambda, SSM secrets/KMS, and an AWS Budget.
+
+> **Apply order:** forecast first, then production. **Destroy order:** production first, then
+> forecast (so production isn't left referencing a destroyed base).
+
+**Environments (Terraform workspaces).** `aws-production` picks sizing from the active workspace —
+its `locals` block keys off `terraform.workspace`:
+
+- **`stage` (default)** — the `default` or `staging` workspace → `t4g.large`, 25 GB DB, $30 budget
+  (~$72/mo always-on). A plain `terraform apply` with no workspace selected lands here.
+- **`prod`** — `terraform workspace select prod` → `t4g.xlarge`, 100 GB DB, $200 budget (~$130/mo).
+
+```bash
+cd infra/terraform/environments/aws-production
+terraform workspace new staging   # one-time, optional (the "default" workspace already maps to stage)
+terraform workspace select prod   # switch to production sizing
+terraform workspace show          # confirm the active workspace
+```
+
+The environment label (`stage`/`prod`) becomes the `Environment` tag and the resource-name suffix
+(`tickonomics-stage-*` / `tickonomics-prod-*`). Each workspace carries its own state under the same
+S3 backend, so stage and prod coexist independently.
 
 ### 3.2 Option B: CLI one-shot script
 
@@ -545,6 +627,94 @@ aws ec2 attach-volume --volume-id vol-xxx --instance-id i-xxx --device /dev/sdf
 mount /dev/sdf /mnt/timescaledb
 ```
 
+### 7.7 terraform init fails: "No valid credential sources" / EC2 IMDS timeout
+
+**Symptom** (during `terraform init` against the S3 backend in
+`infra/terraform/environments/aws-forecast/backend.tf` or `environments/aws-production/backend.tf`):
+
+```
+Error: No valid credential sources found
+Error: failed to refresh cached credentials, no EC2 IMDS role found,
+       operation error ec2imds: GetMetadata, request canceled, context deadline exceeded
+```
+
+**Root cause.** The backend is a real S3 state bucket, so `terraform init` must
+authenticate to AWS. Terraform's AWS provider uses the Go SDK, which only walks the
+**classic** credential chain: env vars → `~/.aws/credentials` → classic SSO cache
+(`~/.aws/sso/cache`) → web identity → ECS → EC2 IMDS.
+
+The simplified `aws login` (IAM Identity Center) experience stores its session in
+`~/.aws/login/cache/` plus a `login_session` line in `~/.aws/config`. **Only AWS CLI v2
+reads that location** — the Go SDK does not. So `aws sts get-caller-identity` succeeds
+(the CLI resolves the session) while `terraform init` still sees no credentials and falls
+through to EC2 IMDS, which hangs until the context deadline. Running `aws login` alone
+does **not** fix it.
+
+**Confirm the split:**
+
+```bash
+aws sts get-caller-identity   # works — CLI resolves the aws login session
+terraform init                # still fails — Go SDK cannot
+```
+
+**Fix — immediate (one shell, no file changes):**
+
+```bash
+eval "$(aws configure export-credentials --format env)"   # bridges session keys into env vars
+export AWS_EC2_METADATA_DISABLED=true                      # avoid the IMDS hang on any miss
+terraform init
+```
+
+`aws configure export-credentials` pulls short-term keys (`AWS_ACCESS_KEY_ID`,
+`AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`) out of the `aws login` session into the form
+the SDK reads. Re-run the `eval` line when the session token expires.
+
+**Fix — durable (set once in `~/.aws/config`):**
+
+```ini
+[default]
+credential_process = aws configure export-credentials
+region = us-east-1
+```
+
+`credential_process` is a standard SDK-recognized field: every SDK-based tool (Terraform,
+etc.) transparently fetches **and auto-refreshes** credentials through the CLI, sourced
+from the `aws login` session — no manual export and no SSO start-url required. Omit
+`--format`: the CLI's **default `process`** format is the JSON `credential_process` expects.
+Do **not** use `--format json` (unsupported on this build — exits 252) or `--format env`
+(that's for the shell `eval` one-liner above, not `credential_process`).
+
+**Verify after either fix:**
+
+```bash
+aws sts get-caller-identity   # prints the account arn
+terraform init                # resolves
+```
+
+### 7.8 terraform init fails: "S3 bucket does not exist" / account not signed up for S3
+
+**Symptom:**
+
+```
+Error: Failed to get existing workspaces: S3 bucket "tickonomics-terraform-state" does not exist.
+Error: operation error S3: ListObjectsV2 ... StatusCode: 404 ... NoSuchBucket
+
+# or, on an unactivated account:
+aws s3 ls → NotSignedUp: Your account is not signed up for the S3 service.
+```
+
+**Cause.** Two distinct blockers, both account-side (credentials already resolve — see §7.7):
+
+1. **Account not signed up for S3** (`NotSignedUp`) — the account hasn't finished activation, so no
+   S3 operation works. Finish activation in the AWS Console (root → Billing → payment method).
+2. **State bucket not bootstrapped** (`NoSuchBucket`) — the repo deliberately does not create the
+   state backend (Terraform can't manage its own state storage); it must be created once per account.
+
+**Fix:** finish account activation, then create the state bucket + lock table per
+[§2.4](#24-bootstrap-the-terraform-state-backend-one-time), then `terraform init`.
+
+For local validation only, skip the backend: `terraform init -backend=false`.
+
 ---
 
 ## 8. Cleanup
@@ -552,7 +722,7 @@ mount /dev/sdf /mnt/timescaledb
 ### 8.1 Tear down spot resources only
 
 ```bash
-cd infra/terraform/environments/aws
+cd infra/terraform/environments/aws-forecast
 terraform destroy \
   -target=module.compute_spot \
   -var-file=terraform.tfvars \
@@ -569,11 +739,15 @@ This destroys the spot instance but preserves:
 ### 8.2 Full teardown
 
 ```bash
-cd infra/terraform/environments/aws
+# Destroy in reverse apply order: always-on production first, then the forecast base
+cd infra/terraform/environments/aws-production
+terraform destroy -var-file=terraform.tfvars -auto-approve
+
+cd ../aws-forecast
 terraform destroy -var-file=terraform.tfvars -auto-approve
 ```
 
-**Warning:** This deletes everything including the S3 results bucket and EBS volume.
+**Warning:** This deletes everything in both stacks — including the S3 results bucket and EBS volumes.
 
 ### 8.3 Download results before teardown
 
@@ -612,6 +786,47 @@ aws ce get-cost-and-usage \
 | **Total per run** | **~$0.38** | **~$0.36** | **~$0.35** |
 | **Monthly (20 runs)** | **~$7.60** | **~$7.20** | **~$7.00** |
 
+> **The "Monthly (20 runs)" row above is per-run spot cost only.** It does **not** include the
+> always-on persistent infrastructure the stack also provisions (hosting instance, EBS, Route53,
+> KMS, …) — see the table below.
+
+### Expected always-on monthly cost (persistent infra)
+
+Since the ADR-039 split this is the **opt-in `aws-production` stack** — applying only
+`aws-forecast` incurs **none** of it. It provisions the **persistent, always-on** hosting tier
+(`module.hosting` + supporting infra) that runs 24/7 regardless of forecast runs, and dominates
+the bill:
+
+| Resource | Config | Monthly (AWS, us-east-1) |
+|---|---|---|
+| Hosting EC2 instance | `t4g.large`, on-demand, 24×7 | ~$61 |
+| EBS gp3 volumes | 85 GB total (25 + 10 + 50) | ~$7 |
+| KMS key (SSM SecureString) | 1 CMK | $1 |
+| Route53 hosted zone | `tickonomics.io` | $0.50 |
+| CloudWatch alarms | 2 × $0.10 | $0.20 |
+| ECR + S3 storage | ~few GB | ~$1.50 |
+| CloudWatch dashboard | 1 (free tier) | $0 |
+| Lambda / HTTP API GW / SQS / SNS / EventBridge / logs / SSM / Budgets / VPC+IGW | usage-based, near-$0 at low volume | ~$0–1 |
+| Elastic IP | free if attached; **+$3.65/mo if left idle** | $0–3.65 |
+| **Always-on subtotal** | | **~$72/mo** |
+
+**Key points:**
+
+- The **`t4g.large` hosting instance is ~85% of the always-on bill**. If that persistent host isn't
+  needed, stopping it drops the monthly floor from ~$72 to ~$11 — the single biggest cost lever.
+- **No NAT Gateway** (single public subnet + Internet Gateway), so the common ~$32/mo NAT cost is
+  avoided here.
+- **Data transfer is extra and traffic-dependent** (the per-run table budgets ~$0.18/run of network
+  during forecast runs); backup S3 grows with dump size and retention.
+- **Total ≈ ~$72/mo always-on + ~$0.38/run.** At 20 runs/mo that's **~$80/mo**.
+
+> Figures above are a manual estimate from the applied plan using us-east-1 on-demand pricing. For
+> an authoritative per-resource breakdown, authenticate Infracost once (`infracost auth login`) and run:
+> ```bash
+> terraform -chdir=infra/terraform/environments/aws-forecast show -json tfplan > /tmp/plan.json
+> infracost breakdown --path /tmp/plan.json --format table
+> ```
+
 ---
 
 ## 10. Quick Reference
@@ -629,8 +844,8 @@ aws ce get-cost-and-usage \
 docker build -t $ECR/backend:latest . && docker push $ECR/backend:latest
 docker build -t $ECR/analytics:latest ./analytics && docker push $ECR/analytics:latest
 
-# 2. Deploy infrastructure
-cd infra/terraform/environments/aws
+# 2. Deploy infrastructure (forecast stack; apply aws-production separately for always-on)
+cd infra/terraform/environments/aws-forecast
 terraform init && terraform apply -auto-approve
 
 # 3. Monitor

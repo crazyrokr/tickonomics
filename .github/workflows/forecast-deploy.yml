@@ -49,6 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -68,6 +71,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ${{ vars.ECR_BACKEND_URL || 'tickonomics/backend' }}:${{ inputs.image_tag || 'latest' }}
@@ -80,10 +84,24 @@ jobs:
         with:
           context: ./analytics
           file: ./analytics/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ${{ vars.ECR_ANALYTICS_URL || 'tickonomics/analytics' }}:${{ inputs.image_tag || 'latest' }}
             ${{ vars.ECR_ANALYTICS_URL || 'tickonomics/analytics' }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push dashboard image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ vars.ECR_DASHBOARD_URL || 'tickonomics/dashboard' }}:${{ inputs.image_tag || 'latest' }}
+            ${{ vars.ECR_DASHBOARD_URL || 'tickonomics/dashboard' }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -145,12 +163,20 @@ jobs:
       - name: Terraform fmt check
         run: terraform fmt -check -recursive infra/terraform/
 
-      - name: Terraform init (AWS)
-        working-directory: infra/terraform/environments/aws
+      - name: Terraform init (AWS forecast)
+        working-directory: infra/terraform/environments/aws-forecast
         run: terraform init -backend=false
 
-      - name: Terraform validate (AWS)
-        working-directory: infra/terraform/environments/aws
+      - name: Terraform validate (AWS forecast)
+        working-directory: infra/terraform/environments/aws-forecast
+        run: terraform validate
+
+      - name: Terraform init (AWS production)
+        working-directory: infra/terraform/environments/aws-production
+        run: terraform init -backend=false
+
+      - name: Terraform validate (AWS production)
+        working-directory: infra/terraform/environments/aws-production
         run: terraform validate
 
       - name: Terraform init (GCP)

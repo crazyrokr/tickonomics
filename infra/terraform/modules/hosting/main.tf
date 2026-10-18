@@ -24,7 +24,7 @@ resource "aws_instance" "hosting" {
 
   tags = merge(var.tags, {
     Name        = "${var.name_prefix}-${var.environment}"
-    Environment = var.environment
+    Environment = var.environment == "prod" ? "Prod" : "Stage"
   })
 }
 
@@ -34,7 +34,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-arm64-server-*"]
   }
 
   filter {

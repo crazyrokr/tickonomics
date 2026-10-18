@@ -11,7 +11,7 @@ variable "availability_zone" {
 variable "instance_type" {
   description = "EC2 instance type for hosting"
   type        = string
-  default     = "t3.xlarge"
+  default     = "t4g.xlarge"
 }
 
 variable "subnet_id" {
@@ -116,13 +116,13 @@ variable "ssm_read_policy_arn" {
 }
 
 variable "environment" {
-  description = "Deployment environment (staging or production)"
+  description = "Deployment environment (stage or prod)"
   type        = string
-  default     = "staging"
+  default     = "stage"
 
   validation {
-    condition     = contains(["staging", "production"], var.environment)
-    error_message = "Environment must be 'staging' or 'production'."
+    condition     = contains(["stage", "prod"], var.environment)
+    error_message = "Environment must be 'stage' or 'prod'."
   }
 }
 
