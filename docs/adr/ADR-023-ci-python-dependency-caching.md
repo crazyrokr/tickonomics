@@ -83,3 +83,29 @@ package versions, so only an exact key match is accepted.
 - **Pre-bake dependencies into a custom Docker image.** Would also subsume the Gradle and
   TA-Lib native build, but adds image build/publish infrastructure disproportionate to the
   current need; deferred.
+
+## Addendum (2026-10-18): closing the remaining CI cache gaps
+
+The original decision was applied only to `benchmark.yml` and `chaos-benchmark.yml`. An audit
+of all workflows found three remaining gaps, fixed in one change:
+
+1. **`pr-checks.yml` `python-test`** still used `cache: pip` (download-only) and re-ran the
+   full ~1.5–2 GB torch install on every PR. It now uses the **same `venv-*` key** as
+   `chaos-benchmark.yml` (OS + resolved Python version + requirements hash), so the installed
+   environment is shared across workflows and the install is skipped on a hit, exactly as
+   decided above.
+2. **`pr-checks.yml` `code-quality`** cached `~/.gradle/{caches,wrapper}` under its own
+   `gradle-cq-*` key — a second, parallel dependency download per PR (and no
+   `configuration-cache`). It now uses `gradle/actions/setup-gradle@v6` like
+   `java-build-test`, so both jobs restore one shared dependency cache entry.
+3. **`codeql.yml`** (runs on every PR; 3-language matrix) had no Java toolchain or Gradle
+   cache at all. The `java-kotlin` matrix entry now sets up Temurin 25 plus
+   `gradle/actions/setup-gradle@v6` before `autobuild`, so the CodeQL build restores cached
+   dependencies instead of downloading from scratch.
+
+**Consequence.** The venv cache is now the single shared Python environment across
+`pr-checks`, `chaos-benchmark`, and `benchmark`; one entry, reused by three workflows. The
+Gradle dependency cache in `pr-checks` is likewise one entry shared by three jobs
+(`java-build-test`, `java-build-test-arm64` via per-arch native keys, `code-quality`),
+plus the CodeQL job. Total cache budget usage is unchanged in kind (the `gradle-cq-*`
+entry is gone, replaced by the existing setup-gradle entry).
