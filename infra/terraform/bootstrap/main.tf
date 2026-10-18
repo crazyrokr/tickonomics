@@ -20,7 +20,7 @@ provider "aws" {
   default_tags {
     tags = merge(var.tags, {
       Project     = "tickonomics"
-      Environment = "prod"
+      Environment = "Prod"
       Service     = "tickonomics"
       ManagedBy   = "terraform-bootstrap"
     })

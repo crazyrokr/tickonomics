@@ -24,7 +24,7 @@ resource "aws_instance" "hosting" {
 
   tags = merge(var.tags, {
     Name        = "${var.name_prefix}-${var.environment}"
-    Environment = var.environment
+    Environment = var.environment == "prod" ? "Prod" : "Stage"
   })
 }
 

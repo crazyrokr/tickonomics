@@ -4,7 +4,7 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = "tickonomics"
-      Environment = "prod"
+      Environment = "Prod"
       Service     = "tickonomics"
       ManagedBy   = "terraform"
     }
