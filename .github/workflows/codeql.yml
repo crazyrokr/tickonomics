@@ -42,6 +42,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The Java build needs the project toolchain and a Gradle dependency
+      # cache, so the matrix-wide job only pays for it in the java entry.
+      - if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - if: matrix.language == 'java-kotlin'
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: false
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
