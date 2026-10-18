@@ -59,3 +59,4 @@ graphify-out/
 
 # Local agent tooling (Claude Code)
 .claude/
+.aider*

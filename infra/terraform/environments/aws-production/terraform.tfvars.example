@@ -1,0 +1,18 @@
+# Tickonomics Production - AWS Environment Variables
+# Copy to terraform.tfvars and fill in values. aws-forecast must be applied first.
+
+region              = "us-east-1"
+availability_zone   = "us-east-1a"
+state_bucket        = "tickonomics-terraform-state"
+image_tag           = "latest"
+postgres_password   = "CHANGE_ME_STRONG_PASSWORD"
+finnhub_api_key     = ""
+alphavantage_api_key = ""
+fred_api_key        = ""
+ssh_public_key      = "ssh-rsa AAAA... user@host"
+grafana_password    = "CHANGE_ME"
+oauth_client_secret = ""
+domain_name         = "tickonomics.io"
+landing_cname_target = ""
+alert_email         = "alerts@example.com"
+name_prefix         = "tickonomics"

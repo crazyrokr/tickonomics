@@ -9,7 +9,8 @@ about: Changes to forecast infrastructure
 
 ## Affected Environments
 
-- [ ] AWS (`infra/terraform/environments/aws`)
+- [ ] AWS forecast (`infra/terraform/environments/aws-forecast`)
+- [ ] AWS production (`infra/terraform/environments/aws-production`)
 - [ ] GCP (`infra/terraform/environments/gcp`)
 - [ ] Azure (`infra/terraform/environments/azure`)
 - [ ] Shared modules (`infra/terraform/modules/`)

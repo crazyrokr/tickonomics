@@ -24,6 +24,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
     noncurrent_version_expiration {
       noncurrent_days = 7
     }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
@@ -44,6 +48,33 @@ resource "aws_s3_bucket_public_access_block" "backups" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# S3.5: deny non-SSL (HTTP) requests to the backup bucket. The Lambda writer uses HTTPS, so this
+# only blocks insecure transport — it does not affect legitimate writes.
+resource "aws_s3_bucket_policy" "backups_ssl" {
+  bucket = aws_s3_bucket.backups.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.backups.arn,
+          "${aws_s3_bucket.backups.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role" "backup_runner" {
@@ -138,7 +169,7 @@ resource "aws_sqs_queue" "backup_dlq" {
 
 # Retry twice, then route permanently-failed invocations to the DLQ so a silent backup
 # failure is observable instead of lost.
-resource "aws_lambda_event_invoke_config" "backup_runner" {
+resource "aws_lambda_function_event_invoke_config" "backup_runner" {
   function_name                = aws_lambda_function.backup_runner.function_name
   maximum_retry_attempts       = 2
   maximum_event_age_in_seconds = 21600
@@ -156,6 +187,7 @@ resource "aws_lambda_function" "backup_runner" {
   role             = aws_iam_role.backup_runner.arn
   handler          = "backup_runner.handler"
   runtime          = "python3.12"
+  architectures    = ["arm64"]
   timeout          = 300
   memory_size      = 256
   source_code_hash = data.archive_file.backup_runner.output_base64sha256
