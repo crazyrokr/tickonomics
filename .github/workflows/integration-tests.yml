@@ -57,15 +57,18 @@ jobs:
         id: talib-native-cache
         with:
           path: native-libs
-          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
+      # Shares pr-checks' cache entries: the runner is x86_64 and the wrapper
+      # jar is pure Java, so both keys are identical there.
       - uses: actions/cache@v5
+        id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec
-          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
 
-      - name: Build TA-Lib native
-        if: steps.talib-native-cache.outputs.cache-hit != 'true'
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: steps.talib-wrapper-cache.outputs.cache-hit != 'true'
         run: ./gradlew :computation:setupTalib --no-daemon
 
       - name: Run integration tests

@@ -35,10 +35,15 @@ The project is a Gradle multi-project build (Java 25 toolchain). Always use the 
 clean checkout of `native-libs`:
 
 ```bash
-./gradlew :computation:setupTalib   # clones + builds TA-Lib C lib + JNA wrapper, installs JAR to ~/.m2
+./gradlew :computation:setupTalib   # clones + builds TA-Lib C lib + FFM wrapper, installs JAR to ~/.m2
 ```
 
 Without it, compilation/tests touching `TalibAdapter` will fail. CI builds it from source in the Dockerfile.
+The wrapper is `com.tictactec.ta.lib:ta-lib-wrapper` (a Java 22+ Foreign-Function-&-Memory binding — no
+JNA) and `pinTalibJna` keeps the upstream checkout on the pinned release tag; an unpinned clone would
+silently switch artifacts when upstream restructures. The FFM wrapper loads `libta-lib.so` via
+`System.loadLibrary` (not classpath resources), so the production JVM needs
+`--enable-native-access=ALL-UNNAMED` (set in the Dockerfile ENTRYPOINT; test jvmArgs carry it too).
 
 ### Python analytics worker (`analytics/`)
 

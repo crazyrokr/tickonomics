@@ -24,7 +24,7 @@ Key technical choices:
 - Python 3.12 (minimum required by `pyproject.toml`)
 - Node.js 22 for both Next.js apps
 - Gradle cache keyed on `*.gradle` and `gradle-wrapper.properties` hashes
-- TA-Lib built via `./gradlew :computation:cloneTalibNative` + `buildTalibNative` in every Java job
+- TA-Lib native built in every Java job (x86_64 and aarch64 runners) and cached per-arch; the FFM wrapper JAR is installed into Maven local (`setupTalib`) and cached under a single arch-neutral key
 - Concurrency groups prevent parallel runs on the same branch
 
 ## Consequences

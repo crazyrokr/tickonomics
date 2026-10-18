@@ -50,9 +50,9 @@ Used together: `docker compose -f docker-compose.yml -f docker-compose.demo.yml 
 
 All services run as non-root users (`tickonomics`, `analytics`, `dashboard`). This reduces the impact of container escape vulnerabilities.
 
-### 7. TA-Lib native bundled in JAR
+### 7. TA-Lib native via pinned FFM wrapper
 
-The TA-Lib native `.so` is built in the Docker build stage and bundled into the Spring Boot fat JAR via the `copyTalibNative` Gradle task. The JNA wrapper loads it from the classpath at runtime. This avoids volume-mounting shared libraries or installing system packages in the runtime image.
+The TA-Lib C library is built in the Docker build stage (`buildTalibNative`) and the wrapper is installed from source into Maven local (`setupTalib`). The wrapper (`com.tictactec.ta.lib:ta-lib-wrapper:0.7.0-20260817.2`, upstream `tuxmonteiro/ta-lib-jna`) is an FFM (Foreign Function & Memory) binding that resolves `libta-lib.so` via `System.loadLibrary("ta-lib")`, falling back to common system directories and `LD_LIBRARY_PATH` — it does not load from classpath resources. So the runtime image copies the `.so` to `/usr/local/lib` (one of the wrapper's fallback directories) and the JVM runs with `--enable-native-access=ALL-UNNAMED` (FFM native access is restricted on Java 22+). `copyTalibNative` still bundles the `.so` into the fat JAR, where it serves as a presence signal for the `TalibAdapter` bean and for `TalibNativeLoader`'s fail-fast preflight. `pinTalibJna` pins the upstream checkout to the release tag — without the pin, an unpinned clone silently switches the installed artifact whenever upstream restructures it (this broke the build in September 2026 when `ta-lib-jna 0.6.4` became `ta-lib-wrapper 0.7.0`). This avoids volume-mounting shared libraries or installing system packages in the runtime image. The same applies to test JVMs: every `Test` task whose classpath loads the Spring context with `TalibAdapter` (i.e. `:computation:test` and `:integration-tests:test`) needs `--enable-native-access=ALL-UNNAMED` plus `java.library.path` pointed at `native-libs/ta-lib/build` — the old JNA loader used to self-heal by extracting the classpath `.so`, the FFM wrapper cannot, and `TalibNativeLoader`'s fail-fast preflight turns a missing library into an actionable error instead of a silent bean absence.
 
 ### 8. Network isolation
 

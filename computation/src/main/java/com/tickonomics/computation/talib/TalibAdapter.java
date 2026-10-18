@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-@ConditionalOnResource(resources = "native/libta-lib.so")
+@ConditionalOnResource(resources = "libta-lib.so")
 public class TalibAdapter {
 
   public TalibAdapter() {
