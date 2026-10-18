@@ -11,9 +11,9 @@ variable "availability_zone" {
 }
 
 variable "instance_type" {
-  description = "Spot instance type"
+  description = "Spot instance type (Graviton: ECR images are multi-arch amd64/arm64)"
   type        = string
-  default     = "c5.2xlarge"
+  default     = "c6g.2xlarge"
 }
 
 variable "spot_price_max" {
