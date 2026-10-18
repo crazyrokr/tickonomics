@@ -2,14 +2,17 @@ plugins {
   id 'java-library'
 }
 
-// --- TA-Lib native + JNA build configuration ---
+// --- TA-Lib native + FFM wrapper build configuration ---
 // One-time setup: ./gradlew :computation:setupTalib
-// This clones, builds, and installs TA-Lib native + JNA wrapper into Maven local.
+// This clones, builds, and installs TA-Lib native + FFM wrapper into Maven local.
 // After setup, normal ./gradlew build works.
 def nativeBuildDir = layout.projectDirectory.dir("${rootProject.projectDir}/native-libs")
 def talibNativeDir = nativeBuildDir.dir('ta-lib')
 def talibJnaDir = nativeBuildDir.dir('ta-lib-jna')
-def talibJnaVersion = '0.6.4-20251203.1'
+// Pinned to the upstream release tag. The clone must stay on this tag: upstream
+// restructured the artifact (ta-lib-jna 0.6.4 -> ta-lib-wrapper 0.7.0, JNA -> FFM)
+// and an unpinned HEAD clone would stop producing the pinned coordinates.
+def talibWrapperVersion = '0.7.0-20260817.2'
 def generatedNativeResources = layout.buildDirectory.dir('generated-resources/native')
 
 tasks.register('cloneTalibNative') {
@@ -24,6 +27,12 @@ tasks.register('cloneTalibNative') {
 
 tasks.register('buildTalibNative') {
   dependsOn cloneTalibNative
+  // Fingerprint the C sources (not .git, not build/) so the task is up-to-date
+  // while the checkout is unchanged and the .so exists.
+  inputs.files(project.fileTree(talibNativeDir) {
+    exclude '.git/**'
+    exclude 'build/**'
+  })
   outputs.file(talibNativeDir.file('build/libta-lib.so'))
   doLast {
     def buildDir = talibNativeDir.dir('build').asFile
@@ -43,12 +52,31 @@ tasks.register('cloneTalibJna') {
   }
 }
 
-tasks.register('buildTalibJna') {
-  dependsOn buildTalibNative, cloneTalibJna
-  def jnaJar = providers.systemProperty('user.home').map { home ->
-    "${home}/.m2/repository/com/tictactec/ta/lib/ta-lib-jna/${talibJnaVersion}/ta-lib-jna-${talibJnaVersion}.jar"
+tasks.register('pinTalibJna') {
+  dependsOn cloneTalibJna
+  doLast {
+    def dir = talibJnaDir.asFile
+    def checkout = { ref ->
+      new ProcessBuilder('git', '-C', dir.absolutePath, 'checkout', '-f', ref)
+          .inheritIO().start().waitFor()
+    }
+    // A cached clone may predate the pinned tag; fetch tags before giving up.
+    if (checkout(talibWrapperVersion) != 0) {
+      def fetch = new ProcessBuilder('git', '-C', dir.absolutePath, 'fetch', '--tags', 'origin')
+          .inheritIO().start().waitFor()
+      if (fetch != 0 || checkout(talibWrapperVersion) != 0) {
+        throw new GradleException("Could not check out ta-lib-jna at tag ${talibWrapperVersion}")
+      }
+    }
   }
-  outputs.file(jnaJar)
+}
+
+tasks.register('buildTalibJna') {
+  dependsOn buildTalibNative, pinTalibJna
+  def wrapperJar = providers.systemProperty('user.home').map { home ->
+    "${home}/.m2/repository/com/tictactec/ta/lib/ta-lib-wrapper/${talibWrapperVersion}/ta-lib-wrapper-${talibWrapperVersion}.jar"
+  }
+  outputs.file(wrapperJar)
   doLast {
     def pb = new ProcessBuilder('mvn', 'clean', 'install', '-q')
         .directory(talibJnaDir.asFile)
@@ -57,6 +85,14 @@ tasks.register('buildTalibJna') {
     def exitCode = pb.start().waitFor()
     if (exitCode != 0) {
       throw new GradleException("mvn install failed with exit code ${exitCode}")
+    }
+    // Fail at setup time if the pinned coordinates were not produced, instead of
+    // failing later at dependency resolution (or configuration-cache store time).
+    def installed = new File(System.getProperty('user.home'),
+        ".m2/repository/com/tictactec/ta/lib/ta-lib-wrapper/${talibWrapperVersion}/ta-lib-wrapper-${talibWrapperVersion}.jar")
+    if (!installed.exists()) {
+      throw new GradleException(
+          "ta-lib install did not produce ${installed} — check the artifact coordinates in ${talibJnaDir.asFile}/pom.xml")
     }
   }
 }
@@ -70,7 +106,7 @@ tasks.register('copyTalibNative', Copy) {
 tasks.register('setupTalib') {
   dependsOn buildTalibJna, copyTalibNative
   group = 'Setup'
-  description = 'One-time setup: builds TA-Lib native C library and JNA wrapper, installs JAR to Maven local'
+  description = 'One-time setup: builds TA-Lib native C library and FFM wrapper, installs JAR to Maven local'
 }
 
 tasks.named('processResources').configure {
@@ -86,7 +122,11 @@ sourceSets {
 }
 
 tasks.withType(Test).configureEach {
-  jvmArgs "-Djna.library.path=${talibNativeDir.dir('build').asFile.absolutePath}",
+  // FFM wrapper: native access is restricted on Java 22+; the library is resolved
+  // via System.loadLibrary from java.library.path (see TalibNativeLoader).
+  // arrow-memory-unsafe reflects into java.nio internals, so the add-opens stay.
+  jvmArgs "--enable-native-access=ALL-UNNAMED",
+      "-Djava.library.path=${talibNativeDir.dir('build').asFile.absolutePath}",
       "--add-opens", "java.base/java.nio=ALL-UNNAMED",
       "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED"
 }
@@ -99,7 +139,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-restclient'
-  implementation "com.tictactec.ta.lib:ta-lib-jna:${talibJnaVersion}"
+  implementation "com.tictactec.ta.lib:ta-lib-wrapper:${talibWrapperVersion}"
   implementation 'org.apache.arrow:arrow-vector:19.0.0'
   implementation 'org.apache.arrow:arrow-memory-unsafe:19.0.0'
   implementation 'io.github.resilience4j:resilience4j-bulkhead:2.4.0'
