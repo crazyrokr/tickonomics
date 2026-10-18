@@ -5,6 +5,7 @@ that is deliberately different from the service implementation.
 """
 
 import math
+from functools import partial
 
 import numpy as np
 import pytest
@@ -152,8 +153,11 @@ def test_step27_climate_ou_stationary_distribution():
             x = x + theta * (mu - x) * dt + sigma * dW
         terminal_values[p] = x
 
-    # Then — KS test against analytical finite-time OU distribution
-    ks_stat, ks_pvalue = stats.kstest(terminal_values, "norm", args=(mu, ou_std))
+    # Then — KS test against analytical finite-time OU distribution.
+    # Pass a concrete callable CDF: scipy >= 1.18 resolves the string "norm"
+    # to the ndtr ufunc fast path, which rejects args=(loc, scale).
+    cdf = partial(stats.norm.cdf, loc=mu, scale=ou_std)
+    ks_stat, ks_pvalue = stats.kstest(terminal_values, cdf)
     assert ks_pvalue > 0.01, f"KS test failed: stat={ks_stat:.4f}, p={ks_pvalue:.4f}"
 
 
@@ -185,7 +189,8 @@ def test_step28_ito_terminal_distribution_vs_analytical_abm():
         terminal_values[p] = x
 
     # Then — KS test against analytical terminal distribution
-    ks_stat, ks_pvalue = stats.kstest(terminal_values, "norm", args=(analytical_mean, analytical_std))
+    cdf = partial(stats.norm.cdf, loc=analytical_mean, scale=analytical_std)
+    ks_stat, ks_pvalue = stats.kstest(terminal_values, cdf)
     assert ks_pvalue > 0.01, f"KS test failed: stat={ks_stat:.4f}, p={ks_pvalue:.4f}"
 
 
