@@ -25,8 +25,6 @@ from app.routers.reproducibility import reproducibility
 from app.routers.risk import risk
 from app.routers.sentiment import sentiment
 from app.routers.simulation import simulation
-from app.routers.stops import stops
-from app.routers.tournament import tournament
 from app.routers.statistical import (
     evt_risk,
     macro_shock,
@@ -35,6 +33,8 @@ from app.routers.statistical import (
     transfer_entropy,
     yield_curve,
 )
+from app.routers.stops import stops
+from app.routers.tournament import tournament
 
 shutdown_requested = False
 

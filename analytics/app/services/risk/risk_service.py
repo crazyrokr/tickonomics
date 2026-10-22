@@ -1,8 +1,8 @@
 """Risk metrics service: VaR, CVaR, GARCH volatility forecasting."""
 
+
 import numpy as np
 from scipy import optimize
-from typing import Optional
 
 
 def value_at_risk(returns: list[float], confidence: float = 0.99, method: str = "historical") -> dict:

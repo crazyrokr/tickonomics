@@ -1,4 +1,3 @@
-import numpy as np
 
 from app.services.climate.climate_service import simulate_climate
 

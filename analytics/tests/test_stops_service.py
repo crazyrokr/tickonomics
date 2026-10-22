@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.stops.markov_stop_service import calibrate_stops
 
 

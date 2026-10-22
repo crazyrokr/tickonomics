@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
-
 from app.services.performance.performance_service import (
     fama_french_regression,
     sharpe_ratio,
     sortino_ratio,
 )
-from tests.reference.formulas import sharpe_exact, sortino_exact
+
+from tests.reference.formulas import sharpe_exact
 
 
 def test_sharpe_positive_returns():

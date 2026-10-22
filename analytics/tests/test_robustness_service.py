@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.backtest.robustness_service import robustness_scan
 
 

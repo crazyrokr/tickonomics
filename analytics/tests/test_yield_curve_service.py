@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
-
 from app.services.statistical.yield_curve_service import (
     fit_yield_curve,
     interpolate_yield_curve,
     nelson_siegel,
 )
+
 from tests.reference.formulas import nelson_siegel_rate
 
 

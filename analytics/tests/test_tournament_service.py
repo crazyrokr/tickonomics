@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.benchmark.tournament_service import evaluate_tournament
 
 

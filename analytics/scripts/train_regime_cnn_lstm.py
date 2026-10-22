@@ -19,7 +19,7 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.services.regime._cnn_lstm import (  # noqa: E402  (import after sys.path bootstrap)
+from app.services.regime._cnn_lstm import (
     HIDDEN_SIZE,
     INPUT_SIZE,
     NUM_CLASSES,

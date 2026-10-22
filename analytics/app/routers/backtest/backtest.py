@@ -1,9 +1,8 @@
 """Backtest router: robustness parameter scan."""
 
+from app.services.backtest.robustness_service import robustness_scan
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.backtest.robustness_service import robustness_scan
 
 router = APIRouter()
 

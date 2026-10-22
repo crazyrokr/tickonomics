@@ -1,8 +1,9 @@
-from fastapi import APIRouter
-
 from app.models.requests import QuantileRegressionRequest
 from app.models.responses import QuantileRegressionResponse
-from app.services.statistical.quantile_regression_service import calculate_quantile_bands
+from app.services.statistical.quantile_regression_service import (
+    calculate_quantile_bands,
+)
+from fastapi import APIRouter
 
 router = APIRouter()
 

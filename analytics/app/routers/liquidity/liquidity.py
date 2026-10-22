@@ -1,11 +1,10 @@
 """Liquidity router: comovement factor, Amihud measure, strategic runs."""
 
-from fastapi import APIRouter
-from pydantic import BaseModel
-
 from app.services.liquidity.amihud_service import compute_amihud
 from app.services.liquidity.comovement_pca_service import compute_comovement_factor
 from app.services.liquidity.strategic_runs_service import detect_strategic_runs
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 router = APIRouter()
 
