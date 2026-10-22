@@ -1,15 +1,15 @@
+
 from pydantic import BaseModel
-from typing import Optional
 
 
 class EvtFitResponse(BaseModel):
     status: str
-    shape_xi: Optional[float] = None
-    scale_beta: Optional[float] = None
-    threshold_u: Optional[float] = None
-    tail_var_999: Optional[float] = None
-    exceedance_count: Optional[int] = None
-    message: Optional[str] = None
+    shape_xi: float | None = None
+    scale_beta: float | None = None
+    threshold_u: float | None = None
+    tail_var_999: float | None = None
+    exceedance_count: int | None = None
+    message: str | None = None
 
 
 class FdrCorrectionResponse(BaseModel):
@@ -21,12 +21,12 @@ class FdrCorrectionResponse(BaseModel):
 
 class YieldCurveFitResponse(BaseModel):
     status: str
-    beta_0: Optional[float] = None
-    beta_1: Optional[float] = None
-    beta_2: Optional[float] = None
-    tau: Optional[float] = None
-    covariance_trace: Optional[float] = None
-    error: Optional[str] = None
+    beta_0: float | None = None
+    beta_1: float | None = None
+    beta_2: float | None = None
+    tau: float | None = None
+    covariance_trace: float | None = None
+    error: str | None = None
 
 
 class YieldCurveInterpolateResponse(BaseModel):

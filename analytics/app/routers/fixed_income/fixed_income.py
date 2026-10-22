@@ -1,10 +1,16 @@
 """Fixed income router: duration, convexity, YTM, Q-World fair value, T-Bill Greeks."""
 
+from app.services.fi.q_world_pricer_service import (
+    compute_fair_value,
+    compute_tbill_greeks,
+)
+from app.services.fixed_income.fixed_income_service import (
+    convexity,
+    macaulay_duration,
+    yield_to_maturity,
+)
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.fi.q_world_pricer_service import compute_fair_value, compute_tbill_greeks
-from app.services.fixed_income.fixed_income_service import convexity, macaulay_duration, yield_to_maturity
 
 router = APIRouter()
 

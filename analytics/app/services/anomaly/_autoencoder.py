@@ -9,7 +9,7 @@ import json
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class _Autoencoder(torch.nn.Module):

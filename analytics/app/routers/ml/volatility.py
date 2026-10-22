@@ -1,9 +1,8 @@
 """Volatility forecast router: multi-horizon GARCH-based forecast."""
 
+from app.services.ml.volatility_forecast_service import forecast_volatility
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.ml.volatility_forecast_service import forecast_volatility
 
 router = APIRouter()
 

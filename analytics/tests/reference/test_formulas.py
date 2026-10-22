@@ -5,7 +5,6 @@ against analytically trivial inputs.
 """
 
 import numpy as np
-import pytest
 
 from tests.reference.formulas import (
     amihud_exact,
@@ -16,7 +15,6 @@ from tests.reference.formulas import (
     cvar_historical,
     fdr_bh_corrected,
     macaulay_duration_exact,
-    convexity_exact,
     nelson_siegel_rate,
     sharpe_exact,
     sortino_exact,

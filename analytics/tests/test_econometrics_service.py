@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.econometrics.econometrics_service import (
     adf_test,
     granger_causality,

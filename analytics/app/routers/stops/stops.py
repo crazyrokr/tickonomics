@@ -1,9 +1,8 @@
 """Markov Stop Engine router: optimal stop-loss/take-profit calibration."""
 
+from app.services.stops.markov_stop_service import calibrate_stops
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.stops.markov_stop_service import calibrate_stops
 
 router = APIRouter()
 

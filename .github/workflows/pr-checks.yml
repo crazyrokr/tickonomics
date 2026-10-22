@@ -240,6 +240,24 @@ jobs:
         with:
           cache-read-only: false
 
+      # The FFM wrapper jar resolves from mavenLocal, which the ~/.gradle cache
+      # above does not cover — same pattern as java-build-test.
+      - uses: actions/cache@v6
+        id: talib-native-cache
+        with:
+          path: native-libs
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
+
+      - uses: actions/cache@v6
+        id: talib-wrapper-cache
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
+
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: steps.talib-wrapper-cache.outputs.cache-hit != 'true'
+        run: ./gradlew :computation:setupTalib
+
       - name: Run Checkstyle + SpotBugs
         continue-on-error: true
         run: ./gradlew lint

@@ -1,9 +1,8 @@
 """Sentiment analysis router: lexicon-based and SALI scoring."""
 
+from app.services.sentiment.sentiment_service import analyze_lexicon, analyze_sentiment
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.sentiment.sentiment_service import analyze_lexicon, analyze_sentiment
 
 router = APIRouter()
 

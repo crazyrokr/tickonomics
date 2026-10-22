@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.ml.volatility_forecast_service import forecast_volatility
 
 

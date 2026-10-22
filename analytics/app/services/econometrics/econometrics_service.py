@@ -1,11 +1,11 @@
 """Econometrics service: ADF unit root test, Granger causality, OLS regression."""
 
+
 import numpy as np
-from typing import Optional
 from scipy import stats
 
 
-def adf_test(series: list[float], max_lags: Optional[int] = None) -> dict:
+def adf_test(series: list[float], max_lags: int | None = None) -> dict:
     """Augmented Dickey-Fuller unit root test.
 
     Returns test statistic, critical values, p-value, and lag order.
@@ -23,7 +23,7 @@ def adf_test(series: list[float], max_lags: Optional[int] = None) -> dict:
     best_lag = 0
     best_aic = np.inf
 
-    for lags in range(0, max_lags + 1):
+    for lags in range(max_lags + 1):
         try:
             y_dep = diff[lags:]
             n_eff = len(y_dep)
@@ -166,7 +166,7 @@ def _adf_pvalue(stat: float, n: int = 500) -> float:
 
 
 def _granger_restricted(y: np.ndarray, lag: int):
-    n = len(y)
+    len(y)
     y_dep = y[lag:]
     n_eff = len(y_dep)
     x = np.column_stack([np.ones(n_eff)] + [y[lag - i - 1 : lag - i - 1 + n_eff] for i in range(lag)])
@@ -175,7 +175,7 @@ def _granger_restricted(y: np.ndarray, lag: int):
 
 
 def _granger_unrestricted(y: np.ndarray, x_exog: np.ndarray, lag: int):
-    n = len(y)
+    len(y)
     y_dep = y[lag:]
     n_eff = len(y_dep)
     x = np.column_stack(

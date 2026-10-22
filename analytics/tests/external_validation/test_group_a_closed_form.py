@@ -9,8 +9,6 @@ from itertools import product
 
 import numpy as np
 import pytest
-from scipy import optimize, stats
-
 from app.services.diagnostics.diagnostic_service import compute_diagnostics
 from app.services.econometrics.econometrics_service import (
     adf_test,
@@ -36,6 +34,7 @@ from app.services.performance.performance_service import (
 from app.services.reproducibility.rds_scorer_service import compute_rds
 from app.services.statistical.multiple_testing_service import apply_fdr_correction
 from app.services.statistical.yield_curve_service import fit_yield_curve
+from scipy import optimize
 
 from .conftest import (
     TOL_HIGH,
@@ -316,8 +315,7 @@ def test_step06_fdr_all_significant():
     for j in range(m - 2, -1, -1):
         curr_idx = indexed[j][0]
         next_idx = indexed[j + 1][0]
-        if adj[curr_idx] > adj[next_idx]:
-            adj[curr_idx] = adj[next_idx]
+        adj[curr_idx] = min(adj[curr_idx], adj[next_idx])
     oracle_rejected = [p < 0.05 for p in adj]
 
     # Then
@@ -345,8 +343,7 @@ def test_step06_fdr_mixed():
     for j in range(m - 2, -1, -1):
         curr_idx = indexed[j][0]
         next_idx = indexed[j + 1][0]
-        if adj[curr_idx] > adj[next_idx]:
-            adj[curr_idx] = adj[next_idx]
+        adj[curr_idx] = min(adj[curr_idx], adj[next_idx])
     oracle_rejected = [p_adj < 0.05 for p_adj in adj]
 
     # Then
@@ -374,8 +371,7 @@ def test_step06_fdr_all_insignificant():
     for j in range(m - 2, -1, -1):
         curr_idx = indexed[j][0]
         next_idx = indexed[j + 1][0]
-        if adj[curr_idx] > adj[next_idx]:
-            adj[curr_idx] = adj[next_idx]
+        adj[curr_idx] = min(adj[curr_idx], adj[next_idx])
 
     # Then — none should be rejected
     for i in range(m):
@@ -425,7 +421,7 @@ def test_step08_comovement_pca_vs_svd():
     std[std == 0] = 1.0
     standardized = (diff - np.mean(diff, axis=0)) / std
     cov = np.cov(standardized, rowvar=False)
-    U, s, Vt = np.linalg.svd(cov)
+    _U, s, _Vt = np.linalg.svd(cov)
     total_var = np.sum(s)
     oracle_pc1_var = s[0] / total_var
     oracle_pc2_var = s[1] / total_var
@@ -531,7 +527,7 @@ def test_step11_rds_exhaustive_enumeration():
         for dim, keys in dimension_map.items():
             dim_total = 2 * len(keys)
             dim_score = sum(scores[k] for k in keys)
-            normalized = int(round(dim_score / dim_total * 2))
+            normalized = round(dim_score / dim_total * 2)
             breakdown[dim] = min(2, max(0, normalized))
         oracle_rds = sum(breakdown.values())
 

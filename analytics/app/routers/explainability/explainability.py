@@ -1,9 +1,8 @@
 """Explainability router: SHAP-style feature importance."""
 
+from app.services.explainability.shap_service import compute_feature_importance
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.explainability.shap_service import compute_feature_importance
 
 router = APIRouter()
 

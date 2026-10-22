@@ -1,6 +1,7 @@
 import numpy as np
-
-from app.services.statistical.quantile_regression_service import calculate_quantile_bands
+from app.services.statistical.quantile_regression_service import (
+    calculate_quantile_bands,
+)
 
 
 def test_quantile_bands_computation():

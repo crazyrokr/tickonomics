@@ -1,11 +1,11 @@
 import json
+import logging
 import os
 import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
-
 from app.services.regime.regime_service import (
     cnn_lstm_regime,
     garch_regime,
@@ -222,6 +222,26 @@ def test_cnn_lstm_regime_corrupt_checkpoint_returns_error(monkeypatch, tmp_path)
     # Then
     assert "error" in result
     assert "regime" not in result
+
+
+def test_cnn_lstm_regime_corrupt_checkpoint_logs_exception_information(monkeypatch, tmp_path, caplog):
+    """Given a corrupt checkpoint, when CNN-LSTM runs, then the failure is logged with full exception information."""
+    # Given
+    bad = tmp_path / "corrupt.json"
+    bad.write_text("{not valid json")
+    monkeypatch.setenv("REGIME_CNN_LSTM_STATE_PATH", str(bad))
+
+    # When
+    with caplog.at_level(logging.ERROR, logger="app.services.regime._cnn_lstm"):
+        result = cnn_lstm_regime(_make_returns(300), lookback=30)
+
+    # Then
+    assert "error" in result
+    last = caplog.records[-1]
+    assert last.message == "Failed to initialize CNN-LSTM regime model"
+    assert last.levelno == logging.ERROR
+    assert last.exc_info is not None
+    assert "_CheckpointError" in caplog.text
 
 
 def test_cnn_lstm_regime_shape_mismatch_checkpoint_returns_error(monkeypatch, tmp_path):

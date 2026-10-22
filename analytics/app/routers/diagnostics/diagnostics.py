@@ -1,9 +1,8 @@
 """Diagnostics router: QQ-plot, ACF, convergence analysis."""
 
+from app.services.diagnostics.diagnostic_service import compute_diagnostics
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.diagnostics.diagnostic_service import compute_diagnostics
 
 router = APIRouter()
 

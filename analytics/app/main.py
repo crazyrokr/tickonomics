@@ -1,8 +1,10 @@
+import logging
 import signal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import LOG_LEVEL
 from app.routers import health
 from app.routers.anomaly import anomaly
 from app.routers.backtest import backtest
@@ -23,8 +25,6 @@ from app.routers.reproducibility import reproducibility
 from app.routers.risk import risk
 from app.routers.sentiment import sentiment
 from app.routers.simulation import simulation
-from app.routers.stops import stops
-from app.routers.tournament import tournament
 from app.routers.statistical import (
     evt_risk,
     macro_shock,
@@ -33,6 +33,8 @@ from app.routers.statistical import (
     transfer_entropy,
     yield_curve,
 )
+from app.routers.stops import stops
+from app.routers.tournament import tournament
 
 shutdown_requested = False
 
@@ -43,6 +45,8 @@ def _handle_sigterm(signum, frame):
 
 
 signal.signal(signal.SIGTERM, _handle_sigterm)
+
+logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 app = FastAPI(title="Tickonomics Analytics", version="0.1.0")
 

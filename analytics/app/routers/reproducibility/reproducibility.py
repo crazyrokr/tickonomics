@@ -1,9 +1,8 @@
 """Reproducibility router: RDS scoring."""
 
+from app.services.reproducibility.rds_scorer_service import compute_rds
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.reproducibility.rds_scorer_service import compute_rds
 
 router = APIRouter()
 

@@ -1,4 +1,3 @@
-import numpy as np
 
 from app.services.fixed_income.fixed_income_service import (
     convexity,

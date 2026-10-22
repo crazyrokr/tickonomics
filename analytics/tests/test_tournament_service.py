@@ -1,5 +1,4 @@
 import numpy as np
-
 from app.services.benchmark.tournament_service import evaluate_tournament
 
 
@@ -17,7 +16,7 @@ def test_tournament_basic():
     assert "ili_rule_engine" in result["results"]
     assert "momentum" in result["results"]
     assert "momentum_noise" in result["results"]
-    for model_name, metrics in result["results"].items():
+    for metrics in result["results"].values():
         assert "sharpe" in metrics
         assert "hit_rate" in metrics
     assert "regime_breakdown" in result

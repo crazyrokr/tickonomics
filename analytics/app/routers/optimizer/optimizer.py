@@ -1,9 +1,8 @@
 """Online optimizer router: SGD weight-delta computation."""
 
+from app.services.optimizer.sgd_optimizer_service import compute_weight_delta
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.optimizer.sgd_optimizer_service import compute_weight_delta
 
 router = APIRouter()
 

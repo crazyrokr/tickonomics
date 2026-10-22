@@ -2,9 +2,6 @@
 
 import math
 
-import numpy as np
-from scipy import optimize
-
 
 def compute_fair_value(
     instrument: str,

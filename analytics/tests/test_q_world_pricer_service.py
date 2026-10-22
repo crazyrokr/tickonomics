@@ -1,4 +1,7 @@
-from app.services.fi.q_world_pricer_service import compute_fair_value, compute_tbill_greeks
+from app.services.fi.q_world_pricer_service import (
+    compute_fair_value,
+    compute_tbill_greeks,
+)
 
 
 def test_fair_value_3m_tbill():

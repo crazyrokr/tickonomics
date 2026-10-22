@@ -1,10 +1,9 @@
 """Perspective-mismatch router (ADR-037). Receives recent Polymarket quotes + OSINT events and returns
 the deterministic divergence verdicts that the Java signal pipeline gates and broadcasts."""
 
+from app.services.perspex.perspex_service import analyze_perspex
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-
-from app.services.perspex.perspex_service import analyze_perspex
 
 router = APIRouter()
 

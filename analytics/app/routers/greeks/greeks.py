@@ -1,9 +1,8 @@
 """Greeks router: BSM option Greeks and GEX aggregation."""
 
+from app.services.greeks.bsm_service import aggregate_gex, bsm_greeks
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from app.services.greeks.bsm_service import aggregate_gex, bsm_greeks
 
 router = APIRouter()
 

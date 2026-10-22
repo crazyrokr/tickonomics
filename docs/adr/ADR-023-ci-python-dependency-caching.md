@@ -109,3 +109,21 @@ Gradle dependency cache in `pr-checks` is likewise one entry shared by three job
 (`java-build-test`, `java-build-test-arm64` via per-arch native keys, `code-quality`),
 plus the CodeQL job. Total cache budget usage is unchanged in kind (the `gradle-cq-*`
 entry is gone, replaced by the existing setup-gradle entry).
+
+## Addendum (2026-10-22): `code-quality` mavenLocal gap (TA-Lib FFM wrapper)
+
+The audit above covered the *remote dependency* cache; `code-quality` still lacked the
+mavenLocal setup the two build jobs carry. `:computation:compileClasspath` resolves
+`com.tictactec.ta.lib:ta-lib-wrapper:0.7.0-20260817.2`, which exists only in `~/.m2`
+(installed by `:computation:setupTalib` from the git-tag-pinned clone; 404 on Maven
+Central). `setup-gradle` restores `~/.gradle`, which never caches mavenLocal artifacts,
+so on a fresh runner `./gradlew lint` could not resolve the classpath — under
+`org.gradle.configuration-cache=true` that surfaced at configuration-cache *store* time
+as `error writing value of type 'DefaultResolvableConfiguration'` on
+`:computation:compileJava`, and the step's `continue-on-error: true` kept the job green:
+the advisory lint job had in fact never executed. `code-quality` now carries the same
+`talib-native-x86_64-*` / `talib-wrapper-*` cache entries (the wrapper key is now shared
+by all four jobs that need it) plus the `setupTalib` step on a miss, mirroring
+`java-build-test`. The other three workflows using the artifact
+(`chaos-benchmark`, `integration-tests`, `deploy-production`) already had the pattern;
+the gap was unique to `code-quality`.
