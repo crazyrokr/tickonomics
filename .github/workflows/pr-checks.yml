@@ -26,7 +26,7 @@ jobs:
         with:
           cache-read-only: false
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: talib-native-cache
         with:
           path: native-libs
@@ -34,7 +34,7 @@ jobs:
 
       # The FFM wrapper jar is pure Java (arch-neutral), so both Java jobs
       # share one cache key; only the native .so build is per-arch.
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec
@@ -101,13 +101,13 @@ jobs:
         with:
           cache-read-only: false
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: talib-native-cache-arm
         with:
           path: native-libs
           key: talib-native-aarch64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: talib-wrapper-cache-arm
         with:
           path: ~/.m2/repository/com/tictactec
@@ -142,7 +142,7 @@ jobs:
 
       # Same key as chaos-benchmark.yml, so the venv is shared across workflows.
       - name: Cache Python venv
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: venv-cache
         with:
           path: .venv
@@ -189,7 +189,7 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ${{ matrix.app }}/.next/cache
           key: nextjs-${{ matrix.app }}-${{ hashFiles(format('{0}/package-lock.json', matrix.app)) }}
