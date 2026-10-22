@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push backend image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
@@ -48,7 +48,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push analytics worker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./analytics
           file: ./analytics/Dockerfile
@@ -60,7 +60,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push dashboard image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -72,7 +72,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push landing image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./landing
           file: ./landing/Dockerfile
