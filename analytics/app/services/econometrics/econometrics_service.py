@@ -166,7 +166,7 @@ def _adf_pvalue(stat: float, n: int = 500) -> float:
 
 
 def _granger_restricted(y: np.ndarray, lag: int):
-    n = len(y)
+    len(y)
     y_dep = y[lag:]
     n_eff = len(y_dep)
     x = np.column_stack([np.ones(n_eff)] + [y[lag - i - 1 : lag - i - 1 + n_eff] for i in range(lag)])
@@ -175,7 +175,7 @@ def _granger_restricted(y: np.ndarray, lag: int):
 
 
 def _granger_unrestricted(y: np.ndarray, x_exog: np.ndarray, lag: int):
-    n = len(y)
+    len(y)
     y_dep = y[lag:]
     n_eff = len(y_dep)
     x = np.column_stack(

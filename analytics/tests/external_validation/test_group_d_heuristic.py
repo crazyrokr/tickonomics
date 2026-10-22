@@ -55,8 +55,8 @@ def test_step31_autoencoder_vs_zscore_extreme_outliers():
     z_mask = [bool(np.max(row) > 3) for row in z_scores]
 
     # When — compute Jaccard similarity
-    ae_set = set(i for i, v in enumerate(ae_mask) if v)
-    z_set = set(i for i, v in enumerate(z_mask) if v)
+    ae_set = {i for i, v in enumerate(ae_mask) if v}
+    z_set = {i for i, v in enumerate(z_mask) if v}
     union = ae_set | z_set
     jaccard = len(ae_set & z_set) / len(union) if union else 0.0
 
@@ -77,7 +77,7 @@ def test_step31_zscore_identifies_extreme_outliers_oracle():
 
     # When — Z-score computation
     z_scores = np.abs((all_data - all_data.mean(axis=0)) / all_data.std(axis=0))
-    z_anomaly_indices = set(i for i, row in enumerate(z_scores) if np.max(row) > 3)
+    z_anomaly_indices = {i for i, row in enumerate(z_scores) if np.max(row) > 3}
 
     # Then — the oracle should catch most extreme outliers
     overlap = z_anomaly_indices & set(outlier_indices)

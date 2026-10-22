@@ -17,9 +17,6 @@ def simulate_climate(
 ) -> dict:
     rng = np.random.default_rng(seed)
 
-    fossil_baseline = 0.60
-    renewable_baseline = 0.25
-    nuclear_baseline = 0.15
 
     fossil_reduction = min(0.5, adaptation_finance_increase * 0.4 + carbon_tax / 500.0)
     renewable_increase = fossil_reduction * 0.75

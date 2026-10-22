@@ -14,7 +14,7 @@ def calibrate_stops(
 
     rng = np.random.default_rng(seed)
     pnl = np.array(trade_pnl_series)
-    n = len(pnl)
+    len(pnl)
 
     mu = float(np.mean(pnl))
     sigma = float(np.std(pnl, ddof=1)) if np.std(pnl, ddof=1) > 0 else 1e-6

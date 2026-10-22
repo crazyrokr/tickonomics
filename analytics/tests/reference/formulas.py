@@ -135,10 +135,9 @@ def fdr_bh_corrected(p_values: np.ndarray, alpha: float = 0.05) -> list[bool]:
     sorted_indices = np.argsort(p_values)
     sorted_p = p_values[sorted_indices]
     rejected = np.zeros(m, dtype=bool)
-    threshold = 0.0
     for i in range(m - 1, -1, -1):
         if sorted_p[i] <= alpha * (i + 1) / m:
-            threshold = sorted_p[i]
+            sorted_p[i]
             rejected[:i + 1] = True
             break
     result = np.zeros(m, dtype=bool)

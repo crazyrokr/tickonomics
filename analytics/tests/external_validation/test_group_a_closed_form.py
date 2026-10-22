@@ -421,7 +421,7 @@ def test_step08_comovement_pca_vs_svd():
     std[std == 0] = 1.0
     standardized = (diff - np.mean(diff, axis=0)) / std
     cov = np.cov(standardized, rowvar=False)
-    U, s, Vt = np.linalg.svd(cov)
+    _U, s, _Vt = np.linalg.svd(cov)
     total_var = np.sum(s)
     oracle_pc1_var = s[0] / total_var
     oracle_pc2_var = s[1] / total_var
@@ -527,7 +527,7 @@ def test_step11_rds_exhaustive_enumeration():
         for dim, keys in dimension_map.items():
             dim_total = 2 * len(keys)
             dim_score = sum(scores[k] for k in keys)
-            normalized = int(round(dim_score / dim_total * 2))
+            normalized = round(dim_score / dim_total * 2)
             breakdown[dim] = min(2, max(0, normalized))
         oracle_rds = sum(breakdown.values())
 

@@ -133,7 +133,7 @@ def test_step27_climate_ou_stationary_distribution():
     ou_std = math.sqrt(ou_var)
 
     # When — run climate simulation (validates service structure)
-    result = simulate_climate(
+    simulate_climate(
         mu=mu, theta=theta, sigma=sigma,
         seasonal_amplitude=seasonal_amplitude,
         n_paths=n_paths, n_steps=n_steps, seed=42,

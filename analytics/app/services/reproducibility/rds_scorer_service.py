@@ -62,7 +62,7 @@ def compute_rds(
     for dimension, keys in _DIMENSION_MAP.items():
         dim_total = 2 * len(keys)
         dim_score = sum(scores[k] for k in keys)
-        normalized = int(round(dim_score / dim_total * 2))
+        normalized = round(dim_score / dim_total * 2)
         breakdown[dimension] = min(2, max(0, normalized))
 
     total_rds = sum(breakdown.values())

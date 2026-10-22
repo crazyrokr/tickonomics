@@ -253,7 +253,7 @@ def test_step22_impulse_response_ci_proper():
     # and CI bounds should be ordered correctly for steps > 0
     for col in columns:
         for i in range(1, len(result["response_paths"][col])):
-            response = result["response_paths"][col][i]
+            result["response_paths"][col][i]
             ci_low = result["confidence_low"][col][i]
             ci_high = result["confidence_high"][col][i]
             assert ci_low < ci_high, (
@@ -306,11 +306,11 @@ def test_step23_quantile_regression_vs_linprog():
     bounds_lp = [(None, None)] * k + [(0, None)] * (2 * n)
     lp_res = optimize.linprog(c_lp, A_eq=A_eq, b_eq=b_eq, bounds=bounds_lp,
                               method="highs")
-    oracle_intercept = lp_res.x[0]
+    lp_res.x[0]
     oracle_slope = lp_res.x[1]
 
     # Then — 10% relative tolerance on slope
-    svc_intercept = result["coefficients"][0][0]
+    result["coefficients"][0][0]
     svc_slope = result["coefficients"][0][1]
     assert svc_slope == pytest.approx(oracle_slope, rel=0.10)
 
@@ -379,7 +379,7 @@ def test_step24_transfer_entropy_bidirectional():
 def test_step25_volatility_forecast_reasonable():
     """Volatility forecast delegates to garch_forecast (B1 fixed)."""
     # Given — GARCH(1,1) data with known parameters
-    returns, sigma2_true = make_garch_data(omega=0.1, alpha=0.15, beta=0.80,
+    returns, _sigma2_true = make_garch_data(omega=0.1, alpha=0.15, beta=0.80,
                                             n=1000, seed=42)
     returns_list = returns.tolist()
 
