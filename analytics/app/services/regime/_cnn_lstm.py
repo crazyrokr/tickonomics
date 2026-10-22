@@ -7,6 +7,7 @@ or corrupt checkpoint surfaces a clear error instead of silently classifying wit
 """
 
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -17,6 +18,7 @@ LABELS = ("LOW_VOL", "NORMAL", "HIGH_VOL")
 INPUT_SIZE = 1
 HIDDEN_SIZE = 16
 NUM_CLASSES = len(LABELS)
+logger = logging.getLogger(__name__)
 
 
 class _CheckpointError(Exception):
@@ -69,8 +71,9 @@ def run_cnn_lstm_regime(returns: list[float], lookback: int, state_path: Path | 
     try:
         model = build_model()
         model.load_state_dict(load_state_dict(state_path))
-    except (_CheckpointError, RuntimeError) as exc:
-        return {"error": str(exc)}
+    except (_CheckpointError, RuntimeError):
+        logger.exception("Failed to initialize CNN-LSTM regime model")
+        return {"error": "Unable to load CNN-LSTM model state"}
     model.eval()
 
     last_window = torch.tensor(windows[-1], dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
