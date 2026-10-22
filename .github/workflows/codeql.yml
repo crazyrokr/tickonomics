@@ -40,7 +40,7 @@ jobs:
       matrix:
         language: [java-kotlin, python, javascript-typescript]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The Java build needs the project toolchain and a Gradle dependency
       # cache, so the matrix-wide job only pays for it in the java entry.

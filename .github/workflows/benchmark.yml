@@ -42,14 +42,14 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Checkout head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.refs.outputs.head }}
           path: head
 
       - name: Checkout base
         if: steps.refs.outputs.is_pr == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.refs.outputs.base }}
           path: base
