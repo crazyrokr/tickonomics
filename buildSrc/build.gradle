@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.apache.groovy:groovy:5.0.6'
+  implementation 'org.apache.groovy:groovy:6.0.0'
   testImplementation 'org.spockframework:spock-core:2.5-groovy-5.0'
   testImplementation gradleTestKit()
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
