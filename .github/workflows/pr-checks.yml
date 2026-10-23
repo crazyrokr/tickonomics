@@ -63,13 +63,15 @@ jobs:
       - name: Generate jacoco and aggregated coverage reports
         run: ./gradlew jacocoTestReport :test-coverage:testCodeCoverageReport -x test -x :integration-tests:test
 
+      # The PR number is the only metadata carried here: the default
+      # pull_request checkout is shallow, so a git diff against the base SHA
+      # fails ('Invalid symmetric difference expression'). Changed-file
+      # detection lives in coverage-report.yml, which uses the PR files API.
       - name: Save PR metadata
         if: always()
         run: |
           mkdir -p pr-metadata
           echo "${{ github.event.number }}" > pr-metadata/pr-number
-          git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
-            | grep '\.java$' > pr-metadata/changed-java.txt || true
 
       - uses: actions/upload-artifact@v7
         if: always()
