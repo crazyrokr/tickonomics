@@ -1,8 +1,12 @@
 """Econometrics service: ADF unit root test, Granger causality, OLS regression."""
 
 
+import logging
+
 import numpy as np
 from scipy import stats
+
+logger = logging.getLogger(__name__)
 
 
 def adf_test(series: list[float], max_lags: int | None = None) -> dict:
@@ -41,8 +45,8 @@ def adf_test(series: list[float], max_lags: int | None = None) -> dict:
             if aic < best_aic:
                 best_aic = aic
                 best_lag = lags
-        except Exception:
-            continue
+        except np.linalg.LinAlgError as err:
+            logger.debug("ADF AIC search: skipping lag %d (%s)", lags, err)
 
     y_dep = diff[best_lag:]
     n_eff = len(y_dep)
@@ -96,8 +100,8 @@ def granger_causality(x: list[float], y: list[float], max_lags: int = 10) -> dic
             if aic < best_aic:
                 best_aic = aic
                 best_lag = lag
-        except Exception:
-            continue
+        except np.linalg.LinAlgError as err:
+            logger.debug("Granger AIC search: skipping lag %d (%s)", lag, err)
 
     restricted = _granger_restricted(y_arr, best_lag)
     unrestricted = _granger_unrestricted(y_arr, x_arr, best_lag)

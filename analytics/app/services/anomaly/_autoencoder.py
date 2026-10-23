@@ -91,7 +91,7 @@ def detect(
         state_dict = {
             key: torch.tensor(value, dtype=torch.float32) for key, value in parsed.items()
         }
-    except Exception:
+    except (TypeError, ValueError):
         return {"error": "Invalid model state"}
 
     keys = list(state_dict.keys())
