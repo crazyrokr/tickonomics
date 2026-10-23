@@ -1,4 +1,15 @@
 import "@testing-library/jest-dom/vitest";
+import { webcrypto } from "node:crypto";
+
+// The jsdom window crypto in vmThreads contexts lacks WebCrypto's `subtle`;
+// patch it in place with node's webcrypto so app code can digest.
+if (!globalThis.crypto?.subtle) {
+  Object.defineProperty(globalThis.crypto, "subtle", {
+    value: webcrypto.subtle,
+    configurable: true,
+    writable: true,
+  });
+}
 
 class MockIntersectionObserver {
   readonly root: Element | null = null;
