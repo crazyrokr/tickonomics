@@ -151,6 +151,60 @@ def assert_deploy_production_contract(data: dict) -> None:
         fail("deploy-production.yml has no job with environment: production")
 
 
+TALIB_CACHE_WORKFLOWS = (
+    "pr-checks.yml",
+    "integration-tests.yml",
+    "chaos-benchmark.yml",
+    "codeql.yml",
+    "deploy-production.yml",
+)
+TALIB_CACHE_KEY_PREFIXES = (
+    "talib-native-x86_64-",
+    "talib-native-aarch64-",
+    "talib-wrapper-",
+)
+
+
+def assert_single_cache_saver(key_prefix: str) -> None:
+    """GIVEN the PR-gate workflows share a cache key prefix WHEN their
+    actions/cache steps are scanned THEN exactly one job saves that key. A
+    second concurrent saver loses the post-step reservation and logs
+    'Failed to save: Unable to reserve cache ... another job may be creating
+    this cache'; the other consumers must restore-only via
+    actions/cache/restore@v6, which has no post step and cannot conflict."""
+    savers: list[str] = []
+    for name in TALIB_CACHE_WORKFLOWS:
+        for job_name, job in jobs_of(load(name)).items():
+            for step in steps_of(job):
+                uses = str(step.get("uses", ""))
+                key = str((step.get("with") or {}).get("key", ""))
+                if not key.startswith(key_prefix):
+                    continue
+                if "actions/cache/restore" in uses:
+                    continue
+                if "actions/cache@v" in uses:
+                    savers.append(f"{name}:{job_name}")
+    if len(savers) != 1:
+        fail(f"cache key prefix '{key_prefix}' must be saved by exactly one job "
+             f"(the rest use actions/cache/restore@v6), found savers: {savers or 'none'}")
+
+
+def assert_ruff_lint_required(data: dict) -> None:
+    """GIVEN pr-checks.yml WHEN the Python job's ruff step is scanned THEN it
+    runs without continue-on-error, so ruff findings fail the PR gate (ADR-016
+    addendum 2026-10-23: lint promoted from advisory to required)."""
+    python_job = jobs_of(data).get("python-test", {})
+    found = False
+    for step in steps_of(python_job):
+        if "ruff check" in str(step.get("run", "")):
+            found = True
+            if step.get("continue-on-error"):
+                fail("pr-checks.yml ruff lint step is continue-on-error; it must be a required gate")
+            break
+    if not found:
+        fail("pr-checks.yml python-test job has no 'ruff check' lint step")
+
+
 def assert_pr_checks_contract(data: dict) -> None:
     """GIVEN pr-checks.yml WHEN parsed THEN code-quality job + OTel agent step present."""
     jobs = jobs_of(data)
@@ -265,7 +319,10 @@ def main() -> int:
     assert_deploy_staging_contract(load("deploy-staging.yml"))
     assert_deploy_production_contract(load("deploy-production.yml"))
     assert_pr_checks_contract(load("pr-checks.yml"))
+    assert_ruff_lint_required(load("pr-checks.yml"))
     assert_pr_checks_runs_on_all_pull_requests(load("pr-checks.yml"))
+    for key_prefix in TALIB_CACHE_KEY_PREFIXES:
+        assert_single_cache_saver(key_prefix)
     assert_benchmark_workflow(load("benchmark.yml"))
     assert_codeql_workflow(load("codeql.yml"))
     assert_chaos_benchmark_real()

@@ -23,7 +23,7 @@ def fit_yield_curve(maturities: list[float], yields: list[float]) -> dict:
             "tau": float(popt[3]),
             "covariance_trace": float(np.trace(pcov)),
         }
-    except Exception as e:
+    except (RuntimeError, ValueError, TypeError) as e:
         return {"status": "FAIL", "error": str(e)}
 
 

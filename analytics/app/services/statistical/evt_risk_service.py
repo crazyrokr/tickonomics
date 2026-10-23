@@ -22,7 +22,7 @@ class EvtRiskService:
 
         try:
             xi, _, beta = genpareto.fit(exceedances)
-        except Exception as e:
+        except (ValueError, RuntimeError) as e:
             logger.error("GPD fit failed: %s", e)
             return {"status": "FIT_FAILURE", "message": str(e)}
 

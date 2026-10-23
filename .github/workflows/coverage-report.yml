@@ -18,6 +18,11 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     steps:
+      # Required: `gh run download <run-id>` resolves the repository from the
+      # checkout — without it the call dies with 'fatal: not a git repository'
+      # and every downstream step sees no metadata.
+      - uses: actions/checkout@v7
+
       - name: Download PR metadata
         env:
           GH_TOKEN: ${{ github.token }}
@@ -46,17 +51,24 @@ jobs:
           echo "valid=true" >> "$GITHUB_OUTPUT"
           echo "pr-number=$PR_NUM" >> "$GITHUB_OUTPUT"
 
+      # Changed files come from the PR files API, not a git diff: the PR
+      # checkout in pr-checks is shallow, so base...head diffs are invalid.
       - name: Check if Java files changed
         id: java-check
         if: steps.validate.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ ! -s pr-metadata/changed-java.txt ]; then
+          PR_NUM=${{ steps.validate.outputs.pr-number }}
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUM}/files" --paginate \
+            --jq '.[].filename' | grep '\.java$' > changed-java.txt || true
+          if [ ! -s changed-java.txt ]; then
             echo "No Java files changed — exiting"
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "Java files changed:"
-          cat pr-metadata/changed-java.txt
+          cat changed-java.txt
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Download test and coverage artifacts
@@ -81,7 +93,7 @@ jobs:
             exit 0
           fi
 
-          CHANGED=$(cat pr-metadata/changed-java.txt | xargs -I{} basename {} | sort -u)
+          CHANGED=$(xargs -a changed-java.txt -I{} basename {} | sort -u)
           COVERED=$(grep -oP '<sourcefile name="\K[^"]*' "$AGGREGATED" | sort -u || true)
           OVERLAP=$(comm -12 <(echo "$CHANGED") <(echo "$COVERED") | head -1)
           if [ -n "$OVERLAP" ]; then

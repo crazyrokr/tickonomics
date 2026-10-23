@@ -826,7 +826,7 @@ def test_step18_granger_causal_direction():
         else:
             closest_lag = min(gc_result.keys())
             oracle_f = gc_result[closest_lag][0]["ssr_ftest"][0]
-    except Exception:
+    except (KeyError, IndexError, ValueError, RuntimeError):
         oracle_f = None
 
     # Then — x should Granger-cause y

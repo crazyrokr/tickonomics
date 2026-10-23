@@ -30,8 +30,8 @@ def compute_impulse_response(columns: list[str], data: list[list[float]], steps:
                 boot_res = boot_model.fit(maxiter=200, disp=False)
                 boot_irf = boot_res.impulse_responses(steps=steps, impulse=0)
                 boot_irfs.append(boot_irf)
-            except Exception:
-                continue
+            except Exception as err:  # noqa: BLE001 -- a bootstrap resample can fail in many ways; skip it
+                logger.debug("Skipping bootstrap resample: %s", err)
 
         response_paths = {}
         confidence_high = {}
@@ -54,6 +54,6 @@ def compute_impulse_response(columns: list[str], data: list[list[float]], steps:
             "confidence_low": confidence_low,
             "shock_std_dev": 1.0,
         }
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 -- function boundary: any VARMAX fit failure degrades to an error dict
         logger.error("SVAR fit failed: %s", e)
         return {"error": str(e)}

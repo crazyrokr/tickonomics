@@ -136,3 +136,13 @@ for this configuration and is run as the primary verification step.
   (`com.github.spotbugs:com.github.spotbugs.gradle.plugin:6.5.6`) was verified against the
   upstream GitHub releases API, and CI (with normal network) resolves it. The build script
   was confirmed to parse (it reached plugin resolution, not a syntax error).
+
+## Addendum (2026-10-23): ruff promoted from advisory to required
+
+The `pr-checks` Python job's `Lint (ruff, advisory)` step ran with `continue-on-error: true`,
+so ruff findings could never block a PR. It is now `Lint (ruff, required)`: no
+`continue-on-error`, pinned to `ruff==0.17.1` (the version whose default rule set the
+analytics code is clean under), and the step fails the job — and thus the PR — on any
+finding. Checkstyle/SpotBugs (Java) and Lighthouse (frontend) remain advisory as decided
+above; only the Python lint gate is now blocking. `scripts/validate-cicd.py` asserts the
+step exists and carries no `continue-on-error`, so the promotion cannot silently revert.

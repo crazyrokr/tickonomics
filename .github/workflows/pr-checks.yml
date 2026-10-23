@@ -34,6 +34,9 @@ jobs:
 
       # The FFM wrapper jar is pure Java (arch-neutral), so both Java jobs
       # share one cache key; only the native .so build is per-arch.
+      # java-build-test is the single saver of both keys: a second concurrent
+      # saver loses the post-step reservation and logs 'Failed to save:
+      # Unable to reserve cache ...', so the other jobs restore-only.
       - uses: actions/cache@v6
         id: talib-wrapper-cache
         with:
@@ -60,13 +63,15 @@ jobs:
       - name: Generate jacoco and aggregated coverage reports
         run: ./gradlew jacocoTestReport :test-coverage:testCodeCoverageReport -x test -x :integration-tests:test
 
+      # The PR number is the only metadata carried here: the default
+      # pull_request checkout is shallow, so a git diff against the base SHA
+      # fails ('Invalid symmetric difference expression'). Changed-file
+      # detection lives in coverage-report.yml, which uses the PR files API.
       - name: Save PR metadata
         if: always()
         run: |
           mkdir -p pr-metadata
           echo "${{ github.event.number }}" > pr-metadata/pr-number
-          git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
-            | grep '\.java$' > pr-metadata/changed-java.txt || true
 
       - uses: actions/upload-artifact@v7
         if: always()
@@ -107,7 +112,10 @@ jobs:
           path: native-libs
           key: talib-native-aarch64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      # Restore-only: the x86 java-build-test job is the single saver of the
+      # shared wrapper key (the .so above is per-arch, so this job saves that
+      # key as usual under its own talib-native-aarch64-* entry).
+      - uses: actions/cache/restore@v6
         id: talib-wrapper-cache-arm
         with:
           path: ~/.m2/repository/com/tictactec
@@ -158,10 +166,11 @@ jobs:
       - name: Put venv on PATH
         run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
-      - name: Lint (ruff, advisory)
-        continue-on-error: true
+      # Required gate: ruff findings fail the PR. Pinned to the version whose
+      # default rule set the analytics code is clean under.
+      - name: Lint (ruff, required)
         run: |
-          pip install ruff
+          pip install ruff==0.17.1
           ruff check analytics/
 
       - name: Run pytest
@@ -241,14 +250,16 @@ jobs:
           cache-read-only: false
 
       # The FFM wrapper jar resolves from mavenLocal, which the ~/.gradle cache
-      # above does not cover — same pattern as java-build-test.
-      - uses: actions/cache@v6
+      # above does not cover — same pattern as java-build-test. Restore-only
+      # (no post-step save): java-build-test is the single saver of both keys,
+      # so a save here would race with it ('Unable to reserve cache').
+      - uses: actions/cache/restore@v6
         id: talib-native-cache
         with:
           path: native-libs
           key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
         id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec

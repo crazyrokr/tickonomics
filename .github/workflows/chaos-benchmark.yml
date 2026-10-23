@@ -43,22 +43,26 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - uses: actions/cache@v6
+      # Shares pr-checks' TA-Lib cache entries: same runner arch and the same
+      # pinned wrapper artifact. The old per-workflow keys (talib-jna-*, and
+      # talib-native-<hash of a gitignored VERSION file> which degenerated to
+      # an empty hash) never resolved the mavenLocal wrapper JAR. Restore-only:
+      # pr-checks' java-build-test is the single saver of both keys.
+      - uses: actions/cache/restore@v6
         id: talib-native-cache
         with:
           path: native-libs
-          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
+        id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec
-          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
 
-      - name: Build TA-Lib native
-        if: steps.talib-native-cache.outputs.cache-hit != 'true'
-        run: |
-          ./gradlew :computation:cloneTalibNative --no-daemon
-          ./gradlew :computation:buildTalibNative --no-daemon
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: steps.talib-native-cache.outputs.cache-hit != 'true' || steps.talib-wrapper-cache.outputs.cache-hit != 'true'
+        run: ./gradlew :computation:setupTalib --no-daemon
 
       - name: Run all tests including integration
         env:
