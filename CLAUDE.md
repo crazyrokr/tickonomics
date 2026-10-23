@@ -53,7 +53,7 @@ pip install -r requirements.txt
 python -m pytest tests -m "not benchmark"           # unit tests (CI gate)
 python -m pytest tests -m benchmark                  # benchmark suite (separate; runs in benchmark.yml)
 python -m pytest tests/path/test_file.py::test_name  # single test
-ruff check .                                          # advisory lint (CI: continue-on-error)
+ruff check .                                          # required lint (CI gate — fails the PR on findings)
 ```
 
 ### Frontend (`frontend/` dashboard, `landing/` marketing page — both Next.js 16 / React 19)
@@ -205,9 +205,11 @@ its raw shape to CDM at the edge. To add a source:
 - **Two test styles coexist.** Spock/Groovy specs (`*Spec.groovy`, ~67 files) and JUnit 5 tests
   (`*Test.java`, ~94 files). Both run under JUnit Platform. All tests use **Given-When-Then** structure.
   `web` integration tests use Spock-Spring.
-- **Static analysis is advisory.** Checkstyle and SpotBugs run with `ignoreFailures = true`; ruff and
-  Lighthouse run with `continue-on-error`. They surface reports, never fail builds. The `./gradlew lint`
-  task aggregates Checkstyle + SpotBugs across modules.
+- **Static analysis: mixed posture.** Checkstyle, SpotBugs (Java, `ignoreFailures = true`), and
+  Lighthouse (frontend, `continue-on-error`) are advisory — they surface reports and never fail the
+  build. **ruff (analytics Python) is required:** the `pr-checks` `Lint (ruff, required)` step runs
+  with no `continue-on-error`, so any ruff finding fails the PR gate. Keep `analytics/` ruff-clean.
+  The `./gradlew lint` task aggregates Checkstyle + SpotBugs across modules.
 - **Records for DTOs/entities.** Domain types in `cdm` and persistence entities are Java `record`s.
 - **Gradle configuration-cache is on** (`org.gradle.configuration-cache=true`). Custom tasks in
   `build.gradle` must not touch `project`/`rootProject` at execution time — capture values at
