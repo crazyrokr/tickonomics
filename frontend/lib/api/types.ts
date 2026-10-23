@@ -855,6 +855,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/perspex/mismatches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Current perspective-mismatch signals (prediction-market vs OSINT news divergence).
+         * @description On-demand deterministic divergence between market-implied probability and news-tone-derived probability. Real-time delivery is the /ws/signals WebSocket; this endpoint is for ad-hoc inspection (ADR-037).
+         */
+        get: operations["getPerspexMismatches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2456,6 +2476,54 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["IntersubjectivePath"];
                 };
+            };
+        };
+    };
+    getPerspexMismatches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deterministic perspective-mismatch verdicts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        mismatches?: {
+                            market_id?: string;
+                            question?: string;
+                            tickers?: string[];
+                            /** Format: double */
+                            market_probability?: number;
+                            /** Format: double */
+                            news_probability?: number;
+                            /** Format: double */
+                            divergence?: number;
+                            /** @enum {string} */
+                            direction?: "bullish" | "bearish";
+                            /** Format: double */
+                            confidence?: number;
+                        }[];
+                        evaluated_markets?: number;
+                        skipped_thin?: number;
+                        skipped_no_ticker?: number;
+                        skipped_no_news?: number;
+                        skipped_aligned?: number;
+                    };
+                };
+            };
+            /** @description Analytics worker unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
