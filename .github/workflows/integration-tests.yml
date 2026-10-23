@@ -53,15 +53,18 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
         id: talib-native-cache
         with:
           path: native-libs
           key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
       # Shares pr-checks' cache entries: the runner is x86_64 and the wrapper
-      # jar is pure Java, so both keys are identical there.
-      - uses: actions/cache@v6
+      # jar is pure Java, so both keys are identical there. Restore-only
+      # (no save): pr-checks' java-build-test is the single saver of both keys
+      # and runs on the same pull_request event — a save here would race
+      # across the two workflows.
+      - uses: actions/cache/restore@v6
         id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec

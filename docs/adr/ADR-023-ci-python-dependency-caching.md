@@ -127,3 +127,25 @@ by all four jobs that need it) plus the `setupTalib` step on a miss, mirroring
 `java-build-test`. The other three workflows using the artifact
 (`chaos-benchmark`, `integration-tests`, `deploy-production`) already had the pattern;
 the gap was unique to `code-quality`.
+
+## Addendum (2026-10-23): single saver per TA-Lib cache key
+
+The shared keys above were each saved by every job that used them: on a fresh
+key (a `computation/build.gradle` change, or an expired entry) the concurrent
+restores all missed, and every job's `actions/cache@v6` post step raced to save
+the same entry — three jobs on `talib-native-x86_64-*` (`pr-checks`
+`java-build-test` + `code-quality`, `integration-tests` `integration-test`) and
+four on `talib-wrapper-*` (those three plus `java-build-test-arm64`). Only the
+first reservation wins; the losers log `Failed to save: Unable to reserve cache
+... another job may be creating this cache` in the post step (non-fatal, but
+noisy, and each loser had already re-run `:computation:setupTalib` locally).
+
+Each key now has exactly one saver. `java-build-test` saves
+`talib-native-x86_64-*` and `talib-wrapper-*`; `java-build-test-arm64` saves
+the per-arch `talib-native-aarch64-*`; every other consumer (`code-quality`,
+`integration-test`, and the arm job's wrapper entry) switched to
+`actions/cache/restore@v6`, which has no post step and therefore cannot lose a
+reservation. A restore-only job that misses simply runs `setupTalib` itself
+under the existing `cache-hit != 'true'` guard — same cost profile as before,
+minus the save race. `scripts/validate-cicd.py` now asserts exactly one saver
+per key across the two workflows, so the conflict cannot silently return.

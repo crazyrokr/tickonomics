@@ -34,6 +34,9 @@ jobs:
 
       # The FFM wrapper jar is pure Java (arch-neutral), so both Java jobs
       # share one cache key; only the native .so build is per-arch.
+      # java-build-test is the single saver of both keys: a second concurrent
+      # saver loses the post-step reservation and logs 'Failed to save:
+      # Unable to reserve cache ...', so the other jobs restore-only.
       - uses: actions/cache@v6
         id: talib-wrapper-cache
         with:
@@ -107,7 +110,10 @@ jobs:
           path: native-libs
           key: talib-native-aarch64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      # Restore-only: the x86 java-build-test job is the single saver of the
+      # shared wrapper key (the .so above is per-arch, so this job saves that
+      # key as usual under its own talib-native-aarch64-* entry).
+      - uses: actions/cache/restore@v6
         id: talib-wrapper-cache-arm
         with:
           path: ~/.m2/repository/com/tictactec
@@ -241,14 +247,16 @@ jobs:
           cache-read-only: false
 
       # The FFM wrapper jar resolves from mavenLocal, which the ~/.gradle cache
-      # above does not cover — same pattern as java-build-test.
-      - uses: actions/cache@v6
+      # above does not cover — same pattern as java-build-test. Restore-only
+      # (no post-step save): java-build-test is the single saver of both keys,
+      # so a save here would race with it ('Unable to reserve cache').
+      - uses: actions/cache/restore@v6
         id: talib-native-cache
         with:
           path: native-libs
           key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
         id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec
