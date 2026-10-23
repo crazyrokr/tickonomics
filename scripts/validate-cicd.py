@@ -151,7 +151,13 @@ def assert_deploy_production_contract(data: dict) -> None:
         fail("deploy-production.yml has no job with environment: production")
 
 
-TALIB_CACHE_WORKFLOWS = ("pr-checks.yml", "integration-tests.yml")
+TALIB_CACHE_WORKFLOWS = (
+    "pr-checks.yml",
+    "integration-tests.yml",
+    "chaos-benchmark.yml",
+    "codeql.yml",
+    "deploy-production.yml",
+)
 TALIB_CACHE_KEY_PREFIXES = (
     "talib-native-x86_64-",
     "talib-native-aarch64-",

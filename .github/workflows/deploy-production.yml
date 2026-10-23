@@ -45,22 +45,26 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - uses: actions/cache@v6
+      # Same shared TA-Lib entries as chaos-benchmark: the old talib-jna-*/
+      # talib-native-<gitignored VERSION> keys never resolved the mavenLocal
+      # wrapper JAR, which the promotion-gate build needs on its classpath.
+      # Restore-only: pr-checks' java-build-test is the single saver of both
+      # keys (this workflow is manual, so a save could also race a PR run).
+      - uses: actions/cache/restore@v6
         id: talib-native-cache
         with:
           path: native-libs
-          key: talib-native-${{ hashFiles('native-libs/ta-lib/VERSION') }}
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
 
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
+        id: talib-wrapper-cache
         with:
           path: ~/.m2/repository/com/tictactec
-          key: talib-jna-${{ hashFiles('computation/build.gradle') }}
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
 
-      - name: Build TA-Lib native
-        if: steps.talib-native-cache.outputs.cache-hit != 'true'
-        run: |
-          ./gradlew :computation:cloneTalibNative --no-daemon
-          ./gradlew :computation:buildTalibNative --no-daemon
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: steps.talib-native-cache.outputs.cache-hit != 'true' || steps.talib-wrapper-cache.outputs.cache-hit != 'true'
+        run: ./gradlew :computation:setupTalib --no-daemon
 
       - name: Build & Test (promotion gate)
         run: ./gradlew build -x :integration-tests:test --no-daemon

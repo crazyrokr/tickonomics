@@ -1,4 +1,4 @@
-name: CodeQL
+name: CodeQL Weekly
 
 on:
   push:
@@ -54,6 +54,28 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: false
+
+      # mavenLocal gap: :computation:compileClasspath resolves the TA-Lib FFM
+      # wrapper from ~/.m2, which the setup-gradle cache above does not cover
+      # (autobuild then fails to store the configuration cache). Restore-only:
+      # pr-checks' java-build-test is the single saver of both keys.
+      - if: matrix.language == 'java-kotlin'
+        uses: actions/cache/restore@v6
+        id: talib-native-cache
+        with:
+          path: native-libs
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
+
+      - if: matrix.language == 'java-kotlin'
+        uses: actions/cache/restore@v6
+        id: talib-wrapper-cache
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
+
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: matrix.language == 'java-kotlin' && (steps.talib-native-cache.outputs.cache-hit != 'true' || steps.talib-wrapper-cache.outputs.cache-hit != 'true')
+        run: ./gradlew :computation:setupTalib --no-daemon
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4

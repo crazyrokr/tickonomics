@@ -148,4 +148,18 @@ the per-arch `talib-native-aarch64-*`; every other consumer (`code-quality`,
 reservation. A restore-only job that misses simply runs `setupTalib` itself
 under the existing `cache-hit != 'true'` guard — same cost profile as before,
 minus the save race. `scripts/validate-cicd.py` now asserts exactly one saver
-per key across the two workflows, so the conflict cannot silently return.
+per key across the five workflows carrying those keys, so the conflict cannot
+silently return.
+
+**Scope widened the same day.** `chaos-benchmark`, `deploy-production`, and
+`codeql` joined the shared keys. The first two carried legacy entries —
+`talib-jna-*` (a JNA-era name) and `talib-native-${hash of a gitignored
+VERSION file}`, which degenerated to an empty hash and never hit — and their
+"build native" step never installed the FFM wrapper JAR into `~/.m2`, so their
+Gradle builds could not resolve `com.tictactec.ta.lib:ta-lib-wrapper` on the
+compile classpath: CodeQL `autobuild` failed storing the configuration cache,
+and the chaos/promotion builds hit the same wall. All three now restore the
+shared `talib-native-x86_64-*` / `talib-wrapper-*` entries via
+`actions/cache/restore@v6` (restore-only, per the single-saver rule) and run
+`:computation:setupTalib` when either restore misses. `codeql`'s workflow name
+became `CodeQL Weekly` to match its schedule-first cadence.
