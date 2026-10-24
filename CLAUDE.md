@@ -228,6 +228,9 @@ its raw shape to CDM at the edge. To add a source:
   (`atlantis.yaml`). Terraform PRs use the `.github/PULL_REQUEST_TEMPLATE.md` checklist; run
   `terraform fmt -check -recursive`, `terraform validate`, and `tflint` (`.tflint.hcl`) before merging.
 - **Observability:** Micrometer + OTLP tracing to Jaeger; Prometheus metrics at `/actuator/prometheus`.
+  Gradle build scans publish to scans.gradle.com from CI runs (the `com.gradle.develocity` plugin in
+  `settings.gradle`). The plugin's default is to publish **every** build, so the config carries a
+  `publishing.onlyIf { CI == 'true' }` guard — local builds never upload.
 - **Runbooks** for incidents, data-source outages, the kill-switch / global safe-mode, and data management
   are in `docs/runbooks/`. Per-module verification reports are in `docs/reviews/`.
 
