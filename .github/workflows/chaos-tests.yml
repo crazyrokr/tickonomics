@@ -63,6 +63,26 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
+      # Shares pr-checks' TA-Lib cache entries (see chaos-benchmark): the
+      # bootJar build resolves the FFM wrapper JAR from mavenLocal, which
+      # the ~/.gradle cache above does not cover. Restore-only: pr-checks'
+      # java-build-test is the single saver of both keys.
+      - uses: actions/cache/restore@v6
+        id: talib-native-cache
+        with:
+          path: native-libs
+          key: talib-native-x86_64-${{ hashFiles('computation/build.gradle') }}
+
+      - uses: actions/cache/restore@v6
+        id: talib-wrapper-cache
+        with:
+          path: ~/.m2/repository/com/tictactec
+          key: talib-wrapper-${{ hashFiles('computation/build.gradle') }}
+
+      - name: Build & install TA-Lib (native + FFM jar)
+        if: steps.talib-native-cache.outputs.cache-hit != 'true' || steps.talib-wrapper-cache.outputs.cache-hit != 'true'
+        run: ./gradlew :computation:setupTalib --no-daemon
+
       - name: Build application
         run: ./gradlew :app:bootJar -x test --no-daemon
 
