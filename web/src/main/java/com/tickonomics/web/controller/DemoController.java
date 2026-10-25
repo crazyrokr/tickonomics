@@ -6,7 +6,6 @@ import com.tickonomics.computation.demo.SignalQualityAnalyzer;
 import com.tickonomics.computation.demo.SystemicResilienceMonitor;
 import com.tickonomics.computation.demo.VirtualPortfolio;
 import com.tickonomics.computation.leverage.LeverageSignaler;
-import com.tickonomics.persistence.entity.VirtualPortfolioPosition;
 import com.tickonomics.persistence.entity.VirtualPortfolioTrade;
 import com.tickonomics.persistence.repository.VirtualPortfolioTradeRepository;
 import com.tickonomics.web.config.AuthenticatedWrite;

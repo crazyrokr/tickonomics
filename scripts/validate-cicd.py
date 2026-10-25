@@ -155,6 +155,7 @@ TALIB_CACHE_WORKFLOWS = (
     "pr-checks.yml",
     "integration-tests.yml",
     "chaos-benchmark.yml",
+    "chaos-tests.yml",
     "codeql.yml",
     "deploy-production.yml",
 )

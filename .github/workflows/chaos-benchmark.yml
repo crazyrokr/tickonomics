@@ -140,6 +140,9 @@ jobs:
           path: analytics/.benchmarks
           key: benchmark-baseline-${{ runner.os }}
 
+      # continue-on-error (not `|| true`): a regression or collection failure
+      # stays visible as an orange step with its full log instead of vanishing
+      # and surfacing later only as an empty-artifact upload warning.
       - name: Run benchmark regression
         working-directory: analytics
         continue-on-error: true
@@ -154,7 +157,20 @@ jobs:
             --benchmark-only \
             --benchmark-storage=.benchmarks \
             --benchmark-autosave \
-            "${compare_args[@]}" || true
+            "${compare_args[@]}"
+
+      # Fails the job when no results were saved at all (a silent pytest
+      # failure upstream). A comparison *regression* still saves results, so
+      # a legitimate >10% slowdown keeps this step green.
+      - name: Check benchmark results saved
+        run: |
+          SAVED=$(find analytics/.benchmarks -name '*.json' 2>/dev/null)
+          if [ -z "$SAVED" ]; then
+            echo "::error::No benchmark results saved — see the 'Run benchmark regression' log above"
+            exit 1
+          fi
+          echo "Saved benchmark results:"
+          echo "$SAVED"
 
       - name: Upload benchmark results
         if: always()

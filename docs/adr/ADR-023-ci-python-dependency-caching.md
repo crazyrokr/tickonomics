@@ -151,8 +151,8 @@ minus the save race. `scripts/validate-cicd.py` now asserts exactly one saver
 per key across the five workflows carrying those keys, so the conflict cannot
 silently return.
 
-**Scope widened the same day.** `chaos-benchmark`, `deploy-production`, and
-`codeql` joined the shared keys. The first two carried legacy entries —
+**Scope widened the same day.** `chaos-benchmark`, `deploy-production`,
+`codeql`, and (2026-10-24) `chaos-tests` joined the shared keys. The first two carried legacy entries —
 `talib-jna-*` (a JNA-era name) and `talib-native-${hash of a gitignored
 VERSION file}`, which degenerated to an empty hash and never hit — and their
 "build native" step never installed the FFM wrapper JAR into `~/.m2`, so their
@@ -162,4 +162,37 @@ and the chaos/promotion builds hit the same wall. All three now restore the
 shared `talib-native-x86_64-*` / `talib-wrapper-*` entries via
 `actions/cache/restore@v6` (restore-only, per the single-saver rule) and run
 `:computation:setupTalib` when either restore misses. `codeql`'s workflow name
-became `CodeQL Weekly` to match its schedule-first cadence.
+became `CodeQL Weekly` to match its schedule-first cadence. `chaos-tests`
+(weekly chaos scenarios, manual dispatch) got the same entries when its
+`bootJar` build was found to need the wrapper on the classpath.
+
+## Addendum (2026-10-24): build cache and build-scan publication scope
+
+A published build scan (`zolxf3h3n6yqu`, local `clean build`, 3m36s, 203
+tasks) was audited via the scan's JSON sections. Findings and fixes:
+
+1. **Build cache enabled.** 89 tasks reported "Not cacheable: Caching not
+   enabled for build" — `org.gradle.caching` was never set. It is now on in
+   `gradle.properties`. No workflow change was needed: every CI Gradle job
+   already caches `~/.gradle/caches`, which contains `build-cache-1/`, so
+   repeated builds of unchanged modules now restore compile/SpotBugs/test
+   results instead of re-executing them (verified locally: 14/77 tasks
+   FROM-CACHE after clearing all `build/` outputs).
+2. **Container-based tests excluded from cache reads.** `:integration-tests:test`
+   runs against the mutable `timescale/timescaledb:latest-pg16` image tag,
+   which file-input-based cache keys cannot see; that task carries
+   `outputs.cacheIf { false }` so a cache hit can never replay results
+   against a different image. (Only module using Testcontainers.)
+3. **Build-scan publication restricted to CI.** `com.gradle.develocity`
+   4.6.1 publishes *every* build by default (empirically: a local
+   `gradlew help` uploaded a scan). `settings.gradle` now carries
+   `publishing.onlyIf { CI == 'true' }`, so only GitHub Actions / `act`
+   runs publish to scans.gradle.com; local work stays private.
+4. **Not actionable (third-party).** All 30 deprecations
+   (`Configuration.setVisible`, removal scheduled for Gradle 11) originate
+   from `com.github.spotbugs` 6.5.13 — the newest release on the plugin
+   portal; Arrow 19.0.0's `sun.misc.Unsafe` warning is likewise upstream.
+5. **Critical path (context, no change).** `:integration-tests:test` is
+   158s of the 216s wall time; SpotBugs tasks account for roughly 40% of
+   cumulative task time. The advisory `lint` aggregation stays opt-in, and
+   the PR gate keeps excluding the integration module as before.

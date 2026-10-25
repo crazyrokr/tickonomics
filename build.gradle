@@ -100,3 +100,13 @@ tasks.register('lint') {
   description = 'Aggregates advisory static analysis across all modules.'
   dependsOn subprojects.collect { it.tasks.named('lint') }
 }
+
+// The integration tests run against a mutable Docker image tag
+// (timescale/timescaledb:latest-pg16 in docker-compose.yml); the build cache
+// keys on file inputs only, so a cache hit could replay results against a
+// different image. Never restore that task's results from the build cache.
+project(':integration-tests') {
+  tasks.named('test') {
+    outputs.cacheIf { false }
+  }
+}

@@ -88,3 +88,25 @@ hard job failure, consistent with ADR-016's intent.
 - **Check in a baseline JSON and pin `--benchmark-compare=<file>`.** Would remove
   the cache dependency entirely but adds committed, churn-prone binary-ish JSON
   and a manual update step; disproportionate to an advisory gate. Deferred.
+
+## Addendum (2026-10-24): no silent no-op benchmark runs
+
+The `chaos-benchmark` benchmark job's run step ended in `|| true` (with
+`continue-on-error: true`), so a run in which `pytest --benchmark-autosave`
+saved nothing — any collection error, broken venv restore, zero collected
+benchmarks — surfaced only as the upload warning `No files were found with
+the provided path: analytics/.benchmarks/**` (confirmed: the
+`benchmark-results` artifact was absent from that run while
+`chaos-test-results` was present). Reproduction with the exact pinned venv
+(`pytest==9.1.1`, `pytest-benchmark==5.3.0`, the full `requirements.txt`)
+succeeds in both bootstrap and compare modes, and still autosaves on a
+comparison failure — so the mechanism is sound and the CI miss was a
+silent environmental failure the `|| true` had absorbed.
+
+The run step now keeps `continue-on-error: true` but drops `|| true`, so a
+failure shows as an orange step with its full log; a new
+`Check benchmark results saved` step then fails the job when no
+`analytics/.benchmarks/**/*.json` exists. A legitimate >10% regression
+still saves results (verified), so this changes nothing about the
+gate semantics of the bootstrap design above — it only makes an
+entirely empty run impossible to miss.
