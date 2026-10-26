@@ -134,23 +134,59 @@ jobs:
       - name: Put venv on PATH
         run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
+      # ubuntu-latest rotates across Azure VM families (Intel/AMD), so a
+      # hardware-agnostic key would restore a foreign-CPU baseline and compare
+      # this machine against it (the 2026-10-26 false regression; ADR-030
+      # update). Key the cache on the CPU model instead: a cache miss on new
+      # hardware simply bootstraps a fresh per-CPU baseline.
+      - name: Detect CPU model for baseline scoping
+        id: cpu
+        run: |
+          model=$(grep -m1 '^model name' /proc/cpuinfo | cut -d: -f2- | xargs)
+          echo "CPU model: ${model:-unknown}"
+          echo "id=$(echo "${model:-unknown}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/--*/-/g; s/^-//; s/-$//')" >> "$GITHUB_OUTPUT"
+
       - name: Restore benchmark baseline
         uses: actions/cache@v6
         with:
           path: analytics/.benchmarks
-          key: benchmark-baseline-${{ runner.os }}
+          key: benchmark-baseline-${{ runner.os }}-${{ steps.cpu.outputs.id }}
 
-      # continue-on-error (not `|| true`): a regression or collection failure
-      # stays visible as an orange step with its full log instead of vanishing
-      # and surfacing later only as an empty-artifact upload warning.
+      # Defense in depth: the hardware key scopes which baselines get *restored*;
+      # this check scopes which get *compared*. Re-read the restored baseline's
+      # own machine_info and skip the comparison whenever the CPUs differ, so a
+      # renamed model or cache anomaly can never produce a cross-CPU regression.
+      - name: Verify baseline matches this machine
+        id: baseline-match
+        run: |
+          latest=$(find analytics/.benchmarks -name '*.json' 2>/dev/null | sort | tail -n 1)
+          if [ -z "$latest" ]; then
+            echo "No saved baseline yet — this run bootstraps one for the current CPU."
+            echo "matches=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          saved_brand=$(python -c "import json, sys; print(json.load(open(sys.argv[1])).get('machine_info', {}).get('cpu', {}).get('brand_raw', ''))" "$latest")
+          current_brand=$(grep -m1 '^model name' /proc/cpuinfo | cut -d: -f2- | xargs)
+          echo "Baseline CPU: ${saved_brand:-unknown}; current CPU: ${current_brand:-unknown}"
+          if [ -n "$saved_brand" ] && [ "$saved_brand" = "$current_brand" ]; then
+            echo "matches=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "matches=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # No continue-on-error: with same-CPU-only comparison (see above) a
+      # detected >10% slowdown is a real signal and must fail the scheduled
+      # job. The upload below keeps `if: always()` so a failing run's results
+      # are still archived as the benchmark-results artifact.
       - name: Run benchmark regression
         working-directory: analytics
-        continue-on-error: true
         run: |
-          # --benchmark-compare-fail raises a hard error when no saved baseline exists,
-          # so only enable comparison once a baseline is present (first run bootstraps it).
+          # --benchmark-compare-fail raises a hard error when no saved baseline
+          # exists, so only enable comparison once a baseline is present (first
+          # run bootstraps it), and only when that baseline was recorded on this
+          # exact CPU (verified by the previous step).
           compare_args=()
-          if [ "$(find .benchmarks -name '*.json' 2>/dev/null | wc -l)" -gt 0 ]; then
+          if [ "${{ steps.baseline-match.outputs.matches }}" = "true" ]; then
             compare_args+=(--benchmark-compare --benchmark-compare-fail=mean:10%)
           fi
           python -m pytest tests \
@@ -160,8 +196,8 @@ jobs:
             "${compare_args[@]}"
 
       # Fails the job when no results were saved at all (a silent pytest
-      # failure upstream). A comparison *regression* still saves results, so
-      # a legitimate >10% slowdown keeps this step green.
+      # failure upstream). Skipped when the regression step already failed —
+      # the job is then red for the right reason.
       - name: Check benchmark results saved
         run: |
           SAVED=$(find analytics/.benchmarks -name '*.json' 2>/dev/null)
@@ -178,3 +214,7 @@ jobs:
         with:
           name: benchmark-results
           path: analytics/.benchmarks/**
+          # .benchmarks is a dot-directory: with the default (false) the action
+          # matches nothing and the artifact silently never uploads — the
+          # 2026-10-26 run logged "No files were found with the provided path".
+          include-hidden-files: true

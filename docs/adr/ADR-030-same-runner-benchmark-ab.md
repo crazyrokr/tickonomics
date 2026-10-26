@@ -168,3 +168,50 @@ without a spurious "no baseline" error.
   update step; still rejected here for the same reason, and because it would
   re-introduce a cross-runner comparison (the checked-in baseline was recorded on
   one specific CPU).
+
+## Update (2026-10-26): Scheduled-job false positive — per-CPU baselines
+
+The 2026-10-26 `chaos-benchmark.yml` scheduled run (the follow-up deferred above)
+re-hit the exact false positive: `test_fama_french_capm` mean 112.7 μs → 196.8 μs
+(1.75×, beyond the 10% gate) fired `--benchmark-compare-fail` in the
+*Performance Benchmarks* job. The compared baseline (`0001_…_20261023`) was
+recorded on an **Intel Xeon Platinum 8573C @ 2.3 GHz** runner; the run executed on
+an **AMD EPYC 7763 @ 3.24 GHz** runner (Zen 3 lacks AVX-512 — the same OpenBLAS
+SIMD gap as the original Genoa/Milan incident, with the clock difference now
+running the *other* way). `git log` shows **zero commits to `analytics/`** between
+the two runs, and the current run's IQR is 2.5× the baseline's with 265 outliers
+of 1414 rounds — a cross-hardware + shared-runner artifact, not a code
+regression. Two defects compounded the incident: (1) the
+`benchmark-baseline-${{ runner.os }}` key restored a foreign-CPU baseline, and
+(2) `upload-artifact`'s default `include-hidden-files: false` silently skipped
+the dot-directory `analytics/.benchmarks/**`, so the `benchmark-results`
+artifact never uploaded; the step's documented `continue-on-error` kept the job
+green, hiding the incident behind annotations.
+
+**Fix** (the deferred design, adapted): `chaos-benchmark.yml` now detects the
+runner's CPU model (`/proc/cpuinfo`) and keys the baseline cache on it —
+`benchmark-baseline-Linux-<sanitized model>` — so a rotated runner misses the
+cache and bootstraps a fresh per-CPU baseline instead of comparing
+cross-hardware. A second step re-reads the restored baseline's own
+`machine_info.cpu.brand_raw` and skips the comparison whenever it differs from
+the current machine (the hardware key scopes which baselines get *restored*; the
+check scopes which get *compared*), and the `Run benchmark regression` step
+drops its `continue-on-error`: a detected same-CPU >10% slowdown now **fails
+the job** (a real signal, no longer a cross-hardware artifact), while the
+results upload keeps `if: always()` plus the new
+`include-hidden-files: true` so a failing run is still archived as the
+`benchmark-results` artifact.
+
+Why the "machine-aware baseline cache key" — rejected above as the *PR-path*
+fix — is the right design **for the scheduled job**: it has no PR base to A/B
+(the reason same-runner A/B exists), and like-for-like-only comparison is a
+strict improvement over comparing across VM families. The PR path
+(`benchmark.yml`) is unchanged and stays advisory — its verdict is the in-place
+PR comment, per the Advisory-posture section above.
+
+Note for future hardening: GitHub-hosted runners cannot be pinned to a CPU —
+`runs-on` labels select a runner *class*, and the pool rotates VM families
+within it (no CPU-generation guarantee even for `*-large`, per the rejection
+above). A self-hosted runner pool is the only way to make the scheduled
+watchdog compare like-for-like unconditionally; until then the per-CPU key plus
+the `machine_info` check keep the gate honest on the hosted pool.
