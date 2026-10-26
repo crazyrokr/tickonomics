@@ -882,7 +882,7 @@ services:
 
   # --- Observability ---
   jaeger:
-    image: jaegertracing/all-in-one:1.64
+    image: jaegertracing/all-in-one:1.64.0
     ports:
       - "16686:16686"
       - "4317:4317"
