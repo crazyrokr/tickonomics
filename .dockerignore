@@ -14,7 +14,6 @@ native-libs/ta-lib-jna
 .env.*
 !.env.example
 docs
-integration-tests
 landing/out
 frontend/.next
 analytics/pkg
