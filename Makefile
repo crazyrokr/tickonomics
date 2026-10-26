@@ -30,7 +30,7 @@ workflow-run:
 # Full local workflow-verification pipeline (formerly the Gradle
 # verifyWorkflows task): lint + list graph + hook tests + gate guard +
 # gate-workflow dry-run. Prerequisites run in listed (serial) order.
-verify-workflows: workflow-lint workflow-list test-hooks test-gate workflow-dryrun
+verify-workflows: workflow-lint workflow-list test-hooks test-gate test-cicd-contract workflow-dryrun
 	@echo "verify-workflows: all checks passed"
 
 install-hooks:
@@ -47,3 +47,8 @@ test-hooks:
 # service containers in 0.2.89). See ADR-026 / ADR-027.
 test-gate:
 	scripts/test-gate-workflows.sh
+
+# Structural CI/CD contract (workflow shapes + docker-compose image pins must
+# exist on Docker Hub). Network lookups skip gracefully when offline.
+test-cicd-contract:
+	python3 scripts/validate-cicd.py
