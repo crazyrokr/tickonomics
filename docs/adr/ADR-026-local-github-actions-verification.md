@@ -37,6 +37,67 @@
 > actionlint path is unchanged; new Given-When-Then scenarios in
 > `scripts/test-pre-commit-hook.sh` cover the skip / block / allow cases.
 
+> **Update (2026-10-26):** `verify-workflows` gains a `test-cicd-contract`
+> stage running `scripts/validate-cicd.py`, which previously had no automated
+> invocation. The contract now also asserts that every `image:` pin in
+> `docker-compose*.yml` exists on Docker Hub (tag checked via the Hub API;
+> non-Hub registries and offline lookups skip gracefully, and unparseable
+> compose files are a contract failure because `docker compose` rejects them).
+> Motivating incident: `docker-compose.yml` pinned
+> `jaegertracing/all-in-one:1.64`, a tag upstream never published (full-semver
+> `1.64.0` instead), so `docker compose up` in the chaos-tests *Start services*
+> step died with `manifest unknown` and every scheduled run failed since
+> 2026-08-29. The same check caught `docker-compose.prod.yml` carrying an
+> unquoted `${VAR:?…}` default that is invalid YAML (fixed by quoting).
+>
+> **Update (2026-10-26, cont.):** Runtime verification of the chaos-tests
+> *Start services* step (a faithful local replay, including the containerized
+> `docker compose run backend` image build) exposed a second latent break:
+> `.dockerignore` excluded `integration-tests/`, while `settings.gradle`
+> unconditionally includes it — Gradle 9.x fails container configuration with
+> "Configuring project ':integration-tests' without an existing directory is
+> not allowed", so the backend image build (and thus the chaos workflow) could
+> never succeed in CI. The exclusion was removed (164K context), and the
+> contract now also asserts that no `settings.gradle` include is excluded from
+> the root Docker build context (`assert_docker_context_projects_exist`).
+>
+> **Update (2026-10-26, cont.):** Three more *Start services* / scenario defects were
+> fixed in `chaos-tests.yml` + `docker-compose.yml` and covered by new web tests:
+> (1) `docker-compose.yml` pinned `timescale/timescaledb:2.16.1-pg16`, which rejects
+> migration V39's `ALTER COLUMN ... TYPE` on a compression-enabled hypertable, so a fresh
+> database never finished Flyway and the backend never booted; it now uses
+> `latest-pg16` (all 42 migrations verified against 2.31.0-pg16), matching the pin used
+> by every other compose file and workflow in the repo. (2) `docker compose run` does not
+> publish service ports by default, so every scenario health check (`curl
+> localhost:8080/health`) was hitting a closed port; the backend now runs with
+> `--service-ports`. (3) Scenario 4 disconnected a bare `tickonomics-net`, but compose
+> creates the network as `<project>_tickonomics-net` - a silent no-op; it now goes
+> through `docker compose network disconnect/connect`. New tests:
+> `AuthDisabledOauth2StubsTest` (stub bean presence/absence per `security.auth-disabled`)
+> and `AuthDisabledStartupContextTest` (servlet web context with the OAuth2
+> auto-configurations active and a dead issuer still refreshes, stubs serving as the
+> repository/decoder beans). Note: Spring Boot 4.1.1's resourceserver decoder is lazy
+> (`SupplierJwtDecoder`), so the stubs are a defensive back-off, not a crash fix.
+>
+> **Update (2026-10-26, cont.):** (4) The backend booted fully (all 42 Flyway
+> migrations, Tomcat on 8080) and then exited ~10s in with code 1: the pre-existing
+> `AuthDisabledStartupCheck` (`ApplicationRunner`) aborts startup when
+> `security.auth-disabled=true` is active outside the local/dev/test profiles, and the
+> workflow set no profile at all. *Start services* now passes
+> `SPRING_PROFILES_ACTIVE=local` (no profile-conditional config exists, so this only
+> satisfies the guard). (5) Scenario 4's network fault now uses core `docker network
+> disconnect/connect` with the network name read from the container itself - `docker
+> compose network` does not exist in compose v5 (the local CLI) and the bare
+> `tickonomics-net` never matched the project-prefixed name. (6) Scenario 1's `tc`
+> injection now installs iproute2 via `apk` first (the timescaledb image is
+> Alpine-based); note the injection is a no-op unless the container has CAP_NET_ADMIN,
+> which the runner does not grant - the step degrades to a plain health check. (7)
+> Known limitation, not a break: scenario 3's load POSTs are rejected 403 by the
+> app's CSRF protection (verified: even one POST to an existing write endpoint is
+> 403), so the buffer-overflow fault is never exercised; the step's health assertions
+> still run. Fixing that is an app-level decision (e.g. CSRF policy for the
+> auth-disabled sandbox), out of scope here.
+
 ## Context
 
 Workflow changes have repeatedly broken CI after push — most recently `benchmark.yml`

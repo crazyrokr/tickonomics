@@ -91,9 +91,15 @@ jobs:
           docker compose -f docker-compose.yml up -d timescaledb jaeger
           sleep 10
 
-          # Start backend with auth disabled for chaos testing
-          docker compose run -d --name backend-chaos \
+          # Start backend with auth disabled for chaos testing. --service-ports is
+          # required: `compose run` does not publish the service's port mappings
+          # by default, and every scenario health check below curls localhost:8080.
+          # SPRING_PROFILES_ACTIVE=local is required: AuthDisabledStartupCheck
+          # aborts startup when security.auth-disabled=true is active outside the
+          # local/dev/test profiles.
+          docker compose run -d --service-ports --name backend-chaos \
             -e AUTH_DISABLED=true \
+            -e SPRING_PROFILES_ACTIVE=local \
             -e SPRING_DATASOURCE_URL=jdbc:postgresql://timescaledb:5432/tickonomics \
             -e SECURITY_AUTH_DISABLED=true \
             backend
@@ -105,9 +111,11 @@ jobs:
           echo "::group::TSDB Latency Injection"
           echo "Injecting 1000ms latency into TimescaleDB for 60 seconds..."
 
-          # Add network latency using tc (traffic control)
+          # Add network latency using tc (traffic control). The timescaledb
+          # image is Alpine-based (no apt-get), so install iproute2 via apk first.
           docker exec "$(docker ps -q -f name=timescaledb)" sh -c \
-            "apt-get update -qq && apt-get install -qq -y iproute2 > /dev/null 2>&1 && \
+            "apk add --no-cache -q iproute2 >/dev/null 2>&1 || \
+             (apt-get update -qq && apt-get install -qq -y iproute2) >/dev/null 2>&1; \
              tc qdisc add dev eth0 root netem delay 1000ms" || true
 
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
@@ -170,15 +178,21 @@ jobs:
           echo "::group::WebSocket Disconnect Simulation"
           echo "Simulating Finnhub WebSocket disconnect for 6 minutes..."
 
-          # Simulate disconnect by blocking outbound connections
-          docker network disconnect tickonomics-net "$(docker ps -q -f name=backend)" || true
+          # Simulate disconnect by blocking outbound connections. The container's
+          # network name carries a compose project prefix, so take it from the
+          # container itself and use core docker commands (compose v5 dropped the
+          # network subcommand; the runner's compose v2 has it, core docker has
+          # it everywhere).
+          BACKEND_CID=$(docker ps -q -f name=backend-chaos | head -1)
+          NET=$(docker inspect "$BACKEND_CID" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | awk '{print $1}')
+          docker network disconnect "$NET" "$BACKEND_CID" || true
           sleep 10
 
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
           echo "Backend health during WS disconnect: HTTP $HTTP_CODE"
           echo "Expected: REST fallback activates for market data"
 
-          docker network connect tickonomics-net "$(docker ps -q -f name=backend)" || true
+          docker network connect "$NET" "$BACKEND_CID" || true
           sleep 5
 
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")

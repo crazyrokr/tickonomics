@@ -12,7 +12,10 @@ Each assertion follows Given-When-Then and reports a human-readable failure.
 
 from __future__ import annotations
 
+import re
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import yaml
@@ -299,6 +302,104 @@ def assert_lighthouserc_exists() -> None:
         fail(f"MISSING Lighthouse config: {LIGHTHOUSE_RC.relative_to(REPO_ROOT)}")
 
 
+def compose_image_pins() -> dict[str, list[str]]:
+    """GIVEN docker-compose*.yml WHEN parsed THEN return {file: [image: pins]}."""
+    pins: dict[str, list[str]] = {}
+    for path in sorted(REPO_ROOT.glob("docker-compose*.yml")):
+        try:
+            data = yaml.safe_load(path.read_text()) or {}
+        except yaml.YAMLError as error:
+            fail(f"{path.name} is not parseable YAML ({error}) — docker compose rejects it")
+            continue
+        images: list[str] = []
+        for service in (data.get("services") or {}).values():
+            image = (service or {}).get("image")
+            if isinstance(image, str):
+                images.append(image)
+        pins[path.name] = images
+    return pins
+
+
+def docker_hub_tag_exists(image: str) -> bool | None:
+    """GIVEN a Docker Hub image:tag WHEN queried via the Hub API THEN True/False;
+    None when the lookup is not possible (non-Hub registry or no network)."""
+    name, _, tag = image.rpartition(":")
+    if not name:
+        name, tag = image, "latest"
+    first_component = name.split("/")[0]
+    if "." in first_component or first_component == "localhost":
+        return None
+    if "/" not in name:
+        name = f"library/{name}"
+    url = f"https://hub.docker.com/v2/repositories/{name}/tags/{tag}/"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            return response.status == 200
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            return False
+        return None  # 401/403/429/5xx: the lookup is inconclusive, skip
+    except Exception:
+        return None
+
+
+def _dockerignore_excludes(patterns: list[str], path: str) -> bool:
+    """GIVEN .dockerignore patterns WHEN matched against a project directory
+    THEN True when the last non-negated matching pattern excludes it."""
+    excluded = False
+    for line in patterns:
+        pattern = line.strip()
+        if not pattern or pattern.startswith("#"):
+            continue
+        negate = pattern.startswith("!")
+        if negate:
+            pattern = pattern[1:]
+        bare = pattern[3:] if pattern.startswith("**/") else pattern.rstrip("/")
+        matches = path == bare or (pattern.startswith("**/") and path.endswith(bare))
+        if matches:
+            excluded = not negate
+    return excluded
+
+
+def assert_docker_context_projects_exist() -> None:
+    """GIVEN settings.gradle's include list WHEN checked against .dockerignore
+    THEN no included project is excluded from the root Docker build context.
+    The root Dockerfile runs `COPY . .` (which honors .dockerignore) and then
+    `./gradlew` inside the container; Gradle 9.x fails configuration with
+    'Configuring project ... without an existing directory is not allowed' for
+    any included project missing from the context. That is what broke the
+    chaos-tests backend image build: `integration-tests` was excluded."""
+    settings = REPO_ROOT / "settings.gradle"
+    dockerignore = REPO_ROOT / ".dockerignore"
+    if not settings.exists() or not dockerignore.exists():
+        return
+    includes = sorted(set(re.findall(r"include\s+['\"]([^'\"]+)['\"]", settings.read_text())))
+    if not includes:
+        return
+    patterns = dockerignore.read_text().splitlines()
+    excluded = [p for p in includes if _dockerignore_excludes(patterns, p)]
+    if excluded:
+        fail(f"settings.gradle includes {excluded} but .dockerignore excludes them "
+             f"from the root Docker build context; the containerized ./gradlew "
+             f"build fails configuration (Gradle requires the directory to exist)")
+
+
+def assert_compose_images_exist() -> None:
+    """GIVEN docker-compose*.yml WHEN every image pin is checked against Docker Hub
+    THEN every pin resolves. A missing tag makes `docker compose up` die with
+    'manifest unknown' — the exact failure of the chaos-tests 'Start services'
+    step (jaegertracing/all-in-one:1.64 does not exist; upstream publishes
+    1.64.0). Non-Hub registries and offline lookups are skipped, not failed."""
+    for file_name, images in compose_image_pins().items():
+        for image in images:
+            status = docker_hub_tag_exists(image)
+            if status is None:
+                print(f"  skip (offline or non-Hub registry): {image}")
+                continue
+            if not status:
+                fail(f"{file_name} pins a non-existent Docker Hub image: {image}")
+
+
 def assert_no_secrets_in_if(name: str, data: dict) -> None:
     """GIVEN a workflow WHEN its if-expressions scanned THEN none reference the
     secrets context, which GitHub Actions forbids in `if` (job or step level).
@@ -328,6 +429,8 @@ def main() -> int:
     assert_codeql_workflow(load("codeql.yml"))
     assert_chaos_benchmark_real()
     assert_lighthouserc_exists()
+    assert_docker_context_projects_exist()
+    assert_compose_images_exist()
     for workflow in sorted(WORKFLOWS.glob("*.yml")):
         assert_no_secrets_in_if(workflow.name, load(workflow.name))
 

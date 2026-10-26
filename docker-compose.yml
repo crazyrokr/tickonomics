@@ -53,7 +53,9 @@ services:
       - tickonomics-net
 
   timescaledb:
-    image: timescale/timescaledb:2.16.1-pg16
+    # V39 alters a column type on a compression-enabled hypertable, which older
+    # builds reject; latest-pg16 (>= 2.31.0) applies all migrations cleanly.
+    image: timescale/timescaledb:latest-pg16
     environment:
       POSTGRES_DB: tickonomics
       POSTGRES_USER: tickonomics
@@ -69,7 +71,9 @@ services:
       - tickonomics-net
 
   jaeger:
-    image: jaegertracing/all-in-one:1.64
+    # Upstream publishes full-semver tags only (1.64.0, not 1.64 — a bare
+    # 1.64 pin fails `docker compose up` with 'manifest unknown').
+    image: jaegertracing/all-in-one:1.64.0
     ports:
       - "16686:16686"
       - "4317:4317"
