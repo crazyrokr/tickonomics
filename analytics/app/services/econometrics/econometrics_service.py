@@ -165,7 +165,7 @@ def ols_regression(y: list[float], x: list[list[float]]) -> dict:
 
 
 def _adf_pvalue(stat: float, n: int = 500) -> float:
-    from statsmodels.tsa.stattools import mackinnonp
+    from statsmodels.tsa.adfvalues import mackinnonp
     return float(mackinnonp(stat, regression="c", N=1, lags=None))
 
 

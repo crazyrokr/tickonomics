@@ -819,7 +819,7 @@ def test_step18_granger_causal_direction():
     from statsmodels.tsa.stattools import grangercausalitytests
     data_xy = np.column_stack([y_list, x_list])
     try:
-        gc_result = grangercausalitytests(data_xy, maxlag=result_xy["lags"], verbose=False)
+        gc_result = grangercausalitytests(data_xy, maxlag=result_xy["lags"])
         lag_key = result_xy["lags"]
         if lag_key in gc_result:
             oracle_f = gc_result[lag_key][0]["ssr_ftest"][0]

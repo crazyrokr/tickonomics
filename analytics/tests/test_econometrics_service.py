@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from app.services.econometrics.econometrics_service import (
     adf_test,
     granger_causality,
@@ -36,6 +37,26 @@ def test_adf_random_walk():
     result = adf_test(series)
     assert result["n_observations"] == 300
     assert isinstance(result["test_statistic"], float)
+
+
+def test_adf_pvalue_matches_adfvalues_oracle():
+    """Given the service ADF statistic, when p-valued against statsmodels.tsa.adfvalues, then p_value agrees.
+
+    mackinnonp lives in statsmodels.tsa.adfvalues; older statsmodels versions leaked
+    it into statsmodels.tsa.stattools, which statsmodels >= 0.15.0 no longer does.
+    """
+    from statsmodels.tsa.adfvalues import mackinnonp
+
+    # Given
+    rng = np.random.default_rng(11)
+    series = np.cumsum(rng.standard_normal(300)).tolist()
+
+    # When
+    result = adf_test(series)
+    oracle = float(mackinnonp(result["test_statistic"], regression="c", N=1))
+
+    # Then
+    assert result["p_value"] == pytest.approx(oracle, abs=1e-3)
 
 
 def test_granger_causal_series():
