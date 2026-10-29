@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
 from app.services.regime.regime_service import (
     cnn_lstm_regime,
     garch_regime,

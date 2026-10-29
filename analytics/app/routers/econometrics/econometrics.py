@@ -1,12 +1,13 @@
 """Econometrics router: ADF, Granger causality, OLS regression."""
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
 from app.services.econometrics.econometrics_service import (
     adf_test,
     granger_causality,
     ols_regression,
 )
-from fastapi import APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
 

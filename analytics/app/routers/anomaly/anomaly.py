@@ -1,8 +1,9 @@
 """Anomaly detection router: train autoencoder, detect anomalies."""
 
-from app.services.anomaly.anomaly_service import detect_anomalies, train_autoencoder
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from app.services.anomaly.anomaly_service import detect_anomalies, train_autoencoder
 
 router = APIRouter()
 

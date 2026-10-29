@@ -1,8 +1,9 @@
 """Drift-diffusion router: Ito process simulation and barrier hitting."""
 
-from app.services.drift.drift_service import barrier_hitting_probability, simulate_ito
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from app.services.drift.drift_service import barrier_hitting_probability, simulate_ito
 
 router = APIRouter()
 

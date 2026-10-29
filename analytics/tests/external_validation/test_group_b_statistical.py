@@ -6,6 +6,8 @@ that is deliberately different from the service implementation.
 
 import numpy as np
 import pytest
+from scipy import optimize, stats
+
 from app.services.ml.volatility_forecast_service import forecast_volatility
 from app.services.risk.risk_service import (
     conditional_var,
@@ -18,7 +20,6 @@ from app.services.statistical.quantile_regression_service import (
     calculate_quantile_bands,
 )
 from app.services.statistical.transfer_entropy_service import compute_transfer_entropy
-from scipy import optimize, stats
 
 from .conftest import TOL_MEDIUM, TOL_STATISTICAL, make_garch_data
 

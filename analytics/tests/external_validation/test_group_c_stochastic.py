@@ -9,12 +9,13 @@ from functools import partial
 
 import numpy as np
 import pytest
+from scipy import stats
+
 from app.services.backtest.robustness_service import robustness_scan
 from app.services.climate.climate_service import simulate_climate
 from app.services.drift.drift_service import barrier_hitting_probability
 from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
 from app.services.stops.markov_stop_service import calibrate_stops
-from scipy import stats
 
 
 # ---------------------------------------------------------------------------

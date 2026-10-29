@@ -9,6 +9,8 @@ from itertools import product
 
 import numpy as np
 import pytest
+from scipy import optimize
+
 from app.services.diagnostics.diagnostic_service import compute_diagnostics
 from app.services.econometrics.econometrics_service import (
     adf_test,
@@ -34,7 +36,6 @@ from app.services.performance.performance_service import (
 from app.services.reproducibility.rds_scorer_service import compute_rds
 from app.services.statistical.multiple_testing_service import apply_fdr_correction
 from app.services.statistical.yield_curve_service import fit_yield_curve
-from scipy import optimize
 
 from .conftest import (
     TOL_HIGH,

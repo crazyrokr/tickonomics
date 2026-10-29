@@ -1,13 +1,14 @@
 """Regime detection router: GARCH regime, CNN-LSTM hybrid, QED, RAHF."""
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
 from app.services.regime.regime_service import (
     cnn_lstm_regime,
     garch_regime,
     qed_regime,
     rahf_regime,
 )
-from fastapi import APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
 

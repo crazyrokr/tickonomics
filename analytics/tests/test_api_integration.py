@@ -7,8 +7,9 @@ at the HTTP level with valid and invalid payloads.
 
 import numpy as np
 import pytest
-from app.main import app
 from fastapi.testclient import TestClient
+
+from app.main import app
 
 
 @pytest.fixture

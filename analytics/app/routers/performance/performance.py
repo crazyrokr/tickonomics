@@ -1,12 +1,13 @@
 """Performance analytics router: Sharpe, Sortino, Fama-French."""
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
 from app.services.performance.performance_service import (
     fama_french_regression,
     sharpe_ratio,
     sortino_ratio,
 )
-from fastapi import APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
 

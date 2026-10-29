@@ -1,7 +1,8 @@
+from fastapi import APIRouter
+
 from app.models.requests import EvtFitRequest
 from app.models.responses import EvtFitResponse
 from app.services.statistical.evt_risk_service import EvtRiskService
-from fastapi import APIRouter
 
 router = APIRouter()
 _evt_service = EvtRiskService()

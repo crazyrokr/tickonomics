@@ -1,4 +1,5 @@
 import numpy as np
+
 from app.services.diagnostics.diagnostic_service import compute_diagnostics
 
 
