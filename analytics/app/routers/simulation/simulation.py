@@ -1,8 +1,9 @@
 """Simulation router: Sobol Monte Carlo and discrete monitoring correction."""
 
-from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
 
 router = APIRouter()
 

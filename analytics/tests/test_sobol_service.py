@@ -1,6 +1,6 @@
 import numpy as np
-from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
 
+from app.services.simulation.sobol_service import discrete_correction, sobol_simulate
 from tests.reference.formulas import bsm_put_price
 
 

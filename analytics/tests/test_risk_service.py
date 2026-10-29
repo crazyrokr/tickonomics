@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
+
 from app.services.risk.risk_service import (
     conditional_var,
     garch_forecast,
     value_at_risk,
 )
-
 from tests.reference.formulas import var_historical
 
 

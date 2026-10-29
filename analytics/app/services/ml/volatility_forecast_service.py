@@ -1,6 +1,7 @@
 """Volatility forecaster: multi-horizon GARCH-based forecast."""
 
 import numpy as np
+
 from app.services.risk.risk_service import garch_forecast
 
 

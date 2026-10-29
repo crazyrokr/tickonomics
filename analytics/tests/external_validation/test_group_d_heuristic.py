@@ -6,6 +6,7 @@ that is deliberately different from the service implementation.
 
 import numpy as np
 import pytest
+
 from app.services.anomaly.anomaly_service import detect_anomalies, train_autoencoder
 from app.services.benchmark.tournament_service import evaluate_tournament
 from app.services.explainability.shap_service import compute_feature_importance

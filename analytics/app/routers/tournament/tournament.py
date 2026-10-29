@@ -1,8 +1,9 @@
 """Benchmark tournament router: multi-model signal comparison."""
 
-from app.services.benchmark.tournament_service import evaluate_tournament
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from app.services.benchmark.tournament_service import evaluate_tournament
 
 router = APIRouter()
 

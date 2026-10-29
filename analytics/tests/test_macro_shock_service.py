@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from app.services.statistical.macro_shock_service import compute_impulse_response
 
 

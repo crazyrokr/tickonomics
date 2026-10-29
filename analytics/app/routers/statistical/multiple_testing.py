@@ -1,7 +1,8 @@
+from fastapi import APIRouter
+
 from app.models.requests import FdrCorrectionRequest
 from app.models.responses import FdrCorrectionResponse
 from app.services.statistical.multiple_testing_service import apply_fdr_correction
-from fastapi import APIRouter
 
 router = APIRouter()
 

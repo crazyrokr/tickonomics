@@ -1,10 +1,11 @@
+from fastapi import APIRouter
+
 from app.models.requests import YieldCurveFitRequest, YieldCurveInterpolateRequest
 from app.models.responses import YieldCurveFitResponse, YieldCurveInterpolateResponse
 from app.services.statistical.yield_curve_service import (
     fit_yield_curve,
     interpolate_yield_curve,
 )
-from fastapi import APIRouter
 
 router = APIRouter()
 

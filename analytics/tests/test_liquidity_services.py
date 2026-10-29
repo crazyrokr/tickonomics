@@ -1,8 +1,8 @@
 import numpy as np
+
 from app.services.liquidity.amihud_service import compute_amihud
 from app.services.liquidity.comovement_pca_service import compute_comovement_factor
 from app.services.liquidity.strategic_runs_service import detect_strategic_runs
-
 from tests.reference.formulas import amihud_exact
 
 

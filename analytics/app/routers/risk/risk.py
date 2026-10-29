@@ -1,12 +1,13 @@
 """Risk metrics router: VaR, CVaR, GARCH."""
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
 from app.services.risk.risk_service import (
     conditional_var,
     garch_forecast,
     value_at_risk,
 )
-from fastapi import APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
 

@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
 from app.services.anomaly.anomaly_service import detect_anomalies, train_autoencoder
 
 ANALYTICS_ROOT = Path(__file__).resolve().parents[1]

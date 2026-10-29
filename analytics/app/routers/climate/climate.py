@@ -1,8 +1,9 @@
 """Climate model router: stochastic liquidity simulation."""
 
-from app.services.climate.climate_service import simulate_climate
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from app.services.climate.climate_service import simulate_climate
 
 router = APIRouter()
 
