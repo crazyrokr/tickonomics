@@ -1,7 +1,7 @@
 fastapi==0.162.2
 uvicorn==0.54.0
 pydantic==2.14.3
-numpy==2.5.4
+numpy==2.5.5
 scipy==1.18.1
 statsmodels==0.15.0
 pyarrow==26.0.1
