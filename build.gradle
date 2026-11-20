@@ -44,7 +44,7 @@ subprojects {
     }
     dependencies {
       dependency 'org.apache.groovy:groovy:6.0.0'
-      dependency 'org.apache.commons:commons-lang3:3.21.0'
+      dependency 'org.apache.commons:commons-lang3:3.22.0'
     }
   }
 
