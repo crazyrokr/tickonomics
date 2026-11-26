@@ -38,7 +38,7 @@ subprojects {
 
   dependencyManagement {
     imports {
-      mavenBom "org.springframework.boot:spring-boot-dependencies:4.1.2"
+      mavenBom "org.springframework.boot:spring-boot-dependencies:4.2.0"
       mavenBom "org.testcontainers:testcontainers-bom:2.0.5"
       mavenBom "org.spockframework:spock-bom:2.5-groovy-6.0"
     }
