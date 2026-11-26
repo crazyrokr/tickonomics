@@ -1,6 +1,6 @@
 fastapi==0.163.1
 uvicorn==0.54.0
-pydantic==2.14.3
+pydantic==2.14.4
 numpy==2.5.5
 scipy==1.18.1
 statsmodels==0.15.0
