@@ -140,7 +140,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-restclient'
   implementation "com.tictactec.ta.lib:ta-lib-wrapper:${talibWrapperVersion}"
-  implementation 'org.apache.arrow:arrow-vector:19.0.0'
+  implementation 'org.apache.arrow:arrow-vector:20.0.0'
   implementation 'org.apache.arrow:arrow-memory-unsafe:19.0.0'
   implementation 'io.github.resilience4j:resilience4j-bulkhead:2.4.0'
   implementation 'io.github.resilience4j:resilience4j-spring-boot4:2.4.0'
